@@ -1,0 +1,22 @@
+def num_to_index(num,n):
+  """
+  Translate num, ranging from 
+  -(n-1)/2 through (n-1)/2
+  into an index from 0 to n-1
+
+  This is necessary to translate from a physical
+  Fourier mode number to an index in an array.
+  """
+  cutoff = (n-1)/2
+  return num+cutoff
+
+def index_to_num(i,n):
+  """
+  Translate i, ranging from 0 to n-1
+  into a number from -(n-1)/2 through (n-1)/2
+  
+  This is necessary to translate from an index to a physical
+  Fourier mode number.
+  """
+  cutoff = (n-1)/2
+  return i-cutoff
