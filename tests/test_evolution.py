@@ -11,17 +11,13 @@ def rabi_hf(n_comp,w,g,e1,e2):
 
 class TestBuildK(unittest.TestCase):
     def setUp(self):
-        self.dim = 2
-        self.a = -1.*np.ones([self.dim,self.dim])
-        self.b = np.zeros([self.dim,self.dim])
-        self.c = np.ones([self.dim,self.dim])
-        self.z = np.zeros([self.dim,self.dim])
+        dim = 2
+        a = -1.*np.ones([dim,dim])
+        b = np.zeros([dim,dim])
+        c = np.ones([dim,dim])
+        z = np.zeros([dim,dim])
 
-        a = self.a
-        b = self.b
-        c = self.c
-        z = self.z
-        i = np.identity(self.dim)
+        i = np.identity(dim)
 
         self.goalk = np.array(np.bmat([[b-2*i,a,z,z,z],[c,b-i,a,z,z],[z,c,b,a,z],[z,z,c,b+i,a],[z,z,z,c,b+2*i]]))
         self.hf = np.array([a,b,c])
