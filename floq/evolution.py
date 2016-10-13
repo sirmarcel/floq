@@ -1,6 +1,43 @@
 import numpy as np
 import floq.helpers as h
 import floq.blockmatrix as bm
+from IPython import embed
+
+class FloquetError(Exception):
+    pass
+
+def find_eigensystem(k,hf_dim,omega):
+    """
+    Find eigenvalues and eigenvectors for k,
+    identify the hf_dim unique ones
+    """
+    evas, eves = np.linalg.eig(k)
+    unique_evas = find_unique_evas(evas,hf_dim,omega)
+    indices_unique_evas = [np.where(evas==eva)[0][0] for eva in unique_evas]
+    unique_eves = [eves[i] for i in indices_unique_evas]
+
+    return [unique_evas,unique_eves]
+
+def find_unique_evas(evas,hf_dim,omega):
+    """
+    In the list of values supplied, find the set of hf_dim 
+    e_i that fulfil (e_i - e_j) mod omega != 0 for all i,j,
+    and that lie closest to 0.
+    """
+    mod_evas = np.mod(evas,omega)
+    mod_evas = mod_evas.round(decimals=10)
+
+    unique_evas = np.unique(mod_evas) 
+
+    # the unique_evas are ordered and >= 0, but we'd rather have them clustered around 0
+    should_be_negative = np.where(unique_evas>omega/2.)
+    unique_evas[should_be_negative] = (unique_evas[should_be_negative]-omega).round(10)
+
+    if unique_evas.shape[0] != hf_dim:
+        raise FloquetError("Number of unique eigenvalues of K is not hf_dim. Spectrum possibly degenerate?")
+    else:
+        return np.sort(unique_evas)
+
 
 def build_k(hf,n_zones,omega):
     """
