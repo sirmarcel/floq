@@ -6,6 +6,58 @@ from IPython import embed
 class FloquetError(Exception):
     pass
 
+def do_evolution(hf,n_zones,omega,t):
+    """
+    Calculate the time evolution operator U
+    given a Fourier transformed Hamiltonian Hf
+    """
+    pass
+
+def calculate_u(phi,psi,energies,dim,n_zones,omega,t):
+    """
+    Given phi and psi,
+    calculate U(t)
+    """
+    
+    u = np.zeros([dim,dim],dtype='complex128')
+
+    for k in xrange(0,dim):
+        u += np.exp(-1j*t*energies[k])*np.outer(psi[k],np.conj(phi[k]))
+
+    return u
+
+def calculate_psi(eves,dim,n_zones,omega,t):
+    """
+    For the eigenvectors indexed by k,
+    supplied in a split form,
+    find the sum weighted with the Fourier 
+    factors exp(- i num omega t)
+    """
+    psi = np.zeros([dim,dim],dtype='complex128')
+
+    for k in xrange(0,dim):
+        partial = np.zeros(dim,dtype='complex128')
+        for i in xrange(0,n_zones):
+            num = h.i_to_num(i,n_zones)
+            partial += np.exp(-1j*omega*t*num)*eves[k][i]
+        psi[k,:] = partial
+
+    return psi
+
+def calculate_phi(eves):
+    """
+    For the dim eigenvectors indexed by k, find the sum
+    over all frequency components:
+    |phi_k> = \sum_nu <nu | xi_k> 
+    """
+    return np.array([np.sum(eva,axis=0) for eva in eves])
+
+def separate_components(eves,n):
+    """
+    Separate each vector in eves into n sub-arrays
+    """
+    return [np.split(eva,n) for eva in eves]
+
 def find_eigensystem(k,hf_dim,omega):
     """
     Find eigenvalues and eigenvectors for k,
@@ -16,9 +68,10 @@ def find_eigensystem(k,hf_dim,omega):
     unique_evas = find_unique_evas(evas,hf_dim,omega)
     indices_unique_evas = [np.where(evas==eva)[0][0] for eva in unique_evas]
     
-    unique_eves = [eves[i] for i in indices_unique_evas]
+    unique_eves = np.array([eves[i] for i in indices_unique_evas],dtype='complex128')
 
     return [unique_evas,unique_eves]
+
 
 def find_unique_evas(evas,hf_dim,omega):
     """
