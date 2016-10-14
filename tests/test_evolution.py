@@ -3,11 +3,12 @@ import numpy as np
 import floq.evolution as ev
 import floq.helpers as h
 
-def rabi_hf(n_comp,w,g,e1,e2):
-    hf = np.zeros([n_comp,2,2])
-    hf[h.num_to_i(-1,nfreq)] = np.array([[0,0],[g,0]])
-    hf[h.num_to_i(0,nfreq)] = np.array([[e1,0],[0,e2]])
-    hf[h.num_to_i(1,nfreq)] = np.array([[0,g],[0,0]])
+def rabi_hf(g,e1,e2):
+    hf = np.zeros([3,2,2])
+    hf[0] = np.array([[0,0],[g,0]])
+    hf[1] = np.array([[e1,0],[0,e2]])
+    hf[2] = np.array([[0,g],[0,0]])
+    return hf
 
 def generate_fake_spectrum(unique_evas,dim,omega,n_zones):
     evas = np.array([])
@@ -16,6 +17,21 @@ def generate_fake_spectrum(unique_evas,dim,omega,n_zones):
         new = unique_evas + offset*omega*np.ones(dim)
         evas = np.append(evas,new)
     return evas
+
+class TestDoEvolution(unittest.TestCase):
+    def setUp(self):
+        g = 1.25
+        e1 = 1.2
+        e2 = 1.6
+        hf = rabi_hf(g,e1,e2)
+        n_zones = 81
+        dim = 2
+        omega = 1.5
+        t = 8.0
+        self.ucal = ev.do_evolution(hf,dim,n_zones,omega,t)
+
+    def test_is_correct_u(self):
+        self.assertTrue(1 == 0) 
 
 class TestCalculateU(unittest.TestCase):
     def test_u(self):

@@ -6,12 +6,18 @@ from IPython import embed
 class FloquetError(Exception):
     pass
 
-def do_evolution(hf,n_zones,omega,t):
+def do_evolution(hf,dim,n_zones,omega,t):
     """
     Calculate the time evolution operator U
     given a Fourier transformed Hamiltonian Hf
     """
-    pass
+    k = build_k(hf,n_zones,omega)
+    evas,eves = find_eigensystem(k,dim,omega)
+
+    phi = calculate_phi(eves)
+    psi = calculate_psi(eves,dim,n_zones,omega,t)
+
+    return calculate_u(phi,psi,evas,dim,n_zones,omega,t)
 
 def calculate_u(phi,psi,energies,dim,n_zones,omega,t):
     """
