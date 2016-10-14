@@ -12,8 +12,10 @@ def find_eigensystem(k,hf_dim,omega):
     identify the hf_dim unique ones
     """
     evas, eves = np.linalg.eig(k)
+
     unique_evas = find_unique_evas(evas,hf_dim,omega)
     indices_unique_evas = [np.where(evas==eva)[0][0] for eva in unique_evas]
+    
     unique_eves = [eves[i] for i in indices_unique_evas]
 
     return [unique_evas,unique_eves]
@@ -24,9 +26,8 @@ def find_unique_evas(evas,hf_dim,omega):
     e_i that fulfil (e_i - e_j) mod omega != 0 for all i,j,
     and that lie closest to 0.
     """
-    mod_evas = np.mod(evas,omega)
-    mod_evas = mod_evas.round(decimals=10)
-
+    mod_evas = np.mod(evas,omega).round(decimals=10) # round to suppress floating point issues
+   
     unique_evas = np.unique(mod_evas) 
 
     # the unique_evas are ordered and >= 0, but we'd rather have them clustered around 0

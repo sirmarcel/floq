@@ -19,28 +19,21 @@ def generate_fake_spectrum(unique_evas,dim,omega,n_zones):
 
 class TestFindEigensystem(unittest.TestCase):
     def setUp(self):
-        n_zones = 21
-        dim = 3
+        n_zones = 3
+        dim = 2
         omega = 2.0
-        self.target_eves = np.array([0.123,0.1823,0.881])
-        spectrum = generate_fake_spectrum(self.target_eves,dim,omega,n_zones)
+        self.target_evas = np.array([0.123,0.1823])
+        spectrum = generate_fake_spectrum(self.target_evas,dim,omega,n_zones)
         k = np.diag(spectrum)
-        eve1 = np.zeros(dim*n_zones)
-        eve2 = np.zeros(dim*n_zones)
-        eve3 = np.zeros(dim*n_zones)
-        eve1[h.num_to_i(0,n_zones)] = 1.0
-        eve2[h.num_to_i(1,n_zones)] = 1.0
-        eve3[h.num_to_i(2,n_zones)] = 1.0
-        self.target_eves = [eve1,eve2,eve3]
+        eve1 = np.array([0,0,1.,0,0,0])
+        eve2 = np.array([0,0,0,1.0,0,0])
+        self.target_eves = [eve1,eve2]
         self.evas,self.eves = ev.find_eigensystem(k,dim,omega)
 
     def test_finds_evas(self):
-        self.assertTrue(np.array_equal(self.evas,self.target_eves))
+        self.assertTrue(np.array_equal(self.evas,self.target_evas))
 
     def test_finds_eves(self):
-        print self.eves[0]
-        print self.target_eves[0]
-        
         self.assertTrue(np.array_equal(self.eves,self.target_eves))
 
 
