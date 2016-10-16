@@ -1,5 +1,6 @@
 import unittest
 import numpy as np
+import assertions
 import floq.evolution as ev
 import floq.helpers as h
 
@@ -33,7 +34,7 @@ class TestDoEvolution(unittest.TestCase):
     def test_is_correct_u(self):
         self.assertTrue(1 == 0) 
 
-class TestCalculateU(unittest.TestCase):
+class TestCalculateU(unittest.TestCase,assertions.CustomAssertions):
     def test_u(self):
         # Note: The "manual" calculation was done with matlab
         omega = 3.56
@@ -58,10 +59,10 @@ class TestCalculateU(unittest.TestCase):
         target = np.array([[18.0985 + 7.75776j, 17.6485 + 11.4563j],[4.32948 - 0.849366j, 7.34917 - 0.802564j]]).round(4)
         u = ev.calculate_u(phi,psi,energies,dim,n_zones,omega,t).round(4)
        
-        self.assertTrue(np.array_equal(u,target))
+        self.assertArrayEqual(u,target)
 
 
-class TestCalculatePsi(unittest.TestCase):
+class TestCalculatePsi(unittest.TestCase,assertions.CustomAssertions):
     def test_sum(self):
         omega = 2.34
         t = 1.22
@@ -80,9 +81,9 @@ class TestCalculatePsi(unittest.TestCase):
 
         calculated_sum = ev.calculate_psi(eves,2,3,omega,t)
 
-        self.assertTrue(np.array_equal(calculated_sum,target))
+        self.assertArrayEqual(calculated_sum,target)
 
-class TestCalculatePhi(unittest.TestCase):
+class TestCalculatePhi(unittest.TestCase,assertions.CustomAssertions):
     def test_sum(self):
         a = np.array([1.53,2.45])
         b = np.array([7.161,1.656])
@@ -96,10 +97,10 @@ class TestCalculatePhi(unittest.TestCase):
         target = [e1_sum,e2_sum]
         calculated_sum = ev.calculate_phi([e1,e2])
 
-        self.assertTrue(np.array_equal(calculated_sum,target))
+        self.assertArrayEqual(calculated_sum,target)
 
 
-class TestSeparateComponents(unittest.TestCase):
+class TestSeparateComponents(unittest.TestCase,assertions.CustomAssertions):
     def test_split(self):
         a = np.array([1.23,2.45])
         b = np.array([6.123,1.656])
@@ -114,9 +115,9 @@ class TestSeparateComponents(unittest.TestCase):
 
         split = ev.separate_components([e1,e2],3)
 
-        self.assertTrue(np.array_equal(split,target))
+        self.assertArrayEqual(split,target)
 
-class TestFindEigensystem(unittest.TestCase):
+class TestFindEigensystem(unittest.TestCase,assertions.CustomAssertions):
     def setUp(self):
         n_zones = 3
         dim = 2
@@ -130,16 +131,16 @@ class TestFindEigensystem(unittest.TestCase):
         self.evas,self.eves = ev.find_eigensystem(k,dim,omega)
 
     def test_finds_evas(self):
-        self.assertTrue(np.array_equal(self.evas,self.target_evas))
+        self.assertArrayEqual(self.evas,self.target_evas)
 
     def test_finds_eves(self):
-        self.assertTrue(np.array_equal(self.eves,self.target_eves))
+        self.assertArrayEqual(self.eves,self.target_eves)
 
     def test_casts_as_complex128(self):
         self.assertEqual(self.eves.dtype,'complex128')
 
 
-class TestBuildK(unittest.TestCase):
+class TestBuildK(unittest.TestCase,assertions.CustomAssertions):
     def setUp(self):
         dim = 2
         a = -1.*np.ones([dim,dim])
@@ -154,9 +155,9 @@ class TestBuildK(unittest.TestCase):
 
     def test_build(self):
         builtk = ev.build_k(self.hf,5,1)
-        self.assertTrue(np.array_equal(builtk,self.goalk))
+        self.assertArrayEqual(builtk,self.goalk)
 
-class TestFindUniqueEvas(unittest.TestCase):
+class TestFindUniqueEvas(unittest.TestCase,assertions.CustomAssertions):
     
     def test_finds_unique_evas_if_all_positive(self):
         dim = 3
@@ -165,7 +166,7 @@ class TestFindUniqueEvas(unittest.TestCase):
         e = generate_fake_spectrum(us,dim,omega,11)
         unique_e = ev.find_unique_evas(e,dim,omega)
         print unique_e
-        self.assertTrue(np.array_equal(unique_e,us))
+        self.assertArrayEqual(unique_e,us)
 
     def test_finds_unique_evas_if_not_all_positive(self):
         dim = 3
@@ -173,7 +174,7 @@ class TestFindUniqueEvas(unittest.TestCase):
         us = np.array([-0.3,0.544,0.6])
         e = generate_fake_spectrum(us,dim,omega,11)
         unique_e = ev.find_unique_evas(e,dim,omega)
-        self.assertTrue(np.array_equal(unique_e,us))
+        self.assertArrayEqual(unique_e,us)
 
     def test_raises_error_if_degenerate(self):
        dim = 3
