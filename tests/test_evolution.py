@@ -33,22 +33,27 @@ def generate_fake_spectrum(unique_evas,dim,omega,n_zones):
 
 class TestDoEvolution(unittest.TestCase,assertions.CustomAssertions):
     def setUp(self):
-        g = 1.25
+        g = 0.01
         e1 = 1.2
         e2 = 1.6
         hf = rabi_hf(g,e1,e2)
-        n_zones = 81
+        n_zones = 31
         dim = 2
-        omega = 1.5
+        omega = 5.0
         t = 8.0
         p = dtos.FloquetProblemParameters(dim,n_zones,omega,t)
+
 
         self.u = rabi_u(g,e1,e2,omega,t)
         self.ucal = ev.do_evolution(hf,p)
 
+        um = np.matrix(self.u)
+        print um*um.getH()
+
     def test_is_correct_u(self):
-        print np.abs(self.u)
-        print np.abs(self.ucal)
+        print self.u
+        print self.ucal
+
         self.assertArrayEqual(self.u,self.ucal) 
 
 class TestCalculateU(unittest.TestCase,assertions.CustomAssertions):
@@ -74,9 +79,12 @@ class TestCalculateU(unittest.TestCase,assertions.CustomAssertions):
         phi = ev.calculate_phi(eves)
         psi = ev.calculate_psi(eves,p)
 
-        target = np.array([[18.0985 + 7.75776j, 17.6485 + 11.4563j],[4.32948 - 0.849366j, 7.34917 - 0.802564j]]).round(4)
-        u = ev.calculate_u(phi,psi,energies,p).round(4)
+        target = np.array([[29.992 + 14.079j, 29.125 + 18.169j], [5.117 - 1.363j, 
+ 5.992 - 2.462j]]).round(3)
+        u = ev.calculate_u(phi,psi,energies,p).round(3)
        
+        print u
+        print target
         self.assertArrayEqual(u,target)
 
 
@@ -91,9 +99,9 @@ class TestCalculatePsi(unittest.TestCase,assertions.CustomAssertions):
         c = np.array([2.3663,8.112],dtype='complex128')
 
         e1 = np.array([a,a,c])
-        e1_sum = np.exp(1j*omega*t)*a+a+np.exp(-1j*omega*t)*c
+        e1_sum = np.exp(-1j*omega*t)*a+a+np.exp(1j*omega*t)*c
         e2 = np.array([c,a,b])
-        e2_sum = np.exp(1j*omega*t)*c+a+np.exp(-1j*omega*t)*b
+        e2_sum = np.exp(-1j*omega*t)*c+a+np.exp(1j*omega*t)*b
 
         target = [e1_sum,e2_sum]
         eves = np.array([e1,e2])

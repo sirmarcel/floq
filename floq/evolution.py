@@ -46,7 +46,7 @@ def calculate_psi(eves,p):
         partial = np.zeros(p.dim,dtype='complex128')
         for i in xrange(0,p.zones):
             num = h.i_to_num(i,p.zones)
-            partial += np.exp(-1j*p.omega*p.t*num)*eves[k][i]
+            partial += np.exp(1j*p.omega*p.t*num)*eves[k][i]
         psi[k,:] = partial
 
     return psi
@@ -65,14 +65,14 @@ def find_eigensystem(k,p):
     identify the dim unique ones
     """
     evas, eves = np.linalg.eig(k)
-
+    
     unique_evas = find_unique_evas(evas,p)
 
     indices_unique_evas = [np.where(abs(evas-eva) <= 1e-10)[0][0] for eva in unique_evas]
     
     unique_eves = np.array([eves[i] for i in indices_unique_evas],dtype='complex128')
     unique_eves = separate_components(unique_eves,p.zones)
-
+    
     return [unique_evas,unique_eves]
 
 
