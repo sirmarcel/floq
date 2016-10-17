@@ -11,6 +11,17 @@ def rabi_hf(g,e1,e2):
     hf[2] = np.array([[0,g],[0,0]])
     return hf
 
+def rabi_u(g,e1,e2,w,t):
+    w12 = e1-e2
+    k = np.sqrt(g**2 + 0.25*(w+w12)**2)
+    W = w+w12
+    a = (1/k)*np.exp(-0.5j*t*W)*(k*np.cos(k*t)+(-0.5j*W)*np.sin(k*t))
+    b = (g/(1j*k))*np.exp(-0.5j*t*W)*np.sin(k*t)
+    c = b*np.exp(1j*t*W)
+    d = np.conj(a)
+    return np.array([[a,b],[c,d]])
+
+
 def generate_fake_spectrum(unique_evas,dim,omega,n_zones):
     evas = np.array([])
     for i in xrange(0,n_zones):
@@ -19,7 +30,7 @@ def generate_fake_spectrum(unique_evas,dim,omega,n_zones):
         evas = np.append(evas,new)
     return evas
 
-class TestDoEvolution(unittest.TestCase):
+class TestDoEvolution(unittest.TestCase,assertions.CustomAssertions):
     def setUp(self):
         g = 1.25
         e1 = 1.2
@@ -29,10 +40,13 @@ class TestDoEvolution(unittest.TestCase):
         dim = 2
         omega = 1.5
         t = 8.0
+        self.u = rabi_u(g,e1,e2,omega,t)
         self.ucal = ev.do_evolution(hf,dim,n_zones,omega,t)
 
     def test_is_correct_u(self):
-        self.assertTrue(1 == 0) 
+        print np.abs(self.u)
+        print np.abs(self.ucal)
+        self.assertArrayEqual(self.u,self.ucal) 
 
 class TestCalculateU(unittest.TestCase,assertions.CustomAssertions):
     def test_u(self):
