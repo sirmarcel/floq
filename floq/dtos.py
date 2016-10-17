@@ -2,7 +2,7 @@ import numpy as np
 
 class FloquetProblemParameters(object):
     """Data transfer object to hold the parameters of a Floquet problem"""
-    def __init__(self,dim,zones,omega,tgst):
+    def __init__(self,dim,zones,omega,t):
         self.dim = dim
         self.zones = zones
         self.omega = omega
