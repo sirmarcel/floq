@@ -1,13 +1,11 @@
 import numpy as np
 
-class FloquetProblem():
-  """docstring for FloquetProblem"""
-  def __init__(self, hf, w):
-    if isinstance(hf,np.ndarray):
-      self.hf = hf  
-    else:
-      raise TypeError('HF must be a Numpy ndarray')
-    
-    self.nw = hf.shape[0]
-    self.dim = hf.shape[1]
-    self.w = w
+class FloquetProblemParameters(object):
+    """Data transfer object to hold the parameters of a Floquet problem"""
+    def __init__(self,dim,zones,omega,tgst):
+        self.dim = dim
+        self.zones = zones
+        self.omega = omega
+        self.t = t
+        
+        self.k_dim = dim*zones
