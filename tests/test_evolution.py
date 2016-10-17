@@ -162,24 +162,27 @@ class TestFindUniqueEvas(unittest.TestCase,assertions.CustomAssertions):
     def test_finds_unique_evas_if_all_positive(self):
         dim = 3
         omega = 1.5
+        n_zones = 11
         us = np.array([0.3134,0.587,0.6324])
-        e = generate_fake_spectrum(us,dim,omega,11)
-        unique_e = ev.find_unique_evas(e,dim,omega)
+        e = generate_fake_spectrum(us,dim,omega,n_zones)
+        unique_e = ev.find_unique_evas(e,dim,n_zones,omega)
         print unique_e
         self.assertArrayEqual(unique_e,us)
 
     def test_finds_unique_evas_if_not_all_positive(self):
         dim = 3
         omega = 2.0
+        n_zones = 11
         us = np.array([-0.3,0.544,0.6])
         e = generate_fake_spectrum(us,dim,omega,11)
-        unique_e = ev.find_unique_evas(e,dim,omega)
+        unique_e = ev.find_unique_evas(e,dim,n_zones,omega)
         self.assertArrayEqual(unique_e,us)
 
     def test_raises_error_if_degenerate(self):
        dim = 3
        omega = 2.0
+       n_zones = 11
        us = np.array([0.3552,0.3552,0.6])
        e = generate_fake_spectrum(us,dim,omega,11)
        with self.assertRaises(ev.FloquetError):
-        ev.find_unique_evas(e,dim,omega)
+        ev.find_unique_evas(e,dim,n_zones,omega)

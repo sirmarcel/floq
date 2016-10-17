@@ -65,8 +65,9 @@ def find_eigensystem(k,hf_dim,n_zones,omega):
     """
     evas, eves = np.linalg.eig(k)
 
-    unique_evas = find_unique_evas(evas,hf_dim,omega)
-    indices_unique_evas = [np.where(evas==eva)[0][0] for eva in unique_evas]
+    unique_evas = find_unique_evas(evas,hf_dim,n_zones,omega)
+
+    indices_unique_evas = [np.where(abs(evas-eva) <= 1e-10)[0][0] for eva in unique_evas]
     
     unique_eves = np.array([eves[i] for i in indices_unique_evas],dtype='complex128')
     unique_eves = separate_components(unique_eves,n_zones)
@@ -74,12 +75,17 @@ def find_eigensystem(k,hf_dim,n_zones,omega):
     return [unique_evas,unique_eves]
 
 
-def find_unique_evas(evas,hf_dim,omega):
+def find_unique_evas(evas,hf_dim,n_zones,omega):
     """
     In the list of values supplied, find the set of hf_dim 
     e_i that fulfil (e_i - e_j) mod omega != 0 for all i,j,
     and that lie closest to 0.
     """
+
+    # cut off the first and last zone to prevent finite-size effects
+    if n_zones > 4:
+        evas = np.delete(evas,np.s_[0:hf_dim])
+        evas = np.delete(evas,np.s_[-hf_dim:])
     mod_evas = np.mod(evas,omega).round(decimals=10) # round to suppress floating point issues
    
     unique_evas = np.unique(mod_evas) 
