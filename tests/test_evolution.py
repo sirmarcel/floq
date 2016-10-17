@@ -22,7 +22,6 @@ def rabi_u(g,e1,e2,w,t):
     d = np.conj(a)
     return np.array([[a,b],[c,d]])
 
-
 def generate_fake_spectrum(unique_evas,dim,omega,n_zones):
     evas = np.array([])
     for i in xrange(0,n_zones):
@@ -30,6 +29,7 @@ def generate_fake_spectrum(unique_evas,dim,omega,n_zones):
         new = unique_evas + offset*omega*np.ones(dim)
         evas = np.append(evas,new)
     return evas
+
 
 class TestDoEvolution(unittest.TestCase,assertions.CustomAssertions):
     def setUp(self):
@@ -56,93 +56,25 @@ class TestDoEvolution(unittest.TestCase,assertions.CustomAssertions):
 
         self.assertArrayEqual(self.u,self.ucal) 
 
-class TestCalculateU(unittest.TestCase,assertions.CustomAssertions):
-    def test_u(self):
-        omega = 3.56
-        t = 8.123
+
+class TestBuildK(unittest.TestCase,assertions.CustomAssertions):
+    def setUp(self):
         dim = 2
-        n_zones = 3
-        p = dtos.FloquetProblemParameters(dim,n_zones,omega,t)
+        self.p = dtos.FloquetProblemParameters(dim,5,1,1)
 
-        energies = [0.23, 0.42]
+        a = -1.*np.ones([dim,dim])
+        b = np.zeros([dim,dim])
+        c = np.ones([dim,dim])
+        z = np.zeros([dim,dim])
+        i = np.identity(dim)
 
-        a = np.array([1.53+2.33j,2.45],dtype='complex128')
-        b = np.array([7.161,1.656+1.2j],dtype='complex128')
-        c = np.array([2.3663j,8.112],dtype='complex128')
+        self.goalk = np.array(np.bmat([[b-2*i,a,z,z,z],[c,b-i,a,z,z],[z,c,b,a,z],[z,z,c,b+i,a],[z,z,z,c,b+2*i]]))
+        self.hf = np.array([a,b,c])
 
-        e1 = np.array([1.563 + 1.893j, 1.83 + 1.142j, 0.552 + 0.997j, 0.766 + 
- 1.162j, 1.756 + 0.372j, 0.689 + 0.902j])
-        e2 = np.array([1.328 + 1.94j, 1.866 + 0.055j, 1.133 + 0.162j, 1.869 + 
- 1.342j, 1.926 + 1.587j, 1.735 + 0.942j])
-        eves = ev.separate_components(np.array([e1,e2]),n_zones)
+    def test_build(self):
+        builtk = ev.build_k(self.hf,self.p)
+        self.assertArrayEqual(builtk,self.goalk)
 
-        phi = ev.calculate_phi(eves)
-        psi = ev.calculate_psi(eves,p)
-
-        target = np.array([[29.992 + 14.079j, 29.125 + 18.169j], [5.117 - 1.363j, 
- 5.992 - 2.462j]]).round(3)
-        u = ev.calculate_u(phi,psi,energies,p).round(3)
-       
-        print u
-        print target
-        self.assertArrayEqual(u,target)
-
-
-class TestCalculatePsi(unittest.TestCase,assertions.CustomAssertions):
-    def test_sum(self):
-        omega = 2.34
-        t = 1.22
-        p = dtos.FloquetProblemParameters(2,3,omega,t)
-
-        a = np.array([1.53,2.45],dtype='complex128')
-        b = np.array([7.161,1.656],dtype='complex128')
-        c = np.array([2.3663,8.112],dtype='complex128')
-
-        e1 = np.array([a,a,c])
-        e1_sum = np.exp(-1j*omega*t)*a+a+np.exp(1j*omega*t)*c
-        e2 = np.array([c,a,b])
-        e2_sum = np.exp(-1j*omega*t)*c+a+np.exp(1j*omega*t)*b
-
-        target = [e1_sum,e2_sum]
-        eves = np.array([e1,e2])
-
-        calculated_sum = ev.calculate_psi(eves,p)
-
-        self.assertArrayEqual(calculated_sum,target)
-
-class TestCalculatePhi(unittest.TestCase,assertions.CustomAssertions):
-    def test_sum(self):
-        a = np.array([1.53,2.45])
-        b = np.array([7.161,1.656])
-        c = np.array([2.3663,8.112])
-
-        e1 = np.array([a,a,c])
-        e1_sum = a+a+c
-        e2 = np.array([c,a,b])
-        e2_sum = c+a+b
-
-        target = [e1_sum,e2_sum]
-        calculated_sum = ev.calculate_phi([e1,e2])
-
-        self.assertArrayEqual(calculated_sum,target)
-
-
-class TestSeparateComponents(unittest.TestCase,assertions.CustomAssertions):
-    def test_split(self):
-        a = np.array([1.23,2.45])
-        b = np.array([6.123,1.656])
-        c = np.array([2.323,3.112])
-
-        e1 = np.concatenate((a,b,c))
-        e1_split = np.array([a,b,c])
-        e2 = np.concatenate((c,a,b))
-        e2_split = np.array([c,a,b])
-
-        target = [e1_split,e2_split]
-
-        split = ev.separate_components([e1,e2],3)
-
-        self.assertArrayEqual(split,target)
 
 class TestFindEigensystem(unittest.TestCase,assertions.CustomAssertions):
     def setUp(self):
@@ -169,25 +101,6 @@ class TestFindEigensystem(unittest.TestCase,assertions.CustomAssertions):
 
     def test_casts_as_complex128(self):
         self.assertEqual(self.eves.dtype,'complex128')
-
-
-class TestBuildK(unittest.TestCase,assertions.CustomAssertions):
-    def setUp(self):
-        dim = 2
-        self.p = dtos.FloquetProblemParameters(dim,5,1,1)
-
-        a = -1.*np.ones([dim,dim])
-        b = np.zeros([dim,dim])
-        c = np.ones([dim,dim])
-        z = np.zeros([dim,dim])
-        i = np.identity(dim)
-
-        self.goalk = np.array(np.bmat([[b-2*i,a,z,z,z],[c,b-i,a,z,z],[z,c,b,a,z],[z,z,c,b+i,a],[z,z,z,c,b+2*i]]))
-        self.hf = np.array([a,b,c])
-
-    def test_build(self):
-        builtk = ev.build_k(self.hf,self.p)
-        self.assertArrayEqual(builtk,self.goalk)
 
 class TestFindUniqueEvas(unittest.TestCase,assertions.CustomAssertions):
     
@@ -226,3 +139,87 @@ class TestFindUniqueEvas(unittest.TestCase,assertions.CustomAssertions):
 
        with self.assertRaises(ev.FloquetError):
         ev.find_unique_evas(e,p)
+
+class TestSeparateComponents(unittest.TestCase,assertions.CustomAssertions):
+    def test_split(self):
+        a = np.array([1.23,2.45])
+        b = np.array([6.123,1.656])
+        c = np.array([2.323,3.112])
+
+        e1 = np.concatenate((a,b,c))
+        e1_split = np.array([a,b,c])
+        e2 = np.concatenate((c,a,b))
+        e2_split = np.array([c,a,b])
+
+        target = [e1_split,e2_split]
+
+        split = ev.separate_components([e1,e2],3)
+
+        self.assertArrayEqual(split,target)
+
+
+class TestCalculatePhi(unittest.TestCase,assertions.CustomAssertions):
+    def test_sum(self):
+        a = np.array([1.53,2.45])
+        b = np.array([7.161,1.656])
+        c = np.array([2.3663,8.112])
+
+        e1 = np.array([a,a,c])
+        e1_sum = a+a+c
+        e2 = np.array([c,a,b])
+        e2_sum = c+a+b
+
+        target = [e1_sum,e2_sum]
+        calculated_sum = ev.calculate_phi([e1,e2])
+
+        self.assertArrayEqual(calculated_sum,target)
+
+class TestCalculatePsi(unittest.TestCase,assertions.CustomAssertions):
+    def test_sum(self):
+        omega = 2.34
+        t = 1.22
+        p = dtos.FloquetProblemParameters(2,3,omega,t)
+
+        a = np.array([1.53,2.45],dtype='complex128')
+        b = np.array([7.161,1.656],dtype='complex128')
+        c = np.array([2.3663,8.112],dtype='complex128')
+
+        e1 = np.array([a,a,c])
+        e1_sum = np.exp(-1j*omega*t)*a+a+np.exp(1j*omega*t)*c
+        e2 = np.array([c,a,b])
+        e2_sum = np.exp(-1j*omega*t)*c+a+np.exp(1j*omega*t)*b
+
+        target = [e1_sum,e2_sum]
+        eves = np.array([e1,e2])
+
+        calculated_sum = ev.calculate_psi(eves,p)
+
+        self.assertArrayEqual(calculated_sum,target)
+
+
+class TestCalculateU(unittest.TestCase,assertions.CustomAssertions):
+    def test_u(self):
+        omega = 3.56
+        t = 8.123
+        dim = 2
+        n_zones = 3
+        p = dtos.FloquetProblemParameters(dim,n_zones,omega,t)
+
+        energies = [0.23, 0.42]
+
+        e1 = np.array([1.563 + 1.893j, 1.83 + 1.142j, 0.552 + 0.997j, 0.766 + 
+ 1.162j, 1.756 + 0.372j, 0.689 + 0.902j])
+        e2 = np.array([1.328 + 1.94j, 1.866 + 0.055j, 1.133 + 0.162j, 1.869 + 
+ 1.342j, 1.926 + 1.587j, 1.735 + 0.942j])
+        eves = ev.separate_components(np.array([e1,e2]),n_zones)
+
+        phi = ev.calculate_phi(eves)
+        psi = ev.calculate_psi(eves,p)
+
+        target = np.array([[29.992 + 14.079j, 29.125 + 18.169j], [5.117 - 1.363j, 
+ 5.992 - 2.462j]]).round(3)
+        u = ev.calculate_u(phi,psi,energies,p).round(3)
+       
+        print u
+        print target
+        self.assertArrayEqual(u,target)
