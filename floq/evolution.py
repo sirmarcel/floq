@@ -12,7 +12,7 @@ def do_evolution(hf,dim,n_zones,omega,t):
     given a Fourier transformed Hamiltonian Hf
     """
     k = build_k(hf,n_zones,omega)
-    evas,eves = find_eigensystem(k,dim,omega)
+    evas,eves = find_eigensystem(k,dim,n_zones,omega)
 
     phi = calculate_phi(eves)
     psi = calculate_psi(eves,dim,n_zones,omega,t)
@@ -58,13 +58,7 @@ def calculate_phi(eves):
     """
     return np.array([np.sum(eva,axis=0) for eva in eves])
 
-def separate_components(eves,n):
-    """
-    Separate each vector in eves into n sub-arrays
-    """
-    return [np.split(eva,n) for eva in eves]
-
-def find_eigensystem(k,hf_dim,omega):
+def find_eigensystem(k,hf_dim,n_zones,omega):
     """
     Find eigenvalues and eigenvectors for k,
     identify the hf_dim unique ones
@@ -75,6 +69,7 @@ def find_eigensystem(k,hf_dim,omega):
     indices_unique_evas = [np.where(evas==eva)[0][0] for eva in unique_evas]
     
     unique_eves = np.array([eves[i] for i in indices_unique_evas],dtype='complex128')
+    unique_eves = separate_components(unique_eves,n_zones)
 
     return [unique_evas,unique_eves]
 
@@ -97,6 +92,13 @@ def find_unique_evas(evas,hf_dim,omega):
         raise FloquetError("Number of unique eigenvalues of K is not hf_dim. Spectrum possibly degenerate?")
     else:
         return np.sort(unique_evas)
+
+
+def separate_components(eves,n):
+    """
+    Separate each vector in eves into n sub-arrays
+    """
+    return np.array([np.split(eva,n) for eva in eves])
 
 
 def build_k(hf,n_zones,omega):

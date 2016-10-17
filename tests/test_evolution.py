@@ -125,10 +125,10 @@ class TestFindEigensystem(unittest.TestCase,assertions.CustomAssertions):
         self.target_evas = np.array([0.123,0.1823])
         spectrum = generate_fake_spectrum(self.target_evas,dim,omega,n_zones)
         k = np.diag(spectrum)
-        eve1 = np.array([0,0,1.,0,0,0])
-        eve2 = np.array([0,0,0,1.0,0,0])
+        eve1 = np.array([[0,0],[1.,0],[0,0]])
+        eve2 = np.array([[0,0],[0,1.0],[0,0]])
         self.target_eves = [eve1,eve2]
-        self.evas,self.eves = ev.find_eigensystem(k,dim,omega)
+        self.evas,self.eves = ev.find_eigensystem(k,dim,n_zones,omega)
 
     def test_finds_evas(self):
         self.assertArrayEqual(self.evas,self.target_evas)
