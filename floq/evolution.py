@@ -3,8 +3,11 @@ import floq.helpers as h
 import floq.blockmatrix as bm
 import floq.dtos as dtos
 
-class FloquetError(Exception):
-    pass
+class EigenvalueNumberError(Exception):
+    def __init__(self, all_evas, unique_evas):
+        self.all_evas, self.unique_evas = all_evas, unique_evas
+    def __str__(self):
+        return "Number of eigenvalues of K does not match dimension of the the Hilbert space. \n All evas: " + repr(self.all_evas) + "\n 'Unique' evas: " + repr(self.unique_evas)
 
 
 def do_evolution(hf,p):
@@ -13,6 +16,7 @@ def do_evolution(hf,p):
     given a Fourier transformed Hamiltonian Hf
     """
     k = build_k(hf,p)
+    
     evas,eves = find_eigensystem(k,p)
 
     phi = calculate_phi(eves)
@@ -67,12 +71,13 @@ def find_eigensystem(k,p):
     return them in a segmented form
     """
     evas, eves = np.linalg.eig(k)
-    
+    evas = evas.real.astype(np.float64,copy=False)
+
     unique_evas = find_unique_evas(evas,p)
 
-    indices_unique_evas = [np.where(abs(evas-eva) <= 1e-10)[0][0] for eva in unique_evas]
+    indices_unique_evas = [np.where(evas.round(p.decimals) == eva)[0][0] for eva in unique_evas]
     
-    unique_eves = np.array([eves[i] for i in indices_unique_evas],dtype='complex128')
+    unique_eves = np.array([eves[:,i] for i in indices_unique_evas],dtype='complex128')
     unique_eves = separate_components(unique_eves,p.zones)
     
     return [unique_evas,unique_eves]
@@ -88,9 +93,9 @@ def find_unique_evas(evas,p):
     if p.zones > 4:
         evas = np.delete(evas,np.s_[0:p.dim])
         evas = np.delete(evas,np.s_[-p.dim:])
-   
-    mod_evas = np.mod(evas,p.omega).round(decimals=10) # round to suppress floating point issues
-   
+    
+    mod_evas = np.mod(evas,p.omega).round(decimals=p.decimals) # round to suppress floating point issues
+    
     unique_evas = np.unique(mod_evas) 
 
     # the unique_evas are ordered and >= 0, but we'd rather have them clustered around 0
@@ -98,7 +103,7 @@ def find_unique_evas(evas,p):
     unique_evas[should_be_negative] = (unique_evas[should_be_negative]-p.omega).round(10)
 
     if unique_evas.shape[0] != p.dim:
-        raise FloquetError("Number of unique eigenvalues of K is not dim. Spectrum possibly degenerate?")
+        raise EigenvalueNumberError(evas,unique_evas)
     else:
         return np.sort(unique_evas)
 

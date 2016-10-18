@@ -33,11 +33,12 @@ def generate_fake_spectrum(unique_evas,dim,omega,n_zones):
 
 class TestDoEvolution(unittest.TestCase,assertions.CustomAssertions):
     def setUp(self):
-        g = 0.01
+        g = 0.5
         e1 = 1.2
-        e2 = 1.6
+        e2 = 1.8
         hf = rabi_hf(g,e1,e2)
-        n_zones = 31
+        
+        n_zones = 81
         dim = 2
         omega = 5.0
         t = 8.0
@@ -47,13 +48,10 @@ class TestDoEvolution(unittest.TestCase,assertions.CustomAssertions):
         self.u = rabi_u(g,e1,e2,omega,t)
         self.ucal = ev.do_evolution(hf,p)
 
-        um = np.matrix(self.u)
+        um = np.matrix(self.ucal)
         print um*um.getH()
 
     def test_is_correct_u(self):
-        print self.u
-        print self.ucal
-
         self.assertArrayEqual(self.u,self.ucal) 
 
 
@@ -78,26 +76,46 @@ class TestBuildK(unittest.TestCase,assertions.CustomAssertions):
 
 class TestFindEigensystem(unittest.TestCase,assertions.CustomAssertions):
     def setUp(self):
+        self.target_evas = np.array([-0.235, 0.753])
+        # random matrix with known eigenvalues:
+        # {-1.735, -0.747, -0.235, 0.753, 1.265, 2.253}
+        k = np.array([[-0.0846814, -0.0015136 - 0.33735j, -0.210771 + 0.372223j, 
+  0.488512 - 0.769537j, -0.406266 + 0.315634j, -0.334452 + 
+   0.251584j], [-0.0015136 + 0.33735j, 
+  0.809781, -0.416533 - 0.432041j, -0.571074 - 
+   0.669052j, -0.665971 + 0.387569j, -0.297409 - 
+   0.0028969j], [-0.210771 - 0.372223j, -0.416533 + 
+   0.432041j, -0.0085791, 0.110085 + 0.255156j, 
+  0.958938 - 0.17233j, -0.91924 + 0.126004j], [0.488512 + 
+   0.769537j, -0.571074 + 0.669052j, 
+  0.110085 - 0.255156j, -0.371663, 
+  0.279778 + 0.477653j, -0.496302 + 1.04898j], [-0.406266 - 
+   0.315634j, -0.665971 - 0.387569j, 0.958938 + 0.17233j, 
+  0.279778 - 0.477653j, -0.731623, 
+  0.525248 + 0.0443422j], [-0.334452 - 0.251584j, -0.297409 + 
+   0.0028969j, -0.91924 - 0.126004j, -0.496302 - 1.04898j, 
+  0.525248 - 0.0443422j, 1.94077]],dtype='complex128')
+        
+        e1 = np.array([[0.0321771 - 0.52299j, 0.336377 + 0.258732j], [0.371002 + 
+         0.0071587j, 0.237385 + 0.205185j], [0.525321 + 0.j, 0.0964822 + 
+          0.154715j]])
+        e2 = np.array([[0.593829 + 0.j, -0.105998 - 0.394563j], [-0.0737891 - 
+         0.419478j, 0.323414 + 0.350387j], [-0.05506 - 
+          0.169033j, -0.0165495 + 0.199498j]])
+        self.target_eves = np.array([e1,e2])
+
+        omega = 2.1
         n_zones = 3
         dim = 2
-        omega = 2.0
-        p = dtos.FloquetProblemParameters(dim,n_zones,omega,1)
+        p = dtos.FloquetProblemParameters(dim,n_zones,omega,t=1,decimals=3)
 
-        self.target_evas = np.array([0.123,0.1823])
-        spectrum = generate_fake_spectrum(self.target_evas,dim,omega,n_zones)
-        k = np.diag(spectrum)
-        
-        eve1 = np.array([[0,0],[1.,0],[0,0]])
-        eve2 = np.array([[0,0],[0,1.0],[0,0]])
-        self.target_eves = [eve1,eve2]
-        
         self.evas,self.eves = ev.find_eigensystem(k,p)
 
     def test_finds_evas(self):
         self.assertArrayEqual(self.evas,self.target_evas)
 
     def test_finds_eves(self):
-        self.assertArrayEqual(self.eves,self.target_eves)
+        self.assertArrayEqual(self.eves,self.target_eves,decimals=3)
 
     def test_casts_as_complex128(self):
         self.assertEqual(self.eves.dtype,'complex128')
@@ -137,7 +155,7 @@ class TestFindUniqueEvas(unittest.TestCase,assertions.CustomAssertions):
        us = np.array([0.3552,0.3552,0.6])
        e = generate_fake_spectrum(us,dim,omega,11)
 
-       with self.assertRaises(ev.FloquetError):
+       with self.assertRaises(ev.EigenvalueNumberError):
         ev.find_unique_evas(e,p)
 
 class TestSeparateComponents(unittest.TestCase,assertions.CustomAssertions):
@@ -151,7 +169,7 @@ class TestSeparateComponents(unittest.TestCase,assertions.CustomAssertions):
         e2 = np.concatenate((c,a,b))
         e2_split = np.array([c,a,b])
 
-        target = [e1_split,e2_split]
+        target = np.array([e1_split,e2_split])
 
         split = ev.separate_components([e1,e2],3)
 
@@ -169,7 +187,7 @@ class TestCalculatePhi(unittest.TestCase,assertions.CustomAssertions):
         e2 = np.array([c,a,b])
         e2_sum = c+a+b
 
-        target = [e1_sum,e2_sum]
+        target = np.array([e1_sum,e2_sum])
         calculated_sum = ev.calculate_phi([e1,e2])
 
         self.assertArrayEqual(calculated_sum,target)
@@ -189,7 +207,7 @@ class TestCalculatePsi(unittest.TestCase,assertions.CustomAssertions):
         e2 = np.array([c,a,b])
         e2_sum = np.exp(-1j*omega*t)*c+a+np.exp(1j*omega*t)*b
 
-        target = [e1_sum,e2_sum]
+        target = np.array([e1_sum,e2_sum])
         eves = np.array([e1,e2])
 
         calculated_sum = ev.calculate_psi(eves,p)
