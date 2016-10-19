@@ -16,7 +16,7 @@ def do_evolution(hf,p):
     given a Fourier transformed Hamiltonian Hf
     """
     k = build_k(hf,p)
-    
+
     evas,eves = find_eigensystem(k,p)
 
     phi = calculate_phi(eves)

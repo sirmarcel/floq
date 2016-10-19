@@ -16,12 +16,18 @@ def rabi_u(g,e1,e2,w,t):
     w12 = e1-e2
     k = np.sqrt(g**2 + 0.25*(w+w12)**2)
     W = w+w12
-    a = (1/k)*np.exp(-0.5j*t*W)*(k*np.cos(k*t)+(-0.5j*W)*np.sin(k*t))
-    b = (g/(1j*k))*np.exp(-0.5j*t*W)*np.sin(k*t)
-    c = b*np.exp(1j*t*W)
-    d = np.conj(a)
-    print 2.0*np.pi/k
-    return np.array([[a,b],[c,d]])
+    
+    # Coefficients of U(t) in the interaction picture
+    c1a = (1/k)*np.exp(0.5j*t*W)*(k*np.cos(k*t)+(-0.5j*W)*np.sin(k*t))
+    c2a = (g/(1j*k))*np.exp(-0.5j*t*W)*np.sin(k*t)
+    c1b = c2a*np.exp(1j*t*W)
+    c2b = np.conj(c1a)
+    
+    # Factors to transform into Schrodinger picture
+    exp1 = np.exp(-1j*e1*t)
+    exp2 = np.exp(-1j*e2*t)
+
+    return np.array([[exp1*c1a,exp1*c1b],[exp2*c2a,exp2*c2b]])
 
 def generate_fake_spectrum(unique_evas,dim,omega,n_zones):
     evas = np.array([])
@@ -42,24 +48,21 @@ class TestDoEvolution(unittest.TestCase,assertions.CustomAssertions):
         n_zones = 11
         dim = 2
         omega = 5.0
-        t = 3.54580660217
+        t = 20.5
         p = dtos.FloquetProblemParameters(dim,n_zones,omega,t)
-
 
         self.u = rabi_u(g,e1,e2,omega,t)
         self.ucal = ev.do_evolution(hf,p)
 
         self.um = np.matrix(self.ucal)
         
-
     def test_gives_unitary(self):
         uu = self.um*self.um.getH()
         identity = np.identity(2)
-        self.assertArrayEqual(uu,identity,5) 
+        self.assertArrayEqual(uu,identity,8) 
 
     def test_is_correct_u(self):
-        print (self.u-self.ucal)
-        self.assertArrayEqual(self.u,self.ucal,3) 
+        self.assertArrayEqual(self.u,self.ucal,8)
 
 
 class TestBuildK(unittest.TestCase,assertions.CustomAssertions):
@@ -244,7 +247,5 @@ class TestCalculateU(unittest.TestCase,assertions.CustomAssertions):
         target = np.array([[29.992 + 14.079j, 29.125 + 18.169j], [5.117 - 1.363j, 
  5.992 - 2.462j]]).round(3)
         u = ev.calculate_u(phi,psi,energies,p).round(3)
-       
-        print u
-        print target
+
         self.assertArrayEqual(u,target)
