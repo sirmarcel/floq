@@ -20,6 +20,7 @@ def rabi_u(g,e1,e2,w,t):
     b = (g/(1j*k))*np.exp(-0.5j*t*W)*np.sin(k*t)
     c = b*np.exp(1j*t*W)
     d = np.conj(a)
+    print 2.0*np.pi/k
     return np.array([[a,b],[c,d]])
 
 def generate_fake_spectrum(unique_evas,dim,omega,n_zones):
@@ -35,24 +36,30 @@ class TestDoEvolution(unittest.TestCase,assertions.CustomAssertions):
     def setUp(self):
         g = 0.5
         e1 = 1.2
-        e2 = 1.8
+        e2 = 2.8
         hf = rabi_hf(g,e1,e2)
         
-        n_zones = 81
+        n_zones = 301
         dim = 2
         omega = 5.0
-        t = 8.0
+        t = 3.54580660217
         p = dtos.FloquetProblemParameters(dim,n_zones,omega,t)
 
 
         self.u = rabi_u(g,e1,e2,omega,t)
         self.ucal = ev.do_evolution(hf,p)
 
-        um = np.matrix(self.ucal)
-        print um*um.getH()
+        self.um = np.matrix(self.ucal)
+        
+
+    def test_gives_unitary(self):
+        uu = self.um*self.um.getH()
+        identity = np.identity(2)
+        self.assertArrayEqual(uu,identity,5) 
 
     def test_is_correct_u(self):
-        self.assertArrayEqual(self.u,self.ucal) 
+        print (self.u-self.ucal)
+        self.assertArrayEqual(self.u,self.ucal,3) 
 
 
 class TestBuildK(unittest.TestCase,assertions.CustomAssertions):
