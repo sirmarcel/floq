@@ -75,7 +75,8 @@ def find_eigensystem(k,p):
 
     unique_evas = find_unique_evas(evas,p)
 
-    indices_unique_evas = [np.where(evas.round(p.decimals) == eva)[0][0] for eva in unique_evas]
+    evas = evas.round(p.decimals)
+    indices_unique_evas = [np.where(evas == eva)[0][0] for eva in unique_evas]
     
     unique_eves = np.array([eves[:,i] for i in indices_unique_evas],dtype='complex128')
     unique_eves = separate_components(unique_eves,p.zones)
@@ -100,7 +101,7 @@ def find_unique_evas(evas,p):
 
     # the unique_evas are ordered and >= 0, but we'd rather have them clustered around 0
     should_be_negative = np.where(unique_evas>p.omega/2.)
-    unique_evas[should_be_negative] = (unique_evas[should_be_negative]-p.omega).round(10)
+    unique_evas[should_be_negative] = (unique_evas[should_be_negative]-p.omega).round(p.decimals)
 
     if unique_evas.shape[0] != p.dim:
         raise EigenvalueNumberError(evas,unique_evas)

@@ -39,7 +39,7 @@ class TestDoEvolution(unittest.TestCase,assertions.CustomAssertions):
         e2 = 2.8
         hf = rabi_hf(g,e1,e2)
         
-        n_zones = 301
+        n_zones = 11
         dim = 2
         omega = 5.0
         t = 3.54580660217
