@@ -68,7 +68,7 @@ class TestDoEvolution(unittest.TestCase,assertions.CustomAssertions):
 class TestBuildK(unittest.TestCase,assertions.CustomAssertions):
     def setUp(self):
         dim = 2
-        self.p = dtos.FloquetProblemParameters(dim,5,3,1,1)
+        self.p = dtos.FloquetProblemParameters(dim,5,3,1)
 
         a = -1.*np.ones([dim,dim])
         b = np.zeros([dim,dim])
@@ -117,7 +117,7 @@ class TestFindEigensystem(unittest.TestCase,assertions.CustomAssertions):
         omega = 2.1
         n_zones = 3
         dim = 2
-        p = dtos.FloquetProblemParameters(dim,n_zones,2,omega,t=1,decimals=3)
+        p = dtos.FloquetProblemParameters(dim,n_zones,omega=omega,decimals=3)
 
         self.evas,self.eves = ev.find_eigensystem(k,p)
 
@@ -136,7 +136,7 @@ class TestFindUniqueEvas(unittest.TestCase,assertions.CustomAssertions):
         dim = 3
         omega = 1.5
         n_zones = 11
-        p = dtos.FloquetProblemParameters(dim,n_zones,2,omega,1)
+        p = dtos.FloquetProblemParameters(dim,n_zones,omega=omega)
 
         us = np.array([0.3134,0.587,0.6324])
         e = generate_fake_spectrum(us,dim,omega,n_zones)
@@ -148,7 +148,7 @@ class TestFindUniqueEvas(unittest.TestCase,assertions.CustomAssertions):
         dim = 3
         omega = 2.0
         n_zones = 11
-        p = dtos.FloquetProblemParameters(dim,n_zones,2,omega,1)
+        p = dtos.FloquetProblemParameters(dim,n_zones,omega=omega)
         
         us = np.array([-0.3,0.544,0.6])
         e = generate_fake_spectrum(us,dim,omega,11)
@@ -160,7 +160,7 @@ class TestFindUniqueEvas(unittest.TestCase,assertions.CustomAssertions):
        dim = 3
        omega = 2.0
        n_zones = 11
-       p = dtos.FloquetProblemParameters(dim,n_zones,2,omega,1)
+       p = dtos.FloquetProblemParameters(dim,n_zones,omega=omega)
 
        us = np.array([0.3552,0.3552,0.6])
        e = generate_fake_spectrum(us,dim,omega,11)
@@ -206,7 +206,7 @@ class TestCalculatePsi(unittest.TestCase,assertions.CustomAssertions):
     def test_sum(self):
         omega = 2.34
         t = 1.22
-        p = dtos.FloquetProblemParameters(2,3,2,omega,t)
+        p = dtos.FloquetProblemParameters(2,3,omega=omega,t=t)
 
         a = np.array([1.53,2.45],dtype='complex128')
         b = np.array([7.161,1.656],dtype='complex128')
@@ -231,7 +231,7 @@ class TestCalculateU(unittest.TestCase,assertions.CustomAssertions):
         t = 8.123
         dim = 2
         n_zones = 3
-        p = dtos.FloquetProblemParameters(dim,n_zones,2,omega,t)
+        p = dtos.FloquetProblemParameters(dim,n_zones,omega=omega,t=t)
 
         energies = [0.23, 0.42]
 
