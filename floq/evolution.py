@@ -30,8 +30,8 @@ def build_k(hf,p):
     Build the Floquet-Hamiltonian K 
     from the Fourier transform of the system Hamiltonian
     """
-    n_comp = hf.shape[0]
-    hf_cutoff = (n_comp-1)/2
+    
+    hf_cutoff = (p.components-1)/2
 
     k = np.zeros([p.k_dim,p.k_dim])
 
@@ -49,7 +49,7 @@ def build_k(hf,p):
         row = start_row
         col = start_col
 
-        hf_of_num = hf[h.num_to_i(num,n_comp)]
+        hf_of_num = hf[h.num_to_i(num,p.components)]
 
         while row <= stop_row and col <= stop_col:
             if num == 0:
