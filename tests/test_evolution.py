@@ -210,7 +210,7 @@ class TestFindUniquevals(unittest.TestCase,assertions.CustomAssertions):
        with self.assertRaises(ev.EigenvalueNumberError):
         ev.find_unique_vals(e,p)
 
-class TestSeparatenc(unittest.TestCase,assertions.CustomAssertions):
+class TestSeparateComponents(unittest.TestCase,assertions.CustomAssertions):
     def test_split(self):
         a = np.array([1.23,2.45])
         b = np.array([6.123,1.656])
@@ -223,7 +223,7 @@ class TestSeparatenc(unittest.TestCase,assertions.CustomAssertions):
 
         target = np.array([e1_split,e2_split])
 
-        split = ev.separate_nc([e1,e2],3)
+        split = ev.separate_components([e1,e2],3)
 
         self.assertArrayEqual(split,target)
 
@@ -281,7 +281,7 @@ class TestCalculateU(unittest.TestCase,assertions.CustomAssertions):
  1.162j, 1.756 + 0.372j, 0.689 + 0.902j])
         e2 = np.array([1.328 + 1.94j, 1.866 + 0.055j, 1.133 + 0.162j, 1.869 + 
  1.342j, 1.926 + 1.587j, 1.735 + 0.942j])
-        vecs = ev.separate_nc(np.array([e1,e2]),nz)
+        vecs = ev.separate_components(np.array([e1,e2]),nz)
 
         phi = ev.calculate_phi(vecs)
         psi = ev.calculate_psi(vecs,p)

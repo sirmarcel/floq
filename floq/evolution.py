@@ -105,7 +105,7 @@ def find_eigensystem(k,p):
     indices_unique_vals = [np.where(vals == eva)[0][0] for eva in unique_vals]
     
     unique_vecs = np.array([vecs[:,i] for i in indices_unique_vals],dtype='complex128')
-    unique_vecs = separate_nc(unique_vecs,p.nz)
+    unique_vecs = separate_components(unique_vecs,p.nz)
     
     return [unique_vals,unique_vecs]
 
@@ -134,7 +134,7 @@ def find_unique_vals(vals,p):
     else:
         return np.sort(unique_vals)
 
-def separate_nc(vecs,n):
+def separate_components(vecs,n):
     """
     Separate each vector in vecs into n sub-arrays
     """
