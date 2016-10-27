@@ -144,7 +144,7 @@ def separate_components(vecs,n):
 def calculate_phi(vecs):
     """
     For the p.dim eigenvectors indexed by k, find the sum
-    over all frequency nc:
+    over all frequency components:
     |phi_k> = \sum_nu <nu | xi_k> 
     """
     return np.array([np.sum(eva,axis=0) for eva in vecs])
@@ -168,12 +168,7 @@ def calculate_psi(vecs,p):
     return psi
 
 
-def calculate_u(phi,psi,energies,p):
-    """
-    Given phi and psi,
-    calculate U(t)
-    """
-    
+def calculate_u(phi,psi,energies,p):   
     u = np.zeros([p.dim,p.dim],dtype='complex128')
 
     for k in xrange(0,p.dim):
@@ -188,7 +183,7 @@ def calculate_du(dhf,psi,vals,vecs,p):
 
     # (i1,n1) & (i2,n2) iterate over the full spectrum of k:
     # i1, i2: unique eigenvalues/-vectors in 0th Brillouin zone
-    # n1, n2: related vals/vecs derived by shifting
+    # n1, n2: related vals/vecs derived by shifting with those offsets
     uniques = xrange(0,p.dim)
     offsets = xrange(p.nz_min,p.nz_max+1)
 
@@ -201,11 +196,11 @@ def calculate_du(dhf,psi,vals,vecs,p):
                 v1 = np.roll(vecs[i1],n1,axis=0)
                 v2 = np.roll(vecs[i2],n2,axis=0)
                 
-                du[c,:,:] += p.t*np.exp(1j*p.omega*p.t*n1)*e(e1,e2,p)*expectation(dk[c],v1,v2,p)*np.outer(psi[i1],np.conj(vecs[i2,h.num_to_i(-n2,p.nz)]))
+                du[c,:,:] += p.t*np.exp(1j*p.omega*p.t*n1)*efacs(e1,e2,p)*expectation(dk[c],v1,v2,p)*np.outer(psi[i1],np.conj(vecs[i2,h.num_to_i(-n2,p.nz)]))
 
     return du
     
-def e(e1,e2,p):
+def efacs(e1,e2,p):
     if e1 == e2:
         return -1.0j*np.exp(-1j*p.t*e1)
     else:
