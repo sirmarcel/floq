@@ -70,21 +70,21 @@ class TestDoEvolutionWithDerivs(unittest.TestCase,assertions.CustomAssertions):
         e1 = 1.2
         e2 = 2.8
         hf = rabi_hf(g,e1,e2)
-        dhf = np.array([rabi_hf(0.0,e1,e2)])
+        dhf = np.array([rabi_hf(1.0,0,0)])
         
-        n_zones = 11
+        n_zones = 21
         dim = 2
         omega = 5.0
         t = 1.5
         p = dtos.FloquetProblemParameters(dim,n_zones,components=3,omega=omega,t=t,controls=1)
 
-        self.u = rabi_u(g,e1,e2,omega,t)
-        self.ducal = ev.do_evolution_with_derivatives(hf,dhf,p)
+        self.du = np.array([[-0.43745 + 0.180865j, 
+  0.092544 - 0.0993391j], [-0.0611011 - 0.121241j, -0.36949 - 
+   0.295891j]])
+        [self.ucal,self.ducal] = ev.do_evolution_with_derivatives(hf,dhf,p)
 
-       
-    def test_is_correct_u(self):
-        print np.abs(self.ducal)
-        self.assertTrue(1==0)
+    def test_is_correct_du(self):
+        self.assertArrayEqual(self.ducal,self.du)
 
 class TestBuildK(unittest.TestCase,assertions.CustomAssertions):
     def setUp(self):

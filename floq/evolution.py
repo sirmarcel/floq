@@ -40,9 +40,9 @@ def do_evolution_with_derivatives(hf,dhf,p):
     psi = calculate_psi(eves,p)
 
     u = calculate_u(phi,psi,evas,p)
-    du = calculate_du(dhf,psi,evas,eves,p)
+    du = calculate_du(dhf,k,psi,evas,eves,p)
 
-    return du
+    return [u,du]
 
 
 def build_k(hf,p):
@@ -182,7 +182,7 @@ def calculate_u(phi,psi,energies,p):
     return u
 
 
-def calculate_du(dhf,psi,evas,eves,p):
+def calculate_du(dhf,k,psi,evas,eves,p):
     du = np.zeros([p.controls,p.dim,p.dim],dtype='complex128')
     dk = build_dk(dhf,p)
 
@@ -194,8 +194,8 @@ def calculate_du(dhf,psi,evas,eves,p):
 
                 v1 = np.roll(eves[i1],n1,axis=0)
                 v2 = np.roll(eves[i2],n2,axis=0)
-
-                temp = np.exp(1j*p.omega*p.t*n1)*e(e1,e2,p)*expectation(dk[control],v1,v2,p)*np.outer(psi[i1],np.conj(eves[i2,h.num_to_i(-n2,p.zones),:]))
+                
+                temp = p.t*np.exp(1j*p.omega*p.t*n1)*e(e1,e2,p)*expectation(dk[control],v1,v2,p)*np.outer(psi[i1],np.conj(v2[h.num_to_i(0,p.zones)]))
                 
                 du[control,:,:] += temp
 
@@ -205,7 +205,7 @@ def e(e1,e2,p):
     if e1 == e2:
         return -1.0j*np.exp(-1j*p.t*e1)
     else:
-        return (np.exp(-1j*p.t*e1)-np.exp(-1j*p.t*e2))/(e1-e2)
+        return (np.exp(-1j*p.t*e1)-np.exp(-1j*p.t*e2))/(p.t*(e1-e2))
 
 def expectation(dk,v1,v2,p):
     a = np.conj(np.transpose(v1.flatten()))
