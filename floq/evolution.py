@@ -199,9 +199,6 @@ def calculate_du(dhf,psi,evas,eves,p):
                 
                 du[control,:,:] += temp
 
-    print du
-    du = np.zeros([p.controls,p.dim,p.dim],dtype='complex128')
-
     return du
     
 def e(e1,e2,p):
