@@ -87,7 +87,7 @@ def build_dk(dhf,p):
     p2 = copy.copy(p)
     p2.omega = 0.0
 
-    return np.array([build_k(dhf[i],p2) for i in xrange(0,p.cp)])
+    return np.array([build_k(dhf[i],p2) for i in xrange(0,p.np)])
 
 
 def find_eigensystem(k,p):
@@ -178,7 +178,7 @@ def calculate_u(phi,psi,energies,p):
 
 
 def calculate_du(dhf,psi,vals,vecs,p):
-    du = np.zeros([p.cp,p.dim,p.dim],dtype='complex128')
+    du = np.zeros([p.np,p.dim,p.dim],dtype='complex128')
     dk = build_dk(dhf,p)
 
     # (i1,n1) & (i2,n2) iterate over the full spectrum of k:
@@ -187,7 +187,7 @@ def calculate_du(dhf,psi,vals,vecs,p):
     uniques = xrange(0,p.dim)
     offsets = xrange(p.nz_min,p.nz_max+1)
 
-    for c in xrange(0,p.cp):    
+    for c in xrange(0,p.np):    
         for i1,i2 in itertools.product(uniques,uniques):
             for n1,n2 in itertools.product(offsets,offsets):
                 e1 = vals[i1] + n1*p.omega

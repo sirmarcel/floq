@@ -76,7 +76,7 @@ class TestDoEvolutionWithDerivs(unittest.TestCase,assertions.CustomAssertions):
         dim = 2
         omega = 5.0
         t = 1.5
-        p = dtos.FloquetProblemParameters(dim,nz,nc=3,omega=omega,t=t,cp=1)
+        p = dtos.FloquetProblemParameters(dim,nz,nc=3,omega=omega,t=t,np=1)
 
         self.du = np.array([[-0.43745 + 0.180865j, 
   0.092544 - 0.0993391j], [-0.0611011 - 0.121241j, -0.36949 - 
@@ -107,7 +107,7 @@ class TestBuildK(unittest.TestCase,assertions.CustomAssertions):
 class TestBuilddK(unittest.TestCase,assertions.CustomAssertions):
     def setUp(self):
         dim = 2
-        self.p = dtos.FloquetProblemParameters(dim,5,3,cp=2,omega=1)
+        self.p = dtos.FloquetProblemParameters(dim,5,3,np=2,omega=1)
 
         a = -1.*np.ones([dim,dim])
         b = np.zeros([dim,dim])
