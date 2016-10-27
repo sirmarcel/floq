@@ -13,4 +13,8 @@ class FloquetProblemParameters(object):
         
         self.decimals = decimals # Number of decimals used for internal rounding
         
-        self.k_dim = dim*zones # Size of the extended Hilbert + Fourier space
+        if dim != None and zones != None:
+            self.k_dim = dim*zones # Size of the extended Hilbert + Fourier space
+
+        if zones != None:
+            self.zones_cutoff = (zones-1)/2

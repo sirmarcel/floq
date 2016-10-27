@@ -49,7 +49,7 @@ class TestDoEvolution(unittest.TestCase,assertions.CustomAssertions):
         dim = 2
         omega = 5.0
         t = 20.5
-        p = dtos.FloquetProblemParameters(dim,n_zones,3,omega,t)
+        p = dtos.FloquetProblemParameters(dim,n_zones,components=3,omega=omega,t=t)
 
         self.u = rabi_u(g,e1,e2,omega,t)
         self.ucal = ev.do_evolution(hf,p)
@@ -64,11 +64,32 @@ class TestDoEvolution(unittest.TestCase,assertions.CustomAssertions):
     def test_is_correct_u(self):
         self.assertArrayEqual(self.u,self.ucal,8)
 
+class TestDoEvolutionWithDerivs(unittest.TestCase,assertions.CustomAssertions):
+    def setUp(self):
+        g = 0.5
+        e1 = 1.2
+        e2 = 2.8
+        hf = rabi_hf(g,e1,e2)
+        dhf = np.array([rabi_hf(0.0,e1,e2)])
+        
+        n_zones = 11
+        dim = 2
+        omega = 5.0
+        t = 1.5
+        p = dtos.FloquetProblemParameters(dim,n_zones,components=3,omega=omega,t=t,controls=1)
+
+        self.u = rabi_u(g,e1,e2,omega,t)
+        self.ducal = ev.do_evolution_with_derivatives(hf,dhf,p)
+
+       
+    def test_is_correct_u(self):
+        print np.abs(self.ducal)
+        self.assertTrue(1==0)
 
 class TestBuildK(unittest.TestCase,assertions.CustomAssertions):
     def setUp(self):
         dim = 2
-        self.p = dtos.FloquetProblemParameters(dim,5,3,1)
+        self.p = dtos.FloquetProblemParameters(dim,zones=5,components=3,omega=1)
 
         a = -1.*np.ones([dim,dim])
         b = np.zeros([dim,dim])
@@ -82,6 +103,27 @@ class TestBuildK(unittest.TestCase,assertions.CustomAssertions):
     def test_build(self):
         builtk = ev.build_k(self.hf,self.p)
         self.assertArrayEqual(builtk,self.goalk)
+
+class TestBuilddK(unittest.TestCase,assertions.CustomAssertions):
+    def setUp(self):
+        dim = 2
+        self.p = dtos.FloquetProblemParameters(dim,5,3,controls=2,omega=1)
+
+        a = -1.*np.ones([dim,dim])
+        b = np.zeros([dim,dim])
+        c = np.ones([dim,dim])
+        z = np.zeros([dim,dim])
+        i = np.identity(dim)
+
+        dk1 = np.array(np.bmat([[b,a,z,z,z],[c,b,a,z,z],[z,c,b,a,z],[z,z,c,b,a],[z,z,z,c,b]]))
+        dk2 = np.array(np.bmat([[b,b,z,z,z],[a,b,b,z,z],[z,a,b,b,z],[z,z,a,b,b],[z,z,z,a,b]]))
+
+        self.goaldk = np.array([dk1,dk2])
+        self.dhf = np.array([[a,b,c],[b,b,a]])
+
+    def test_build(self):
+        builtdk = ev.build_dk(self.dhf,self.p)
+        self.assertArrayEqual(builtdk,self.goaldk)
 
 
 class TestFindEigensystem(unittest.TestCase,assertions.CustomAssertions):
@@ -249,3 +291,26 @@ class TestCalculateU(unittest.TestCase,assertions.CustomAssertions):
         u = ev.calculate_u(phi,psi,energies,p).round(3)
 
         self.assertArrayEqual(u,target)
+
+
+# class TestCalculatedU(unittest.TestCase,assertions.CustomAssertions)
+
+class TestExpectation(unittest.TestCase,assertions.CustomAssertions):
+    def setUp(self):
+        self.v1 = np.array([[0., 0.], [0., 0.],[ 0., 0.], [0., 0.], [0., 0.968028],[ -0.250841, 0.],[ 0., 0.],[ 0., 0.],[ 0., 0.],[ 0., 0.], [0., 0.]])
+        self.v2 = np.array([[0., 0.], [0., 0.],[ 0., 0.], [0., 0.], [0., 0.250841],[0.968028, 0.],[ 0., 0.],[ 0., 0.],[ 0., 0.],[ 0., 0.], [0., 0.]])
+
+        self.dk = np.array([ [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.], [0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.], [0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.], [0., 0., 0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.], [0., 0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.], [0., 0., 0., 0., 0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.], [0., 0., 0., 0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.], [0., 0., 0., 0., 0., 0., 0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.], [0., 0., 0., 0., 0., 0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.], [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.], [0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.], [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0.], [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.], [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 0., 0., 0., 0., 0., 0., 0.], [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0.], [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 0., 0., 0., 0., 0.], [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 0., 0., 0., 0., 0., 0.], [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 0., 0., 0.], [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 0., 0., 0., 0.], [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 0.], [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 0., 0.], [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]],dtype='complex128')
+
+        self.expected = np.array([-0.485643,0.874157,0.874157,0.485643])
+        
+        self.p = dtos.FloquetProblemParameters()
+
+    def test_correct_expectation_values(self):
+        e11 = ev.expectation(self.dk,self.v1,self.v1,self.p)
+        e12 = ev.expectation(self.dk,self.v1,self.v2,self.p)
+        e21 = ev.expectation(self.dk,self.v2,self.v1,self.p)
+        e22 = ev.expectation(self.dk,self.v2,self.v2,self.p)
+        calculated = np.array([e11,e12,e21,e22])
+        self.assertArrayEqual(self.expected,calculated)
+        

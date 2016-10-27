@@ -2,6 +2,8 @@ import numpy as np
 import floq.helpers as h
 import floq.blockmatrix as bm
 import floq.dtos as dtos
+import itertools
+import copy
 
 class EigenvalueNumberError(Exception):
     def __init__(self, all_evas, unique_evas):
@@ -23,6 +25,24 @@ def do_evolution(hf,p):
     psi = calculate_psi(eves,p)
 
     return calculate_u(phi,psi,evas,p)
+
+def do_evolution_with_derivatives(hf,dhf,p):
+    """
+    Calculate the time evolution operator U
+    given a Fourier transformed Hamiltonian Hf,
+    as well as its derivative dU given dHf
+    """
+    k = build_k(hf,p)
+
+    evas,eves = find_eigensystem(k,p)
+
+    phi = calculate_phi(eves)
+    psi = calculate_psi(eves,p)
+
+    u = calculate_u(phi,psi,evas,p)
+    du = calculate_du(dhf,psi,evas,eves,p)
+
+    return du
 
 
 def build_k(hf,p):
@@ -62,6 +82,12 @@ def build_k(hf,p):
             col += 1
 
     return k
+
+def build_dk(dhf,p):
+    p2 = copy.copy(p)
+    p2.omega = 0.0
+
+    return np.array([build_k(dhf[i],p2) for i in xrange(0,p.controls)])
 
 
 def find_eigensystem(k,p):
@@ -154,3 +180,38 @@ def calculate_u(phi,psi,energies,p):
         u += np.exp(-1j*p.t*energies[k])*np.outer(psi[k],np.conj(phi[k]))
 
     return u
+
+
+def calculate_du(dhf,psi,evas,eves,p):
+    du = np.zeros([p.controls,p.dim,p.dim],dtype='complex128')
+    dk = build_dk(dhf,p)
+
+    for control in xrange(0,p.controls):
+        for i1,i2 in itertools.product(xrange(0,p.dim),xrange(0,p.dim)):
+            for n1,n2 in itertools.product(xrange(-p.zones_cutoff,p.zones_cutoff+1),xrange(-p.zones_cutoff,p.zones_cutoff+1)):
+                e1 = evas[i1] + n1*p.omega
+                e2 = evas[i2] + n2*p.omega            
+
+                v1 = np.roll(eves[i1],n1,axis=0)
+                v2 = np.roll(eves[i2],n2,axis=0)
+
+                temp = np.exp(1j*p.omega*p.t*n1)*e(e1,e2,p)*expectation(dk[control],v1,v2,p)*np.outer(psi[i1],np.conj(eves[i2,h.num_to_i(-n2,p.zones),:]))
+                
+                du[control,:,:] += temp
+
+    print du
+    du = np.zeros([p.controls,p.dim,p.dim],dtype='complex128')
+
+    return du
+    
+def e(e1,e2,p):
+    if e1 == e2:
+        return -1.0j*np.exp(-1j*p.t*e1)
+    else:
+        return (np.exp(-1j*p.t*e1)-np.exp(-1j*p.t*e2))/(e1-e2)
+
+def expectation(dk,v1,v2,p):
+    a = np.conj(np.transpose(v1.flatten()))
+    b = v2.flatten()
+
+    return np.dot(np.dot(a,dk),b)
