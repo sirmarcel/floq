@@ -14,13 +14,13 @@ def rabi_hf(g,e1,e2):
     hf[2] = np.array([[0,g],[0,0]])
     return hf
 
-def do_u(zones):
+def do_u(nz):
   t = 5.23
   g = 0.123
   e1 = 1.0
   e2 = 2.5
   omega = 5.0
-  p = dtos.FloquetProblemParameters(2,zones,omega,t)
+  p = dtos.FloquetProblemParameters(2,nz,omega,t)
 
   hf = rabi_hf(g,e1,e2)
 

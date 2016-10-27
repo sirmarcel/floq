@@ -29,13 +29,13 @@ def rabi_u(g,e1,e2,w,t):
 
     return np.array([[exp1*c1a,exp1*c1b],[exp2*c2a,exp2*c2b]])
 
-def generate_fake_spectrum(unique_evas,dim,omega,n_zones):
-    evas = np.array([])
-    for i in xrange(0,n_zones):
-        offset = h.i_to_num(i,n_zones)
-        new = unique_evas + offset*omega*np.ones(dim)
-        evas = np.append(evas,new)
-    return evas
+def generate_fake_spectrum(unique_vals,dim,omega,nz):
+    vals = np.array([])
+    for i in xrange(0,nz):
+        offset = h.i_to_num(i,nz)
+        new = unique_vals + offset*omega*np.ones(dim)
+        vals = np.append(vals,new)
+    return vals
 
 
 class TestDoEvolution(unittest.TestCase,assertions.CustomAssertions):
@@ -45,11 +45,11 @@ class TestDoEvolution(unittest.TestCase,assertions.CustomAssertions):
         e2 = 2.8
         hf = rabi_hf(g,e1,e2)
         
-        n_zones = 11
+        nz = 11
         dim = 2
         omega = 5.0
         t = 20.5
-        p = dtos.FloquetProblemParameters(dim,n_zones,components=3,omega=omega,t=t)
+        p = dtos.FloquetProblemParameters(dim,nz,nc=3,omega=omega,t=t)
 
         self.u = rabi_u(g,e1,e2,omega,t)
         self.ucal = ev.do_evolution(hf,p)
@@ -72,11 +72,11 @@ class TestDoEvolutionWithDerivs(unittest.TestCase,assertions.CustomAssertions):
         hf = rabi_hf(g,e1,e2)
         dhf = np.array([rabi_hf(1.0,0,0)])
         
-        n_zones = 21
+        nz = 21
         dim = 2
         omega = 5.0
         t = 1.5
-        p = dtos.FloquetProblemParameters(dim,n_zones,components=3,omega=omega,t=t,controls=1)
+        p = dtos.FloquetProblemParameters(dim,nz,nc=3,omega=omega,t=t,cp=1)
 
         self.du = np.array([[-0.43745 + 0.180865j, 
   0.092544 - 0.0993391j], [-0.0611011 - 0.121241j, -0.36949 - 
@@ -89,7 +89,7 @@ class TestDoEvolutionWithDerivs(unittest.TestCase,assertions.CustomAssertions):
 class TestBuildK(unittest.TestCase,assertions.CustomAssertions):
     def setUp(self):
         dim = 2
-        self.p = dtos.FloquetProblemParameters(dim,zones=5,components=3,omega=1)
+        self.p = dtos.FloquetProblemParameters(dim,nz=5,nc=3,omega=1)
 
         a = -1.*np.ones([dim,dim])
         b = np.zeros([dim,dim])
@@ -107,7 +107,7 @@ class TestBuildK(unittest.TestCase,assertions.CustomAssertions):
 class TestBuilddK(unittest.TestCase,assertions.CustomAssertions):
     def setUp(self):
         dim = 2
-        self.p = dtos.FloquetProblemParameters(dim,5,3,controls=2,omega=1)
+        self.p = dtos.FloquetProblemParameters(dim,5,3,cp=2,omega=1)
 
         a = -1.*np.ones([dim,dim])
         b = np.zeros([dim,dim])
@@ -128,7 +128,7 @@ class TestBuilddK(unittest.TestCase,assertions.CustomAssertions):
 
 class TestFindEigensystem(unittest.TestCase,assertions.CustomAssertions):
     def setUp(self):
-        self.target_evas = np.array([-0.235, 0.753])
+        self.target_vals = np.array([-0.235, 0.753])
         # random matrix with known eigenvalues:
         # {-1.735, -0.747, -0.235, 0.753, 1.265, 2.253}
         k = np.array([[-0.0846814, -0.0015136 - 0.33735j, -0.210771 + 0.372223j, 
@@ -154,63 +154,63 @@ class TestFindEigensystem(unittest.TestCase,assertions.CustomAssertions):
         e2 = np.array([[0.593829 + 0.j, -0.105998 - 0.394563j], [-0.0737891 - 
          0.419478j, 0.323414 + 0.350387j], [-0.05506 - 
           0.169033j, -0.0165495 + 0.199498j]])
-        self.target_eves = np.array([e1,e2])
+        self.target_vecs = np.array([e1,e2])
 
         omega = 2.1
-        n_zones = 3
+        nz = 3
         dim = 2
-        p = dtos.FloquetProblemParameters(dim,n_zones,omega=omega,decimals=3)
+        p = dtos.FloquetProblemParameters(dim,nz,omega=omega,decimals=3)
 
-        self.evas,self.eves = ev.find_eigensystem(k,p)
+        self.vals,self.vecs = ev.find_eigensystem(k,p)
 
-    def test_finds_evas(self):
-        self.assertArrayEqual(self.evas,self.target_evas)
+    def test_finds_vals(self):
+        self.assertArrayEqual(self.vals,self.target_vals)
 
-    def test_finds_eves(self):
-        self.assertArrayEqual(self.eves,self.target_eves,decimals=3)
+    def test_finds_vecs(self):
+        self.assertArrayEqual(self.vecs,self.target_vecs,decimals=3)
 
     def test_casts_as_complex128(self):
-        self.assertEqual(self.eves.dtype,'complex128')
+        self.assertEqual(self.vecs.dtype,'complex128')
 
-class TestFindUniqueEvas(unittest.TestCase,assertions.CustomAssertions):
+class TestFindUniquevals(unittest.TestCase,assertions.CustomAssertions):
     
-    def test_finds_unique_evas_if_all_positive(self):
+    def test_finds_unique_vals_if_all_positive(self):
         dim = 3
         omega = 1.5
-        n_zones = 11
-        p = dtos.FloquetProblemParameters(dim,n_zones,omega=omega)
+        nz = 11
+        p = dtos.FloquetProblemParameters(dim,nz,omega=omega)
 
         us = np.array([0.3134,0.587,0.6324])
-        e = generate_fake_spectrum(us,dim,omega,n_zones)
+        e = generate_fake_spectrum(us,dim,omega,nz)
         
-        unique_e = ev.find_unique_evas(e,p)
+        unique_e = ev.find_unique_vals(e,p)
         self.assertArrayEqual(unique_e,us)
 
-    def test_finds_unique_evas_if_not_all_positive(self):
+    def test_finds_unique_vals_if_not_all_positive(self):
         dim = 3
         omega = 2.0
-        n_zones = 11
-        p = dtos.FloquetProblemParameters(dim,n_zones,omega=omega)
+        nz = 11
+        p = dtos.FloquetProblemParameters(dim,nz,omega=omega)
         
         us = np.array([-0.3,0.544,0.6])
         e = generate_fake_spectrum(us,dim,omega,11)
 
-        unique_e = ev.find_unique_evas(e,p)
+        unique_e = ev.find_unique_vals(e,p)
         self.assertArrayEqual(unique_e,us)
 
     def test_raises_error_if_degenerate(self):
        dim = 3
        omega = 2.0
-       n_zones = 11
-       p = dtos.FloquetProblemParameters(dim,n_zones,omega=omega)
+       nz = 11
+       p = dtos.FloquetProblemParameters(dim,nz,omega=omega)
 
        us = np.array([0.3552,0.3552,0.6])
        e = generate_fake_spectrum(us,dim,omega,11)
 
        with self.assertRaises(ev.EigenvalueNumberError):
-        ev.find_unique_evas(e,p)
+        ev.find_unique_vals(e,p)
 
-class TestSeparateComponents(unittest.TestCase,assertions.CustomAssertions):
+class TestSeparatenc(unittest.TestCase,assertions.CustomAssertions):
     def test_split(self):
         a = np.array([1.23,2.45])
         b = np.array([6.123,1.656])
@@ -223,7 +223,7 @@ class TestSeparateComponents(unittest.TestCase,assertions.CustomAssertions):
 
         target = np.array([e1_split,e2_split])
 
-        split = ev.separate_components([e1,e2],3)
+        split = ev.separate_nc([e1,e2],3)
 
         self.assertArrayEqual(split,target)
 
@@ -260,9 +260,9 @@ class TestCalculatePsi(unittest.TestCase,assertions.CustomAssertions):
         e2_sum = np.exp(-1j*omega*t)*c+a+np.exp(1j*omega*t)*b
 
         target = np.array([e1_sum,e2_sum])
-        eves = np.array([e1,e2])
+        vecs = np.array([e1,e2])
 
-        calculated_sum = ev.calculate_psi(eves,p)
+        calculated_sum = ev.calculate_psi(vecs,p)
 
         self.assertArrayEqual(calculated_sum,target)
 
@@ -272,8 +272,8 @@ class TestCalculateU(unittest.TestCase,assertions.CustomAssertions):
         omega = 3.56
         t = 8.123
         dim = 2
-        n_zones = 3
-        p = dtos.FloquetProblemParameters(dim,n_zones,omega=omega,t=t)
+        nz = 3
+        p = dtos.FloquetProblemParameters(dim,nz,omega=omega,t=t)
 
         energies = [0.23, 0.42]
 
@@ -281,10 +281,10 @@ class TestCalculateU(unittest.TestCase,assertions.CustomAssertions):
  1.162j, 1.756 + 0.372j, 0.689 + 0.902j])
         e2 = np.array([1.328 + 1.94j, 1.866 + 0.055j, 1.133 + 0.162j, 1.869 + 
  1.342j, 1.926 + 1.587j, 1.735 + 0.942j])
-        eves = ev.separate_components(np.array([e1,e2]),n_zones)
+        vecs = ev.separate_nc(np.array([e1,e2]),nz)
 
-        phi = ev.calculate_phi(eves)
-        psi = ev.calculate_psi(eves,p)
+        phi = ev.calculate_phi(vecs)
+        psi = ev.calculate_psi(vecs,p)
 
         target = np.array([[29.992 + 14.079j, 29.125 + 18.169j], [5.117 - 1.363j, 
  5.992 - 2.462j]]).round(3)
@@ -292,8 +292,6 @@ class TestCalculateU(unittest.TestCase,assertions.CustomAssertions):
 
         self.assertArrayEqual(u,target)
 
-
-# class TestCalculatedU(unittest.TestCase,assertions.CustomAssertions)
 
 class TestExpectation(unittest.TestCase,assertions.CustomAssertions):
     def setUp(self):
