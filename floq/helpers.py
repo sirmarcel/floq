@@ -1,4 +1,4 @@
-def num_to_i(num,n):
+def n_to_i(num,n):
     """
     Translate num, ranging from 
     -(n-1)/2 through (n-1)/2
@@ -10,7 +10,7 @@ def num_to_i(num,n):
     cutoff = (n-1)/2
     return num+cutoff
 
-def i_to_num(i,n):
+def i_to_n(i,n):
     """
     Translate index i, ranging from 0 to n-1
     into a number from -(n-1)/2 through (n-1)/2

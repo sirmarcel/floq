@@ -46,37 +46,32 @@ def do_evolution_with_derivatives(hf,dhf,p):
 
 
 def build_k(hf,p):
-    """
-    Build the Floquet-Hamiltonian K 
-    from the Fourier transform of the system Hamiltonian
-    """
-    
     hf_max = (p.nc-1)/2 # maximal frequency in Hf
 
     k = np.zeros([p.k_dim,p.k_dim])
 
-    # Assemble K by placing each component of Hf in turn
-    # The nc lie on diagonals, with Hf(0) on the main diagonal
+    # Assemble K by placing each component of Hf in turn, which for a fixed Fourier index lie on diagonals, with 0 on the main diagonal, positive numbers on the right and negative on the left
     # The first row is therefore essentially Hf(0) Hf(1) ... Hf(hf_max) 0 0 0 ...
     # The last row is then ... 0 0 0 Hf(-hf_max) ... Hf(0)
+    # Note that the main diagonal acquires a factor of omega*identity*(row/column number)
     for n in xrange(-hf_max,hf_max+1):
-        start_row = max(0,n) # n < 0, start at row 0
-        start_col = max(0,-n) # n > 0, start at col 0
+        start_row = max(0,n) # if n < 0, start at row 0
+        start_col = max(0,-n) # if n > 0, start at col 0
         
-        stop_row = min((p.nz-1)+n,p.nz-1) # if n > 0, start from the last col
-        stop_col = min((p.nz-1)-n,p.nz-1) # if n < 0, start from the last row
+        stop_row = min((p.nz-1)+n,p.nz-1)
+        stop_col = min((p.nz-1)-n,p.nz-1)
 
         row = start_row
         col = start_col
 
-        hf_of_n = hf[h.num_to_i(n,p.nc)]
+        current_component = hf[h.n_to_i(n,p.nc)]
 
         while row <= stop_row and col <= stop_col:
             if n == 0:
-                block = hf_of_n + np.identity(p.dim)*p.omega*h.i_to_num(row,p.nz)
+                block = current_component + np.identity(p.dim)*p.omega*h.i_to_n(row,p.nz)
                 bm.set_block_in_matrix(block,k,p.dim,p.nz,row,col)
             else:
-                bm.set_block_in_matrix(hf_of_n,k,p.dim,p.nz,row,col)
+                bm.set_block_in_matrix(current_component,k,p.dim,p.nz,row,col)
 
             row += 1
             col += 1
@@ -161,7 +156,7 @@ def calculate_psi(vecs,p):
     for k in xrange(0,p.dim):
         partial = np.zeros(p.dim,dtype='complex128')
         for i in xrange(0,p.nz):
-            num = h.i_to_num(i,p.nz)
+            num = h.i_to_n(i,p.nz)
             partial += np.exp(1j*p.omega*p.t*num)*vecs[k][i]
         psi[k,:] = partial
 
@@ -183,7 +178,7 @@ def calculate_du(dhf,psi,vals,vecs,p):
 
     # (i1,n1) & (i2,n2) iterate over the full spectrum of k:
     # i1, i2: unique eigenvalues/-vectors in 0th Brillouin zone
-    # n1, n2: related vals/vecs derived by shifting with those offsets
+    # n1, n2: related vals/vecs derived by shifting with those offsets (lying in the nth BZs)
     uniques = xrange(0,p.dim)
     offsets = xrange(p.nz_min,p.nz_max+1)
 
@@ -196,17 +191,22 @@ def calculate_du(dhf,psi,vals,vecs,p):
                 v1 = np.roll(vecs[i1],n1,axis=0)
                 v2 = np.roll(vecs[i2],n2,axis=0)
                 
-                du[c,:,:] += p.t*np.exp(1j*p.omega*p.t*n1)*efacs(e1,e2,p)*expectation(dk[c],v1,v2,p)*np.outer(psi[i1],np.conj(vecs[i2,h.num_to_i(-n2,p.nz)]))
+                temp = np.outer(psi[i1],np.conj(vecs[i2,h.n_to_i(-n2,p.nz)]))
+                temp *= expectation_value(dk[c],v1,v2,p)
+                temp *= p.t*np.exp(1j*p.omega*p.t*n1)
+                temp *= integral_factors(e1,e2,p)
+
+                du[c,:,:] += temp
 
     return du
     
-def efacs(e1,e2,p):
+def integral_factors(e1,e2,p):
     if e1 == e2:
         return -1.0j*np.exp(-1j*p.t*e1)
     else:
         return (np.exp(-1j*p.t*e1)-np.exp(-1j*p.t*e2))/(p.t*(e1-e2))
 
-def expectation(dk,v1,v2,p):
+def expectation_value(dk,v1,v2,p):
     a = np.conj(np.transpose(v1.flatten()))
     b = v2.flatten()
 

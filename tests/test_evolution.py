@@ -32,7 +32,7 @@ def rabi_u(g,e1,e2,w,t):
 def generate_fake_spectrum(unique_vals,dim,omega,nz):
     vals = np.array([])
     for i in xrange(0,nz):
-        offset = h.i_to_num(i,nz)
+        offset = h.i_to_n(i,nz)
         new = unique_vals + offset*omega*np.ones(dim)
         vals = np.append(vals,new)
     return vals
@@ -293,7 +293,50 @@ class TestCalculateU(unittest.TestCase,assertions.CustomAssertions):
         self.assertArrayEqual(u,target)
 
 
-class TestExpectation(unittest.TestCase,assertions.CustomAssertions):
+class TestCalculateDU(unittest.TestCase,assertions.CustomAssertions):
+    def setUp(self):
+        g = 0.5
+        e1 = 1.2
+        e2 = 2.8
+        hf = rabi_hf(g,e1,e2)
+        dhf = np.array([rabi_hf(1.0,0,0)])
+        
+        nz = 21
+        dim = 2
+        omega = 5.0
+        t = 1.5
+        p = dtos.FloquetProblemParameters(dim,nz,nc=3,omega=omega,t=t,np=1)
+
+        k = ev.build_k(hf,p)
+        vals,vecs = ev.find_eigensystem(k,p)
+        psi = ev.calculate_psi(vecs,p)
+
+
+        self.du = np.array([[-0.43745 + 0.180865j, 
+  0.092544 - 0.0993391j], [-0.0611011 - 0.121241j, -0.36949 - 
+   0.295891j]])
+        self.ducal = ev.calculate_du(dhf,psi,vals,vecs,p)
+
+    def test_is_correct_du(self):
+        self.assertArrayEqual(self.ducal,self.du)
+
+class TestIntegralFactors(unittest.TestCase):
+    def setUp(self):
+        self.p = dtos.FloquetProblemParameters(t=4.0)
+
+    def test_equal_energies(self):
+        e1 = 2.0
+        e2 = 2.0
+        result = -1.0j*np.exp(-1j*self.p.t*e1)
+        self.assertEqual(ev.integral_factors(e1,e2,self.p),result)
+
+    def test_different_energies(self):
+        e1 = 2.0
+        e2 = 3.0
+        result = (np.exp(-1j*self.p.t*e1)-np.exp(-1j*self.p.t*e2))/(self.p.t*(e1-e2))
+        self.assertEqual(ev.integral_factors(e1,e2,self.p),result)
+
+class TestExpectationValue(unittest.TestCase,assertions.CustomAssertions):
     def setUp(self):
         self.v1 = np.array([[0., 0.], [0., 0.],[ 0., 0.], [0., 0.], [0., 0.968028],[ -0.250841, 0.],[ 0., 0.],[ 0., 0.],[ 0., 0.],[ 0., 0.], [0., 0.]])
         self.v2 = np.array([[0., 0.], [0., 0.],[ 0., 0.], [0., 0.], [0., 0.250841],[0.968028, 0.],[ 0., 0.],[ 0., 0.],[ 0., 0.],[ 0., 0.], [0., 0.]])
@@ -305,10 +348,10 @@ class TestExpectation(unittest.TestCase,assertions.CustomAssertions):
         self.p = dtos.FloquetProblemParameters()
 
     def test_correct_expectation_values(self):
-        e11 = ev.expectation(self.dk,self.v1,self.v1,self.p)
-        e12 = ev.expectation(self.dk,self.v1,self.v2,self.p)
-        e21 = ev.expectation(self.dk,self.v2,self.v1,self.p)
-        e22 = ev.expectation(self.dk,self.v2,self.v2,self.p)
+        e11 = ev.expectation_value(self.dk,self.v1,self.v1,self.p)
+        e12 = ev.expectation_value(self.dk,self.v1,self.v2,self.p)
+        e21 = ev.expectation_value(self.dk,self.v2,self.v1,self.p)
+        e22 = ev.expectation_value(self.dk,self.v2,self.v2,self.p)
         calculated = np.array([e11,e12,e21,e22])
         self.assertArrayEqual(self.expected,calculated)
         
