@@ -21,15 +21,16 @@ class TestDoEvolution(unittest.TestCase,assertions.CustomAssertions):
         e1 = 1.2
         e2 = 2.8
         hf = rabi.hf(g,e1,e2)
+        dhf = np.zeros([1,2,2])
         
         nz = 11
         dim = 2
         omega = 5.0
         t = 20.5
-        p = fp.FloquetProblemParameters(dim,nz,nc=3,omega=omega,t=t)
+        p = fp.FloquetProblem(hf,dhf,nz,omega,t)
 
         self.u = rabi.u(g,e1,e2,omega,t)
-        self.ucal = ev.do_evolution(hf,p)
+        self.ucal = ev.do_evolution(p)
 
         self.um = np.matrix(self.ucal)
         
@@ -53,12 +54,12 @@ class TestDoEvolutionWithDerivs(unittest.TestCase,assertions.CustomAssertions):
         dim = 2
         omega = 5.0
         t = 1.5
-        p = fp.FloquetProblemParameters(dim,nz,nc=3,omega=omega,t=t,np=1)
+        p = fp.FloquetProblem(hf,dhf,nz,omega,t)
 
         self.du = np.array([[-0.43745 + 0.180865j, 
   0.092544 - 0.0993391j], [-0.0611011 - 0.121241j, -0.36949 - 
    0.295891j]])
-        [self.ucal,self.ducal] = ev.do_evolution_with_derivatives(hf,dhf,p)
+        [self.ucal,self.ducal] = ev.do_evolution_with_derivatives(p)
 
     def test_is_correct_du(self):
         self.assertArrayEqual(self.ducal,self.du)

@@ -1,3 +1,5 @@
+import numpy as np
+
 def hf(g,e1,e2):
     hf = np.zeros([3,2,2])
     hf[0] = np.array([[0,0],[g,0]])

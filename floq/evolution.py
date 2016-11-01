@@ -12,12 +12,12 @@ class EigenvalueNumberError(Exception):
         return "Number of eigenvalues of K does not match dimension of the the Hilbert space. \n All vals: " + repr(self.all_vals) + "\n 'Unique' vals: " + repr(self.unique_vals)
 
 
-def do_evolution(hf,p):
+def do_evolution(p):
     """
     Calculate the time evolution operator U
     given a Fourier transformed Hamiltonian Hf
     """
-    k = build_k(hf,p)
+    k = build_k(p.hf,p)
 
     vals,vecs = find_eigensystem(k,p)
 
@@ -26,13 +26,13 @@ def do_evolution(hf,p):
 
     return calculate_u(phi,psi,vals,p)
 
-def do_evolution_with_derivatives(hf,dhf,p):
+def do_evolution_with_derivatives(p):
     """
     Calculate the time evolution operator U
     given a Fourier transformed Hamiltonian Hf,
     as well as its derivative dU given dHf
     """
-    k = build_k(hf,p)
+    k = build_k(p.hf,p)
 
     vals,vecs = find_eigensystem(k,p)
 
@@ -40,7 +40,7 @@ def do_evolution_with_derivatives(hf,dhf,p):
     psi = calculate_psi(vecs,p)
 
     u = calculate_u(phi,psi,vals,p)
-    du = calculate_du(dhf,psi,vals,vecs,p)
+    du = calculate_du(p.dhf,psi,vals,vecs,p)
 
     return [u,du]
 
