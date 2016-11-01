@@ -2,7 +2,7 @@ import numpy as np
 
 class FloquetProblem(object):
     """
-    Class that defines one specific instance of a Floquet problem, i.e. some system for which the dynamics have to be calculated, and provides methods to compute those dynamics on that system.
+    Class that defines one specific instance of a Floquet problem, i.e. some system for which the dynamics have to be calculated
 
     Has the following attributes:
     - hf, the Fourier transformed Hamiltonian (ndarray, square)
@@ -28,7 +28,6 @@ class FloquetProblem(object):
         self.hf = hf
         self.dhf = dhf
 
-        # Explicit parameters
         self.nz = nz
         self.omega = omega
         self.t = t
@@ -115,4 +114,3 @@ class FloquetProblemParameters(object):
         self._dim = value
         if self.nz != None:
             self.k_dim = self.nz*value
-            
