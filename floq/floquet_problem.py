@@ -1,4 +1,37 @@
 import numpy as np
+import floq.evolution as ev
+
+class FloquetProblem(object):
+    """
+    Class that defines one specific instance of a Floquet problem, i.e. some system for which the dynamics have to be calculated, and provides methods to compute those dynamics on that system.
+
+    Has the following attributes:
+    - hf, the Fourier transformed Hamiltonian (ndarray, square)
+    - dhf, its derivative with respect to the controls (ndarray of square ndarrays)
+    - parameters, as defined in FloquetProblemParameters
+    On initialisation, the problem dimensions are inferred from hf and dhf.
+
+    Exposes the following methods:
+    - calculate_u
+    - calculate_u_and_du
+
+    
+    """
+    def __init__(self,hf,dhf,nz,omega,t,decimals=10):
+        dim = hf.shape[1]
+        nc = hf.shape[0]
+        np = dhf.shape[0]
+
+        self.hf = hf
+        self.dhf = dhf
+        self.parameters = FloquetProblemParameters(dim,nz,nc,np,omega,t,decimals)
+
+    def calculate_u(self):
+        self._u = ev.do_evolution(self.hf,self.parameters)
+
+    def calculate_u_and_du(self):
+        return ev.do_evolution_with_derivatives(self.hf,self.dhf,self.parameters)
+
 
 class FloquetProblemParameters(object):
     """
