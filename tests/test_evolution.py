@@ -5,6 +5,7 @@ import rabi
 import floq.evolution as ev
 import floq.helpers as h
 import floq.floquet_problem as fp
+import floq.errors as er
 
 def generate_fake_spectrum(unique_vals,dim,omega,nz):
     vals = np.array([])
@@ -185,7 +186,7 @@ class TestFindUniquevals(unittest.TestCase,assertions.CustomAssertions):
        us = np.array([0.3552,0.3552,0.6])
        e = generate_fake_spectrum(us,dim,omega,11)
 
-       with self.assertRaises(ev.EigenvalueNumberError):
+       with self.assertRaises(er.EigenvalueNumberError):
         ev.find_unique_vals(e,p)
 
 class TestSeparateComponents(unittest.TestCase,assertions.CustomAssertions):

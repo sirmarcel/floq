@@ -2,15 +2,9 @@ import numpy as np
 import floq.helpers as h
 import floq.blockmatrix as bm
 import floq.floquet_problem as fp
+import floq.errors as errors
 import itertools
 import copy
-
-class EigenvalueNumberError(Exception):
-    def __init__(self, all_vals, unique_vals):
-        self.all_vals, self.unique_vals = all_vals, unique_vals
-    def __str__(self):
-        return "Number of eigenvalues of K does not match dimension of the the Hilbert space. \n All vals: " + repr(self.all_vals) + "\n 'Unique' vals: " + repr(self.unique_vals)
-
 
 def do_evolution(p):
     """
@@ -125,7 +119,7 @@ def find_unique_vals(vals,p):
     unique_vals[should_be_negative] = (unique_vals[should_be_negative]-p.omega).round(p.decimals)
 
     if unique_vals.shape[0] != p.dim:
-        raise EigenvalueNumberError(vals,unique_vals)
+        raise errors.EigenvalueNumberError(vals,unique_vals)
     else:
         return np.sort(unique_vals)
 
