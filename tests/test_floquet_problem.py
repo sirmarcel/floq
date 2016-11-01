@@ -1,6 +1,7 @@
 import unittest
 import numpy as np
 import floq.floquet_problem as fp
+import floq.errors as er
 import rabi
 import assertions
 
@@ -24,6 +25,10 @@ class TestFloquetProblemInit(unittest.TestCase,assertions.CustomAssertions):
 
     def test_set_nz(self):
         self.assertEqual(self.problem.nz,self.nz)
+
+    def test_raise_error_if_nz_even(self):
+        with self.assertRaises(er.UsageError):
+            fp.FloquetProblem(self.hf,self.dhf,10,self.omega,self.t)
 
     def test_set_k_dim(self):
         self.assertEqual(self.problem.k_dim,9*10)

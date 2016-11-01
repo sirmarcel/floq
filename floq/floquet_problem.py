@@ -1,4 +1,5 @@
 import numpy as np
+import errors as er
 
 class FloquetProblem(object):
     """
@@ -47,6 +48,9 @@ class FloquetProblem(object):
 
     @nz.setter
     def nz(self, value):
+        if value%2 == 0:
+            raise er.UsageError("Number of Fourier components in the extended space (nz) cannot be even.")
+
         self._nz = value    
         self.k_dim = self.dim*value
         self.nz_max = (value-1)/2
