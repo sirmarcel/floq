@@ -21,19 +21,47 @@ class FloquetProblemParameters(object):
 
     """
     def __init__(self,dim=None,nz=None,nc=None,np=None,omega=None,t=None,decimals=10):
-        self.dim = dim # Size of the Hilbert space of the physical system
-        self.nz = nz # Number of Brillouin zones in the extended space
-        self.nc = nc # Number of frequency components of Hf
-        self.np = np # Number of control parameters
-
-        self.omega = omega # The frequency associated with the period of the control signal, T = 2 Pi / omega
-        self.t = t # Control duration
         
-        self.decimals = decimals # Number of decimals used for internal rounding
-        
-        if dim != None and nz != None:
-            self.k_dim = dim*nz # Size of the extended Hilbert + Fourier space
+        self._dim = None
+        self._nz = None
 
-        if nz != None:
-            self.nz_max = (nz-1)/2
-            self.nz_min = -(nz-1)/2
+        self.dim = dim
+        self.nz = nz
+        
+        self.nc = nc
+        self.np = np
+
+        self.omega = omega
+        self.t = t
+        
+        self.decimals = decimals
+        
+
+    @property
+    def nz(self):
+        """
+        Number of Brillouin zones in the extended space
+        """
+        return self._nz
+
+    @nz.setter
+    def nz(self, value):
+        self._nz = value
+        if self._dim != None:
+            self.k_dim = self.dim*value
+            self.nz_max = (value-1)/2
+            self.nz_min = -(value-1)/2
+
+    @property
+    def dim(self):
+        """
+        Physical size of Hilbert Space
+        """
+        return self._dim
+
+    @dim.setter
+    def dim(self, value):
+        self._dim = value
+        if self.nz != None:
+            self.k_dim = self.nz*value
+            

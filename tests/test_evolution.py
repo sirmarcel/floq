@@ -3,7 +3,7 @@ import numpy as np
 import assertions
 import floq.evolution as ev
 import floq.helpers as h
-import floq.dtos as dtos
+import floq.floquet_problem as fp
 
 def rabi_hf(g,e1,e2):
     hf = np.zeros([3,2,2])
@@ -49,7 +49,7 @@ class TestDoEvolution(unittest.TestCase,assertions.CustomAssertions):
         dim = 2
         omega = 5.0
         t = 20.5
-        p = dtos.FloquetProblemParameters(dim,nz,nc=3,omega=omega,t=t)
+        p = fp.FloquetProblemParameters(dim,nz,nc=3,omega=omega,t=t)
 
         self.u = rabi_u(g,e1,e2,omega,t)
         self.ucal = ev.do_evolution(hf,p)
@@ -76,7 +76,7 @@ class TestDoEvolutionWithDerivs(unittest.TestCase,assertions.CustomAssertions):
         dim = 2
         omega = 5.0
         t = 1.5
-        p = dtos.FloquetProblemParameters(dim,nz,nc=3,omega=omega,t=t,np=1)
+        p = fp.FloquetProblemParameters(dim,nz,nc=3,omega=omega,t=t,np=1)
 
         self.du = np.array([[-0.43745 + 0.180865j, 
   0.092544 - 0.0993391j], [-0.0611011 - 0.121241j, -0.36949 - 
@@ -89,7 +89,7 @@ class TestDoEvolutionWithDerivs(unittest.TestCase,assertions.CustomAssertions):
 class TestBuildK(unittest.TestCase,assertions.CustomAssertions):
     def setUp(self):
         dim = 2
-        self.p = dtos.FloquetProblemParameters(dim,nz=5,nc=3,omega=1)
+        self.p = fp.FloquetProblemParameters(dim,nz=5,nc=3,omega=1)
 
         a = -1.*np.ones([dim,dim])
         b = np.zeros([dim,dim])
@@ -107,7 +107,7 @@ class TestBuildK(unittest.TestCase,assertions.CustomAssertions):
 class TestBuilddK(unittest.TestCase,assertions.CustomAssertions):
     def setUp(self):
         dim = 2
-        self.p = dtos.FloquetProblemParameters(dim,5,3,np=2,omega=1)
+        self.p = fp.FloquetProblemParameters(dim,5,3,np=2,omega=1)
 
         a = -1.*np.ones([dim,dim])
         b = np.zeros([dim,dim])
@@ -159,7 +159,7 @@ class TestFindEigensystem(unittest.TestCase,assertions.CustomAssertions):
         omega = 2.1
         nz = 3
         dim = 2
-        p = dtos.FloquetProblemParameters(dim,nz,omega=omega,decimals=3)
+        p = fp.FloquetProblemParameters(dim,nz,omega=omega,decimals=3)
 
         self.vals,self.vecs = ev.find_eigensystem(k,p)
 
@@ -178,7 +178,7 @@ class TestFindUniquevals(unittest.TestCase,assertions.CustomAssertions):
         dim = 3
         omega = 1.5
         nz = 11
-        p = dtos.FloquetProblemParameters(dim,nz,omega=omega)
+        p = fp.FloquetProblemParameters(dim,nz,omega=omega)
 
         us = np.array([0.3134,0.587,0.6324])
         e = generate_fake_spectrum(us,dim,omega,nz)
@@ -190,7 +190,7 @@ class TestFindUniquevals(unittest.TestCase,assertions.CustomAssertions):
         dim = 3
         omega = 2.0
         nz = 11
-        p = dtos.FloquetProblemParameters(dim,nz,omega=omega)
+        p = fp.FloquetProblemParameters(dim,nz,omega=omega)
         
         us = np.array([-0.3,0.544,0.6])
         e = generate_fake_spectrum(us,dim,omega,11)
@@ -202,7 +202,7 @@ class TestFindUniquevals(unittest.TestCase,assertions.CustomAssertions):
        dim = 3
        omega = 2.0
        nz = 11
-       p = dtos.FloquetProblemParameters(dim,nz,omega=omega)
+       p = fp.FloquetProblemParameters(dim,nz,omega=omega)
 
        us = np.array([0.3552,0.3552,0.6])
        e = generate_fake_spectrum(us,dim,omega,11)
@@ -248,7 +248,7 @@ class TestCalculatePsi(unittest.TestCase,assertions.CustomAssertions):
     def test_sum(self):
         omega = 2.34
         t = 1.22
-        p = dtos.FloquetProblemParameters(2,3,omega=omega,t=t)
+        p = fp.FloquetProblemParameters(2,3,omega=omega,t=t)
 
         a = np.array([1.53,2.45],dtype='complex128')
         b = np.array([7.161,1.656],dtype='complex128')
@@ -273,7 +273,7 @@ class TestCalculateU(unittest.TestCase,assertions.CustomAssertions):
         t = 8.123
         dim = 2
         nz = 3
-        p = dtos.FloquetProblemParameters(dim,nz,omega=omega,t=t)
+        p = fp.FloquetProblemParameters(dim,nz,omega=omega,t=t)
 
         energies = [0.23, 0.42]
 
@@ -305,7 +305,7 @@ class TestCalculateDU(unittest.TestCase,assertions.CustomAssertions):
         dim = 2
         omega = 5.0
         t = 1.5
-        p = dtos.FloquetProblemParameters(dim,nz,nc=3,omega=omega,t=t,np=1)
+        p = fp.FloquetProblemParameters(dim,nz,nc=3,omega=omega,t=t,np=1)
 
         k = ev.build_k(hf,p)
         vals,vecs = ev.find_eigensystem(k,p)
@@ -322,7 +322,7 @@ class TestCalculateDU(unittest.TestCase,assertions.CustomAssertions):
 
 class TestIntegralFactors(unittest.TestCase):
     def setUp(self):
-        self.p = dtos.FloquetProblemParameters(t=4.0)
+        self.p = fp.FloquetProblemParameters(t=4.0)
 
     def test_equal_energies(self):
         e1 = 2.0
@@ -345,7 +345,7 @@ class TestExpectationValue(unittest.TestCase,assertions.CustomAssertions):
 
         self.expected = np.array([-0.485643,0.874157,0.874157,0.485643])
         
-        self.p = dtos.FloquetProblemParameters()
+        self.p = fp.FloquetProblemParameters()
 
     def test_correct_expectation_values(self):
         e11 = ev.expectation_value(self.dk,self.v1,self.v1,self.p)

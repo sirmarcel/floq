@@ -1,7 +1,7 @@
 import numpy as np
 import floq.helpers as h
 import floq.blockmatrix as bm
-import floq.dtos as dtos
+import floq.floquet_problem as fp
 import itertools
 import copy
 
