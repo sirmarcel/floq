@@ -1,13 +1,14 @@
 import numpy as np
 import errors as er
 
-class FloquetProblem(object):
+class FixedSystem(object):
     """
     Class that defines one specific instance of a Floquet problem, i.e. some system for which the dynamics have to be calculated
 
     Has the following attributes:
     - hf, the Fourier transformed Hamiltonian (ndarray, square)
     - dhf, its derivative with respect to the controls (ndarray of square ndarrays)
+    - parameters, an instance of FixedSystemParameters
 
     - omega: The frequency associated with the period T of the control pulse
     - t: Control duration
@@ -69,10 +70,10 @@ class FloquetProblem(object):
         self.k_dim = self.nz*value
 
 
-class FloquetProblemParameters(object):
+class FixedSystemParameters(object):
     """
     Class to pass to functions in evolution.py without having to
-    specify a full FloquetProblem -- retained mainly for testing
+    specify a full FixedSystem -- retained mainly for testing
     """
     def __init__(self,dim=None,nz=None,nc=None,np=None,omega=None,t=None,decimals=10):
         

@@ -1,7 +1,7 @@
 import numpy as np
 import floq.helpers as h
 import floq.blockmatrix as bm
-import floq.floquet_problem as fp
+import floq.fixed_system as fs
 import floq.errors as errors
 import itertools
 import copy

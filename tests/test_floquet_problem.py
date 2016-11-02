@@ -1,11 +1,11 @@
 import unittest
 import numpy as np
-import floq.floquet_problem as fp
+import floq.fixed_system as fs
 import floq.errors as er
 import rabi
 import assertions
 
-class TestFloquetProblemInit(unittest.TestCase,assertions.CustomAssertions):
+class TestFixedSystemInit(unittest.TestCase,assertions.CustomAssertions):
 
     def setUp(self):
         self.hf = np.zeros([5,10,10])
@@ -13,7 +13,7 @@ class TestFloquetProblemInit(unittest.TestCase,assertions.CustomAssertions):
         self.omega = 3.0
         self.t = 1.0
         self.nz = 9
-        self.problem = fp.FloquetProblem(self.hf,self.dhf,self.nz,self.omega,self.t)
+        self.problem = fs.FixedSystem(self.hf,self.dhf,self.nz,self.omega,self.t)
 
 
     def test_set_hf(self):
@@ -28,7 +28,7 @@ class TestFloquetProblemInit(unittest.TestCase,assertions.CustomAssertions):
 
     def test_raise_error_if_nz_even(self):
         with self.assertRaises(er.UsageError):
-            fp.FloquetProblem(self.hf,self.dhf,10,self.omega,self.t)
+            fs.FixedSystem(self.hf,self.dhf,10,self.omega,self.t)
 
     def test_set_k_dim(self):
         self.assertEqual(self.problem.k_dim,9*10)
