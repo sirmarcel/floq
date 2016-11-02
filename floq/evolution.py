@@ -6,35 +6,41 @@ import floq.errors as errors
 import itertools
 import copy
 
-def do_evolution(p):
+def evolve_system(system):
+    return do_evolution(system.hf,system.params)
+
+def evolve_system_with_derivatives(system):
+    return do_evolution_with_derivatives(system.hf,system.dhf,system.params)
+
+def do_evolution(hf, params):
     """
     Calculate the time evolution operator U
     given a Fourier transformed Hamiltonian Hf
     """
-    k = build_k(p.hf,p)
+    k = build_k(hf,params)
 
-    vals,vecs = find_eigensystem(k,p)
+    vals,vecs = find_eigensystem(k,params)
 
     phi = calculate_phi(vecs)
-    psi = calculate_psi(vecs,p)
+    psi = calculate_psi(vecs,params)
 
-    return calculate_u(phi,psi,vals,p)
+    return calculate_u(phi,psi,vals,params)
 
-def do_evolution_with_derivatives(p):
+def do_evolution_with_derivatives(hf, dhf, params):
     """
     Calculate the time evolution operator U
     given a Fourier transformed Hamiltonian Hf,
     as well as its derivative dU given dHf
     """
-    k = build_k(p.hf,p)
+    k = build_k(hf,params)
 
-    vals,vecs = find_eigensystem(k,p)
+    vals,vecs = find_eigensystem(k,params)
 
     phi = calculate_phi(vecs)
-    psi = calculate_psi(vecs,p)
+    psi = calculate_psi(vecs,params)
 
-    u = calculate_u(phi,psi,vals,p)
-    du = calculate_du(p.dhf,psi,vals,vecs,p)
+    u = calculate_u(phi,psi,vals,params)
+    du = calculate_du(dhf,psi,vals,vecs,params)
 
     return [u,du]
 
