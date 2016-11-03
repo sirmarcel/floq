@@ -25,7 +25,7 @@ class OptimizationTaskBase(object):
         raise NotImplementedError
 
 class OptimizationTaskWithFunctions(OptimizationTaskBase):
-    def __init__(self,system,fid,dfid,target,target_fid,a0):
+    def __init__(self,system,fid,dfid,target,target_fid,init):
         """
         system: Instance of ParametricSystemBase
         fid: callable fid(fixed_system,u,target)
@@ -37,14 +37,14 @@ class OptimizationTaskWithFunctions(OptimizationTaskBase):
         self.dfid = dfid
         self.target = target
         self.target_fid = target_fid
-        self.a0 = a0
+        self.init = init
 
-    def fidelity(controls,t):
-        fixed = system.get_system(controls,t)
+    def fidelity(self,controls,t):
+        fixed = self.system.get_system(controls,t)
         u = ev.evolve_system(fixed)
         return self.fid(fixed,u,self.target)
 
-    def grad_fidelity(controls,t):
-        fixed = system.get_system(controls,t)
-        [u,du] = ev.evolve_system_with_derivatives(fixed)
+    def grad_fidelity(self,controls,t):
+        fixed = self.system.get_system(controls,t)
+        u,du = ev.evolve_system_with_derivatives(fixed)
         return self.dfid(fixed,u,du,self.target)

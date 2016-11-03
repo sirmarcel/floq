@@ -1,7 +1,8 @@
 import numpy as np
 import floq.parametric_system as ps
 
-def hf(g,parameters,omega=None):
+def hf(controls,parameters,omega=None):
+    g = controls[0]
     e1 = parameters[0]
     e2 = parameters[1]
     hf = np.zeros([3,2,2])
@@ -10,8 +11,8 @@ def hf(g,parameters,omega=None):
     hf[2] = np.array([[0,g],[0,0]])
     return hf
 
-def dhf(g,parameters,omega=None):
-    return np.array(hf(1.0,[0.0,0.0]))
+def dhf(controls,parameters,omega=None):
+    return np.array([hf([1.0],[0.0,0.0])])
 
 def get_rabi_system(energies,omega):
     return ps.ParametricSystemWithFunctions(hf,dhf,21,omega,energies)
