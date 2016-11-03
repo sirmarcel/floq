@@ -15,3 +15,4 @@ def dhf(g,parameters,omega=None):
 
 def get_rabi_system(energies,omega):
     return ps.ParametricSystemWithFunctions(hf,dhf,21,omega,energies)
+

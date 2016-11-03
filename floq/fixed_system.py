@@ -33,6 +33,14 @@ class FixedSystem(object):
 
         self.params = FixedSystemParameters(dim,nz,nc,np,omega,t,decimals)
 
+class DummyFixedSystem(FixedSystem):
+    """
+    A dummy FixedSystem that can be initialised with arbitrary dimensions without specifying hf and dhf (mainly for testing)
+    """
+
+    def __init__(self,**kwargs):
+        self.params = FixedSystemParameters.optional(**kwargs)
+
 class FixedSystemParameters(object):
     """
     Hold parameters for a FixedSystem
