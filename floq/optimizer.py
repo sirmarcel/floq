@@ -12,9 +12,10 @@ class OptimizerBase(object):
         raise NotImplementedError
 
 class SciPyOptimizer(OptimizerBase):
-    def __init__(self, task, t):
+    def __init__(self, task, t, method='BFGS'):
         self.task = task
         self.t = t
+        self.method = method
 
         self.fid = self._wrap_t(self.task.fidelity,self.t)
         self.dfid = self._wrap_t(self.task.grad_fidelity,self.t)
@@ -26,5 +27,5 @@ class SciPyOptimizer(OptimizerBase):
 
     def optimize(self):
         
-        res = opt.minimize(self.fid, self.task.init, jac=self.dfid)
+        res = opt.minimize(self.fid, self.task.init, jac=self.dfid, method=self.method)
         return res
