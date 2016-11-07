@@ -1,6 +1,24 @@
 import numpy as np
 
 
+def transfer_fidelity(system, u, target):
+    """
+    Compute how well the unitary u transfers an
+    initial state |i> to a final state |f>, quantified by
+    fid = |<f| u |i>|^2.
+
+    Note that target is expected to contain both the
+    initial and final state, as follows:
+    target[0, :] = |i>
+    target[1, :] = |f>.
+    """
+    i = target[0, :]
+    f = np.conj(np.transpose(target[1, :]))
+    ui = np.dot(u, i)
+    fui = np.dot(f, ui)
+    return np.abs(fui)**2
+
+
 def operator_fidelity(system, u, target):
     """
     Calculate the operator fidelity between the unitaries
