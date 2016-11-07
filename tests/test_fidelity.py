@@ -10,21 +10,21 @@ u3 = np.array([[0.7025 + 0.2537j, -0.3209 + 0.1607j, 0.2748 - 0.4877j], [0.1706 
 u4 = np.array([[-0.2251 - 0.6249j, -0.5262 - 0.4341j, -0.0811 - 0.2947j], [0.3899 - 0.567j, 0.1173 + 0.5961j, -0.3893 - 0.0762j], [-0.1855 - 0.2256j, 0.0326 + 0.4055j, 0.8249 - 0.2623j]])
 
 
-class TestTraceOverlap(unittest.TestCase, assertions.CustomAssertions):
+class TestOperatorFidelity(unittest.TestCase, assertions.CustomAssertions):
 
-    def test_overlap(self):
+    def test_operator_fidelity(self):
         system = fs.DummyFixedSystem(dim=3)
-        overlap = f.trace_overlap(system, u1, u2)
-        self.assertAlmostEqualWithDecimals(overlap, 0.0378906, 4)
+        distance = f.operator_fidelity(system, u1, u2)
+        self.assertAlmostEqualWithDecimals(distance, 0.0378906, 4)
 
 
-class TestTraceOverlapDeriv(unittest.TestCase, assertions.CustomAssertions):
+class TestOperatorFidelityDeriv(unittest.TestCase, assertions.CustomAssertions):
 
-    def test_d_overlap(self):
+    def test_d_operator_fidelity(self):
         system = fs.DummyFixedSystem(dim=3)
         dus = np.array([u3, u4])
         target = np.array([0.302601, -0.291255])
-        actual = f.d_trace_overlap(system, u1, dus, u2)
+        actual = f.d_operator_fidelity(system, u1, dus, u2)
         self.assertArrayEqual(actual, target, 4)
 
 
