@@ -4,12 +4,12 @@ import floq.optimization_task as ot
 
 
 class OptimizerBase(object):
-    """docstring for OptimizerBase"""
     def __init__(self, task):
         self.task = task
 
     def optimize(self):
         raise NotImplementedError
+
 
 class SciPyOptimizer(OptimizerBase):
     def __init__(self, task, t, method='BFGS'):
@@ -17,15 +17,14 @@ class SciPyOptimizer(OptimizerBase):
         self.t = t
         self.method = method
 
-        self.fid = self._wrap_t(self.task.fidelity,self.t)
-        self.dfid = self._wrap_t(self.task.grad_fidelity,self.t)
+        self.fid = self._wrap_t(self.task.fidelity, self.t)
+        self.dfid = self._wrap_t(self.task.grad_fidelity, self.t)
 
     def _wrap_t(self, func, t):
         def wrapped(args):
-            return func(args,t)
+            return func(args, t)
         return wrapped
 
     def optimize(self):
-        
         res = opt.minimize(self.fid, self.task.init, jac=self.dfid, method=self.method)
         return res
