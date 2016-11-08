@@ -77,6 +77,6 @@ class TestSpinEnsemble(unittest.TestCase, assertions.CustomAssertions):
         target = np.array([dhf(amp) for amp in amps])
 
         ss = spins.SpinEnsemble(3, 2, 1, 1, amps)
-        result = ss._assemble_dhf()
+        result = ss._build_dhf()
 
         self.assertArrayEqual(target, result)
