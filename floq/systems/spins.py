@@ -1,5 +1,6 @@
 import numpy as np
 import floq.parametric_system as ps
+import floq.fixed_system as fs
 
 
 class SpinEnsemble(object):
@@ -32,6 +33,7 @@ class SpinEnsemble(object):
 
         self.np = 2*ncomp  # number of control parameters
         self.nc = 2*ncomp+1
+        self.nz = self.nc*10 + 1  # TODO: Implement automatic discovery of appropriate nz
 
         self._dhf = None
 
@@ -39,7 +41,7 @@ class SpinEnsemble(object):
     def dhf(self):
         # dhf is independent of the controls,
         # so we only need to compute it once
-        if self_dhf is not None:
+        if self._dhf is not None:
             return self._dhf
         else:
             self._dhf = self._build_dhf()
@@ -53,8 +55,9 @@ class SpinEnsemble(object):
         2*ncomp values ordered as follows:
         [a1, b1, a2, b2, ... a_nc, b_nc]
         """
-        hf = self._build_single_hf(self.freq[i], self.amps[i], controls)
-        dhf = self._build_single_dhf(self.freq[i], self.amps[i], controls)
+        hf = self._build_single_hf(self.freqs[i], self.amps[i], controls)
+        dhf = self.dhf[i]
+        return fs.FixedSystem(hf, dhf, self.nz, self.omega, t)
 
 
 

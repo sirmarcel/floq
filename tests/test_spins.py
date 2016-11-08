@@ -1,6 +1,7 @@
 import unittest
 import numpy as np
 import floq.systems.spins as spins
+import floq.fixed_system as fs
 import assertions
 
 
@@ -80,3 +81,16 @@ class TestSpinEnsemble(unittest.TestCase, assertions.CustomAssertions):
         result = ss._build_dhf()
 
         self.assertArrayEqual(target, result)
+
+    def test_get_single_system(self):
+        amps = np.array([1.25, 0.9, 1.8])
+        freqs = np.array([1.7, 2.0, 2.1])
+        controls = np.array([1.2, 1.3, 2.6, 3.9])
+        hf1 = single_hf(amps[0]*controls, freqs[0])
+        dhf1 = dhf(amps[0])
+        first_system = fs.FixedSystem(hf1, dhf1, 51, 1.0, 1.0)
+
+        ss = spins.SpinEnsemble(3, 2, 1.0, freqs, amps)
+        system = ss.get_single_system(0, controls, 1.0)
+
+        self.assertEqual(first_system, system)
