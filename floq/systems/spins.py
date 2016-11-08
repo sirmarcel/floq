@@ -42,7 +42,7 @@ class SpinEnsemble(object):
         if self_dhf is not None:
             return self._dhf
         else:
-            self._dhf = self._assemble_dhf()
+            self._dhf = self._build_dhf()
             return self._dhf
 
 
