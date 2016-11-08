@@ -60,6 +60,13 @@ class SpinEnsemble(object):
         return fs.FixedSystem(hf, dhf, self.nz, self.omega, t)
 
 
+    def get_systems(self, controls, t):
+        """
+        Return a list of FixedSystem instances for each spin
+        """
+        return [get_single_system(i, controls, t) for i in xrange(0, self.n)]
+
+
 
     def _build_single_hf(self, freq, amp, controls):
         # assemble hf for one spin
