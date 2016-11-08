@@ -37,6 +37,16 @@ class FixedSystem(object):
 
         self.params = FixedSystemParameters(dim, nz, nc, np, omega, t, decimals)
 
+    def __eq__(self, other):
+        assert isinstance(other, FixedSystem)
+        hf_same = np.array_equal(self.hf, other.hf)
+        dhf_same = np.array_equal(self.dhf, other.dhf)
+        params_same = (self.params.nz, self.params.omega, self.params.t) \
+            == (other.params.nz, other.params.omega, other.params.t)
+
+        return hf_same and dhf_same and params_same
+
+
 
 class DummyFixedSystem(FixedSystem):
     """
