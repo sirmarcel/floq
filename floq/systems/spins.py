@@ -13,46 +13,51 @@ class SpinEnsemble(object):
     attenuation factor for each spin. Fidelities etc. will then be computed as ensemble averages.
     """
 
-    def __init__(self, n, nc, omega, freqs, amps):
+    def __init__(self, n, ncomp, omega, freqs, amps):
         """
         Initialise a SpinEnsemble instance with
         - n: number of spins
-        - nc: number of components in the control pulse
+        - ncomp: number of components in the control pulse
+         -> hf will have nc = 2*comp+1 components
         - omega: base frequency of control pulse
         - freqs: vector of n frequencies
         - amps: vector of n amplitudes
         """
 
         self.n = n
-        self.nc = nc
+        self.ncomp = ncomp
         self.omega = omega
         self.freqs = freqs
         self.amps = amps
+
+        self.np = 2*ncomp  # number of control parameters
+        self.nc = 2*ncomp+1
 
 
     def get_single_system(self, i, controls, t):
         """
         Build an instance of FixedSystem for the ith spin,
         with the given controls -- these are expected to be
-        2*nc values ordered as follows:
+        2*ncomp values ordered as follows:
         [a1, b1, a2, b2, ... a_nc, b_nc]
         """
         hf = self._build_single_hf(self.freq[i], self.amps[i], controls)
         dhf = self._build_single_dhf(self.freq[i], self.amps[i], controls)
 
 
-    def _build_single_hf(self, nc, freq, amp, controls):
+    def _build_single_hf(self, freq, amp, controls):
         # assemble hf for one spin
 
-        hf = np.zeros([2*nc+1, 2, 2], dtype='complex128')
-        for k in xrange(0, nc):
+        hf = np.zeros([self.nc, 2, 2], dtype='complex128')
+
+        for k in xrange(0, self.ncomp):
             # the controls are ordered in reverse
             # compared to how they are placed in hf
             a = controls[-2*k-2]*amp
             b = controls[-2*k-1]*amp
 
             # The controls are placed symmetrically around
-            # the centre of hf, so we can place them at the 
+            # the centre of hf, so we can place them at the
             # same time to save us some work!
             hf[k, :, :] = np.array([[0.0, 0.25*(1j*a+b)],
                                     [0.25*(1j*a-b), 0.0]])
@@ -60,8 +65,27 @@ class SpinEnsemble(object):
             hf[-k-1, :, :] = np.array([[0.0, -0.25*(1j*a+b)],
                                        [0.25*(-1j*a+b), 0.0]])
 
-        # This is the centre (with Fourier index 0)
-        hf[nc] = np.array([[freq/2.0, 0.0],
-                           [0.0, -freq/2.0]])
+        # Set centre (with Fourier index 0)
+        hf[self.ncomp] = np.array([[freq/2.0, 0.0],
+                                   [0.0, -freq/2.0]])
 
         return hf
+
+    def _build_single_dhf(self):
+        dhf = np.zeros([self.np, self.nc, 2, 2], dtype='complex128')
+
+        for k in xrange(0, self.ncomp):
+            i_a = -2*k-2
+            i_b = -2*k-1
+
+            dhf[i_a, k, :, :] = np.array([[0.0, 0.25j],
+                                          [0.25j, 0.0]])
+            dhf[i_a, -k-1, :, :] = np.array([[0.0, -0.25j],
+                                             [-0.25j, 0.0]])
+
+            dhf[i_b, k, :, :] = np.array([[0.0, 0.25],
+                                          [-0.25, 0.0]])
+            dhf[i_b, -k-1, :, :] = np.array([[0.0, -0.25],
+                                             [0.25, 0.0]])
+
+        return dhf
