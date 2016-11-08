@@ -9,9 +9,6 @@ class OptimizationTaskBase(object):
     i.e. a physical (parametrised) system,
     a fidelity, a target and an initial control vector.
     """
-    def system(self):
-        raise NotImplementedError
-
     def fidelity(self, control, t):
         raise NotImplementedError
 
@@ -52,3 +49,25 @@ class OptimizationTaskWithFunctions(OptimizationTaskBase):
         fixed = self.system.get_system(controls, t)
         u, du = ev.evolve_system_with_derivatives(fixed)
         return self.dfid(fixed, u, du, self.target)
+
+
+class EnsembleOptimizationTask(OptimizationTaskBase):
+    """
+    An optimization task where an ensemble of (non-interacting)
+    systems is optimised.
+    """
+
+    def __init__(self, ensemble, fid, target, init):
+        self.ensemble = ensemble
+        self.fid = fid
+        self.dfid = None
+        self.target = target
+        self.init = init
+
+    def fidelity(self, controls, t):
+        fixed_systems = self.ensemble.get_systems(controls, t)
+        fid = 0.0
+        for sys in fixed_systems:
+            u = ev.evolve_system(sys)
+            fid += self.fid(sys, u, self.target)
+        return fid/self.ensemble.n
