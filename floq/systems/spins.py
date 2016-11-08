@@ -51,12 +51,16 @@ class SpinEnsemble(object):
             a = controls[-2*k-2]*amp
             b = controls[-2*k-1]*amp
 
+            # The controls are placed symmetrically around
+            # the centre of hf, so we can place them at the 
+            # same time to save us some work!
             hf[k, :, :] = np.array([[0.0, 0.25*(1j*a+b)],
                                     [0.25*(1j*a-b), 0.0]])
 
             hf[-k-1, :, :] = np.array([[0.0, -0.25*(1j*a+b)],
                                        [0.25*(-1j*a+b), 0.0]])
 
+        # This is the centre (with Fourier index 0)
         hf[nc] = np.array([[freq/2.0, 0.0],
                            [0.0, -freq/2.0]])
 
