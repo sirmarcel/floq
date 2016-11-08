@@ -57,6 +57,7 @@ class SpinEnsemble(object):
         dhf = self._build_single_dhf(self.freq[i], self.amps[i], controls)
 
 
+
     def _build_single_hf(self, freq, amp, controls):
         # assemble hf for one spin
 
@@ -83,6 +84,7 @@ class SpinEnsemble(object):
 
         return hf
 
+
     def _build_single_dhf(self, amp):
         dhf = np.zeros([self.np, self.nc, 2, 2], dtype='complex128')
 
@@ -101,6 +103,7 @@ class SpinEnsemble(object):
                                              [0.25*amp, 0.0]])
 
         return dhf
+
 
     def _build_dhf(self):
         dhf = np.zeros([self.n, self.np, self.nc, 2, 2], dtype='complex128')
