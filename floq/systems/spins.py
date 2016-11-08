@@ -71,21 +71,21 @@ class SpinEnsemble(object):
 
         return hf
 
-    def _build_single_dhf(self):
+    def _build_single_dhf(self, amp):
         dhf = np.zeros([self.np, self.nc, 2, 2], dtype='complex128')
 
         for k in xrange(0, self.ncomp):
             i_a = -2*k-2
             i_b = -2*k-1
 
-            dhf[i_a, k, :, :] = np.array([[0.0, 0.25j],
-                                          [0.25j, 0.0]])
-            dhf[i_a, -k-1, :, :] = np.array([[0.0, -0.25j],
-                                             [-0.25j, 0.0]])
+            dhf[i_a, k, :, :] = np.array([[0.0, 0.25j*amp],
+                                          [0.25j*amp, 0.0]])
+            dhf[i_a, -k-1, :, :] = np.array([[0.0, -0.25j*amp],
+                                             [-0.25j*amp, 0.0]])
 
-            dhf[i_b, k, :, :] = np.array([[0.0, 0.25],
-                                          [-0.25, 0.0]])
-            dhf[i_b, -k-1, :, :] = np.array([[0.0, -0.25],
-                                             [0.25, 0.0]])
+            dhf[i_b, k, :, :] = np.array([[0.0, 0.25*amp],
+                                          [-0.25*amp, 0.0]])
+            dhf[i_b, -k-1, :, :] = np.array([[0.0, -0.25*amp],
+                                             [0.25*amp, 0.0]])
 
         return dhf

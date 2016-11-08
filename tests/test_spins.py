@@ -21,7 +21,7 @@ def single_hf(controls, omega):
                      [0.25*(-1j*a2 + b2), 0]]])
 
 
-def dhf():
+def dhf(amp):
 
     dhf_b1 = np.array([[[0., 0.], [0., 0.]],
                        [[0., 0.25], [-0.25, 0.]],
@@ -47,7 +47,7 @@ def dhf():
                        [[0., 0.], [0., 0.]],
                        [[0., 0. - 0.25j], [0. - 0.25j, 0.]]])
 
-    return np.array([dhf_a1, dhf_b1, dhf_a2, dhf_b2])
+    return amp*np.array([dhf_a1, dhf_b1, dhf_a2, dhf_b2])
 
 
 class TestSpinEnsemble(unittest.TestCase, assertions.CustomAssertions):
@@ -64,10 +64,10 @@ class TestSpinEnsemble(unittest.TestCase, assertions.CustomAssertions):
         self.assertArrayEqual(target, result)
 
     def test_build_single_dhf(self):
-        freq = 2.5
-        target = dhf()
+        amp = 1.25
+        target = dhf(amp)
 
         ss = spins.SpinEnsemble(1, 2, 1, 1, 1)
-        result = ss._build_single_dhf()
+        result = ss._build_single_dhf(amp)
 
         self.assertArrayEqual(target, result)
