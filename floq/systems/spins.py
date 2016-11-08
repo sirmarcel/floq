@@ -33,6 +33,18 @@ class SpinEnsemble(object):
         self.np = 2*ncomp  # number of control parameters
         self.nc = 2*ncomp+1
 
+        self._dhf = None
+
+    @property
+    def dhf(self):
+        # dhf is independent of the controls,
+        # so we only need to compute it once
+        if self_dhf is not None:
+            return self._dhf
+        else:
+            self._dhf = self._assemble_dhf()
+            return self._dhf
+
 
     def get_single_system(self, i, controls, t):
         """
@@ -87,5 +99,12 @@ class SpinEnsemble(object):
                                           [-0.25*amp, 0.0]])
             dhf[i_b, -k-1, :, :] = np.array([[0.0, -0.25*amp],
                                              [0.25*amp, 0.0]])
+
+        return dhf
+
+    def _assemble_dhf(self):
+        dhf = np.zeros([self.n, self.np, self.nc, 2, 2], dtype='complex128')
+        for i in xrange(0, self.n):
+            dhf[i, :, :, :] = self._build_single_dhf(self.amps[i])
 
         return dhf
