@@ -102,7 +102,7 @@ class SpinEnsemble(object):
 
         return dhf
 
-    def _assemble_dhf(self):
+    def _build_dhf(self):
         dhf = np.zeros([self.n, self.np, self.nc, 2, 2], dtype='complex128')
         for i in xrange(0, self.n):
             dhf[i, :, :, :] = self._build_single_dhf(self.amps[i])
