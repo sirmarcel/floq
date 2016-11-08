@@ -2,7 +2,7 @@ import numpy as np
 import floq.parametric_system as ps
 
 
-class SpinSystem(object):
+class SpinEnsemble(object):
     """
     A system of n non-interacting spins, where each
     spin is described by the Hamiltonian
@@ -15,7 +15,7 @@ class SpinSystem(object):
 
     def __init__(self, n, nc, omega, freqs, amps):
         """
-        Initialise a SpinSystem instance with
+        Initialise a SpinEnsemble instance with
         - n: number of spins
         - nc: number of components in the control pulse
         - omega: base frequency of control pulse

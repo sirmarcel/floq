@@ -21,7 +21,7 @@ def single_hf(controls, omega):
                      [0.25*(-1j*a2 + b2), 0]]])
 
 
-class TestSpinSystem(unittest.TestCase, assertions.CustomAssertions):
+class TestSpinEnsemble(unittest.TestCase, assertions.CustomAssertions):
 
     def test_build_single_hf(self):
         controls = np.array([1.2, 2.3, 3.4, 5.4])
@@ -31,6 +31,6 @@ class TestSpinSystem(unittest.TestCase, assertions.CustomAssertions):
         freq = 2.5
         target = single_hf(amp*controls, freq)
 
-        ss = spins.SpinSystem(1, 1, 1, 1, 1)
+        ss = spins.SpinEnsemble(1, 1, 1, 1, 1)
         result = ss._build_single_hf(2, freq, amp, controls)
         self.assertArrayEqual(target, result)
