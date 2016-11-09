@@ -54,7 +54,7 @@ def do_evolution_with_derivatives(hf, dhf, params):
 def build_k(hf, p):
     hf_max = (p.nc-1)/2
 
-    k = np.zeros([p.k_dim, p.k_dim])
+    k = np.zeros([p.k_dim, p.k_dim], dtype='complex128')
 
     # Assemble K by placing each component of Hf in turn, which
     # for a fixed Fourier index lie on diagonals, with 0 on the
@@ -103,28 +103,43 @@ def find_eigensystem(k, p):
     # return them in a segmented form
 
     vals, vecs = np.linalg.eig(k)
-    vals = vals.real.astype(np.float64, copy=False)
+    vals, vecs = trim_eigensystem(vals, vecs, p)
 
     unique_vals = find_unique_vals(vals, p)
 
     vals = vals.round(p.decimals)
     indices_unique_vals = [np.where(vals == eva)[0][0] for eva in unique_vals]
 
-    unique_vecs = np.array([vecs[:, i] for i in indices_unique_vals], dtype='complex128')
+    unique_vecs = np.array([vecs[:, i] for i in indices_unique_vals])
+
     unique_vecs = separate_components(unique_vecs, p.nz)
 
     return [unique_vals, unique_vecs]
+
+
+def trim_eigensystem(vals, vecs, p):
+    vals = vals.real.astype(np.float64, copy=False)
+
+    # Sort eigenvalues and -vectors in increasing order
+    idx = vals.argsort()
+    vals = vals[idx]
+    vecs = vecs[:, idx]
+
+    # Only keep values around 0
+    middle = p.k_dim/2
+    cutoff_left = max(0, middle - p.dim)
+    cutoff_right = min(p.k_dim, cutoff_left + 2*p.dim)
+
+    cut_vals = vals[cutoff_left:cutoff_right]
+    cut_vecs = vecs[:, cutoff_left:cutoff_right]
+
+    return cut_vals, cut_vecs
 
 
 def find_unique_vals(vals, p):
     # In the list of values supplied, find the set of dim
     # e_i that fulfil (e_i - e_j) mod omega != 0 for all i,j,
     # and that lie closest to 0.
-
-    # cut off the first and last zone to prevent finite-size effects
-    if p.nz > 4:
-        vals = np.delete(vals, np.s_[0:p.dim])
-        vals = np.delete(vals, np.s_[-p.dim:])
 
     mod_vals = np.mod(vals, p.omega)
     mod_vals = mod_vals.round(decimals=p.decimals)  # round to suppress floating point issues
