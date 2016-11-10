@@ -35,6 +35,8 @@ class SpinEnsemble(object):
         self.nc = 2*ncomp+1
         self.nz = self.nc*10 + 1  # TODO: Implement automatic discovery of appropriate nz
 
+        self.dim = 2
+
         self._dhf = None
 
     @property
@@ -64,7 +66,7 @@ class SpinEnsemble(object):
         """
         Return a list of FixedSystem instances for each spin
         """
-        return [get_single_system(i, controls, t) for i in xrange(0, self.n)]
+        return [self.get_single_system(i, controls, t) for i in xrange(0, self.n)]
 
 
 

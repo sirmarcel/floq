@@ -12,7 +12,7 @@ class OptimizerBase(object):
 
 
 class SciPyOptimizer(OptimizerBase):
-    def __init__(self, task, t, method='BFGS'):
+    def __init__(self, task, t, method='BFGS', tol=1e-5):
         self.task = task
         self.t = t
         self.method = method

@@ -57,10 +57,10 @@ class EnsembleOptimizationTask(OptimizationTaskBase):
     systems is optimised.
     """
 
-    def __init__(self, ensemble, fid, target, init):
+    def __init__(self, ensemble, fid, dfid, target, init):
         self.ensemble = ensemble
         self.fid = fid
-        self.dfid = None
+        self.dfid = dfid
         self.target = target
         self.init = init
 
@@ -70,4 +70,17 @@ class EnsembleOptimizationTask(OptimizationTaskBase):
         for sys in fixed_systems:
             u = ev.evolve_system(sys)
             fid += self.fid(sys, u, self.target)
-        return fid/self.ensemble.n
+        mean_fid = fid/self.ensemble.n
+        print mean_fid
+        return mean_fid
+
+    def grad_fidelity(self, controls, t):
+        fixed_systems = self.ensemble.get_systems(controls, t)
+
+        dfid = np.zeros(self.ensemble.np)
+        for sys in fixed_systems:
+            u, du = ev.evolve_system_with_derivatives(sys)
+            dfid += self.dfid(sys, u, du, self.target)
+        mean_dfid = dfid/self.ensemble.n
+        print mean_dfid
+        return mean_dfid
