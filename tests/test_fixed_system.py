@@ -37,7 +37,7 @@ class TestFixedSystemParametersInit(unittest.TestCase):
     def setUp(self):
         self.dim = 2
         self.nz = 5
-        self.nc = 2
+        self.nc = 3
         self.np = 3
         self.omega = 3.0
         self.t = 4.0
@@ -49,6 +49,11 @@ class TestFixedSystemParametersInit(unittest.TestCase):
     def test_raise_error_if_nz_even(self):
         with self.assertRaises(er.UsageError):
             fs.FixedSystemParameters(self.dim, self.nz*2, self.nc, self.np,
+                                     self.omega, self.t, self.decimals)
+
+    def test_raise_error_if_nc_even(self):
+        with self.assertRaises(er.UsageError):
+            fs.FixedSystemParameters(self.dim, self.nz, self.nc*2, self.np,
                                      self.omega, self.t, self.decimals)
 
     def test_set_k_dim(self):

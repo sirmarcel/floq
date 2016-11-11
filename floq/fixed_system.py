@@ -80,6 +80,7 @@ class FixedSystemParameters(object):
     def __init__(self, dim, nz, nc, np, omega, t, decimals):
         self._dim = 0
         self._nz = 0
+        self._nc = 0
 
         self.dim = dim
         self.nz = nz
@@ -93,7 +94,7 @@ class FixedSystemParameters(object):
         self.decimals = decimals
 
     @classmethod
-    def optional(self, dim=0, nz=1, nc=0, np=0, omega=1, t=1, decimals=10):
+    def optional(self, dim=0, nz=1, nc=1, np=0, omega=1, t=1, decimals=10):
         """
         Class method to instantiate FixedSystemParameters without specifying
         the full set of parameters -- only needed for testing!
@@ -115,6 +116,21 @@ class FixedSystemParameters(object):
         self.k_dim = self.dim*value
         self.nz_max = (value-1)/2
         self.nz_min = -(value-1)/2
+
+
+    @property
+    def nc(self):
+        return self._nc
+
+    @nc.setter
+    def nc(self, value):
+        if value % 2 == 0:
+            raise er.UsageError("Number of Fourier components of H \
+                  cannot be even.")
+
+        self._nc = value
+        self.nc_max = (value-1)/2
+        self.nc_min = -(value-1)/2
 
     @property
     def dim(self):
