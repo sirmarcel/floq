@@ -10,12 +10,7 @@ def n_to_i(num, n):
     Fourier mode number to an index in an array.
     """
     cutoff = (n-1)/2
-    if num > cutoff:
-        return (num % n)-n+cutoff
-    if num < -cutoff:
-        return -(-num % n)+n+cutoff
-    else:
-        return num+cutoff
+    return (num+cutoff) % n
 
 
 def i_to_n(i, n):
