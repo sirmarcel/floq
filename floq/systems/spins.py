@@ -3,7 +3,7 @@ import floq.parametric_system as ps
 import floq.fixed_system as fs
 
 
-class SpinEnsemble(object):
+class SpinEnsemble(ps.ParametericSystemBase):
     """
     A system of n non-interacting spins, where each
     spin is described by the Hamiltonian
@@ -33,11 +33,16 @@ class SpinEnsemble(object):
 
         self.np = 2*ncomp  # number of control parameters
         self.nc = 2*ncomp+1
-        self.nz = self.nc*10 + 1  # TODO: Implement automatic discovery of appropriate nz
+        self.nz = 3
 
         self.dim = 2
 
         self._dhf = None
+
+
+    def get_system(self, controls, t):
+        return self.get_single_system(0, controls, t)
+
 
     @property
     def dhf(self):

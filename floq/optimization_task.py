@@ -64,8 +64,13 @@ class EnsembleOptimizationTask(OptimizationTaskBase):
         self.target = target
         self.init = init
 
+        self.ensemble.set_nz(init, 0.5/self.ensemble.omega)
+
     def fidelity(self, controls, t):
+        self.ensemble.increase_nz_until_ok(controls, t, step=4)
+
         fixed_systems = self.ensemble.get_systems(controls, t)
+
         fid = 0.0
         for sys in fixed_systems:
             u = ev.evolve_system(sys)
@@ -75,6 +80,8 @@ class EnsembleOptimizationTask(OptimizationTaskBase):
         return mean_fid
 
     def grad_fidelity(self, controls, t):
+        self.ensemble.increase_nz_until_ok(controls, t, step=4)
+
         fixed_systems = self.ensemble.get_systems(controls, t)
 
         dfid = np.zeros(self.ensemble.np)

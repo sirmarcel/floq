@@ -1,4 +1,7 @@
 import floq.fixed_system as fs
+import floq.evolution as ev
+import floq.errors as er
+import floq.helpers as h
 
 
 class ParametericSystemBase(object):
@@ -14,6 +17,40 @@ class ParametericSystemBase(object):
 
     def get_system(self, controls, t):
         raise NotImplementedError("get_system not implemented.")
+
+
+    def is_nz_ok(self, controls, t):
+        system = self.get_system(controls, t)
+        try:
+            u = ev.evolve_system(system)
+        except er.EigenvalueNumberError:
+            return False
+
+        return h.is_unitary(u)
+
+
+    def set_nz(self, controls, t):
+        if self.is_nz_ok(controls, t):
+            self.decrease_nz_until_not_ok(controls, t, step=max(10, self.nz/5))
+            self.decrease_nz_until_not_ok(controls, t, step=max(10, self.nz/10))
+            self.decrease_nz_until_not_ok(controls, t, step=2)
+            self.increase_nz_until_ok(controls, t, step=2)
+        else:
+            self.increase_nz_until_ok(controls, t, step=max(10, self.nz/5))
+            self.decrease_nz_until_not_ok(controls, t, step=2)
+            self.increase_nz_until_ok(controls, t, step=2)
+
+
+    def increase_nz_until_ok(self, controls, t, step=2):
+        while self.is_nz_ok(controls, t) is False:
+            self.nz += h.make_even(step)
+
+
+    def decrease_nz_until_not_ok(self, controls, t, step=2):
+        while self.is_nz_ok(controls, t) and self.nz-step > 3:
+            self.nz -= h.make_even(step)
+
+
 
 
 class ParametricSystemWithFunctions(ParametericSystemBase):

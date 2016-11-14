@@ -88,7 +88,7 @@ class TestSpinEnsemble(unittest.TestCase, assertions.CustomAssertions):
         controls = np.array([1.2, 1.3, 2.6, 3.9])
         hf1 = single_hf(amps[0]*controls, freqs[0])
         dhf1 = dhf(amps[0])
-        first_system = fs.FixedSystem(hf1, dhf1, 51, 1.0, 1.0)
+        first_system = fs.FixedSystem(hf1, dhf1, 3, 1.0, 1.0)
 
         ss = spins.SpinEnsemble(3, 2, 1.0, freqs, amps)
         system = ss.get_single_system(0, controls, 1.0)
