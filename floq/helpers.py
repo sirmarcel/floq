@@ -1,3 +1,6 @@
+import numpy as np
+
+
 def n_to_i(num, n):
     """
     Translate num, ranging from
@@ -23,3 +26,11 @@ def i_to_n(i, n):
     """
     cutoff = (n-1)/2
     return i-cutoff
+
+
+def is_unitary(u, tolerance=1e-10):
+    unitary = np.eye(u.shape[0])
+    umat = np.mat(u)
+    product = umat.H * umat
+    print product
+    return np.allclose(product, unitary, atol=tolerance)
