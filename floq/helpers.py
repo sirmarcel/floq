@@ -33,3 +33,10 @@ def is_unitary(u, tolerance=1e-10):
     umat = np.mat(u)
     product = umat.H * umat
     return np.allclose(product, unitary, atol=tolerance)
+
+
+def make_even(n):
+    if n % 2 == 0:
+        return n
+    else:
+        return n+1
