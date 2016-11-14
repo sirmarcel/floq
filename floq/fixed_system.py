@@ -26,7 +26,7 @@ class FixedSystem(object):
     - np: the number of control parameters
     """
 
-    def __init__(self, hf, dhf, nz, omega, t, decimals=10):
+    def __init__(self, hf, dhf, nz, omega, t, decimals=10, sparse=True):
         self.hf = hf
         self.dhf = dhf
 
@@ -74,10 +74,12 @@ class FixedSystemParameters(object):
     - np: number of control parameters
     - omega: The frequency associated with the period T of the control pulse
     - t: Control duration
-    - decimals: The number of decimals used for rounding
+    - decimals: The number of decimals used for rounding when finding unique eigenvalues
+    - sparse: If True, a sparse eigensolver will be used
+              -- unless working with very small systems with < 15 zones, this should be True
     """
 
-    def __init__(self, dim, nz, nc, np, omega, t, decimals):
+    def __init__(self, dim, nz, nc, np, omega, t, decimals, sparse=True):
         self._dim = 0
         self._nz = 0
         self._nc = 0
@@ -92,14 +94,15 @@ class FixedSystemParameters(object):
         self.t = t
 
         self.decimals = decimals
+        self.sparse = sparse
 
     @classmethod
-    def optional(self, dim=0, nz=1, nc=1, np=0, omega=1, t=1, decimals=10):
+    def optional(self, dim=0, nz=1, nc=1, np=0, omega=1, t=1, decimals=10, sparse=True):
         """
         Class method to instantiate FixedSystemParameters without specifying
         the full set of parameters -- only needed for testing!
         """
-        return FixedSystemParameters(dim, nz, nc, np, omega, t, decimals)
+        return FixedSystemParameters(dim, nz, nc, np, omega, t, decimals, sparse)
 
 
     @property

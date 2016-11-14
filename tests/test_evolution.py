@@ -161,7 +161,7 @@ class TestFindEigensystem(unittest.TestCase, assertions.CustomAssertions):
         omega = 2.1
         nz = 3
         dim = 2
-        p = fs.FixedSystemParameters.optional(dim, nz, omega=omega, decimals=3)
+        p = fs.FixedSystemParameters.optional(dim, nz, omega=omega, decimals=3, sparse=False)
 
         self.vals, self.vecs = ev.find_eigensystem(k, p)
 

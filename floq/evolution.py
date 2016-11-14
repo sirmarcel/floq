@@ -1,4 +1,6 @@
 import numpy as np
+import scipy.sparse as sp
+import scipy.sparse.linalg as la
 import floq.helpers as h
 import floq.blockmatrix as bm
 import floq.fixed_system as fs
@@ -101,9 +103,7 @@ def find_eigensystem(k, p):
     # Find eigenvalues and eigenvectors for k,
     # identify the dim unique ones,
     # return them in a segmented form
-
-    vals, vecs = np.linalg.eig(k)
-    vals, vecs = trim_eigensystem(vals, vecs, p)
+    vals, vecs = compute_eigensystem(k, p)
 
     unique_vals = find_unique_vals(vals, p)
 
@@ -117,8 +117,26 @@ def find_eigensystem(k, p):
     return [unique_vals, unique_vecs]
 
 
-def trim_eigensystem(vals, vecs, p):
+def compute_eigensystem(k, p):
+    # Find eigenvalues and eigenvectors of k,
+    # using the method specified in the parameters
+    if p.sparse:
+        k = sp.csc_matrix(k)
+
+        number_of_eigs = min(2*p.dim, p.k_dim)
+        vals, vecs = la.eigs(k, k=number_of_eigs, sigma=0.0)
+    else:
+        vals, vecs = np.linalg.eig(k)
+        vals, vecs = trim_eigensystem(vals, vecs, p)
+
     vals = vals.real.astype(np.float64, copy=False)
+
+    return vals, vecs
+
+
+def trim_eigensystem(vals, vecs, p):
+    # Trim eigenvalues and eigenvectors to only 2*dim ones
+    # clustered around zero
 
     # Sort eigenvalues and -vectors in increasing order
     idx = vals.argsort()
