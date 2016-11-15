@@ -236,20 +236,21 @@ def calculate_du(dk, psi, vals, vecs, p):
     uniques = xrange(0, dim)
     offsets = xrange(-nz_max, nz_max+1)
 
-    for n1, n2 in itertools.product(offsets, offsets):
+    for n1 in offsets:
         phase = t*np.exp(1j*omega*t*n1)
-        for i1, i2 in itertools.product(uniques, uniques):
-            e1 = vals[i1] + n1*omega
-            e2 = vals[i2] + n2*omega
+        for n2 in offsets:
+            for i1, i2 in itertools.product(uniques, uniques):
+                e1 = vals[i1] + n1*omega
+                e2 = vals[i2] + n2*omega
 
-            v1 = np.roll(vecsstar[i1], n1, axis=0)
-            v2 = np.roll(vecs[i2], n2, axis=0)
+                v1 = np.roll(vecsstar[i1], n1, axis=0)
+                v2 = np.roll(vecs[i2], n2, axis=0)
 
-            factor = phase*integral_factors(e1, e2, t)
-            product = np.outer(psi[i1], vecsstar[i2, h.n_to_i(-n2, nz)])
+                factor = phase*integral_factors(e1, e2, t)
+                product = np.outer(psi[i1], vecsstar[i2, h.n_to_i(-n2, nz)])
 
-            for c in xrange(0, npm):
-                du[c, :, :] += expectation_value(dk[c], v1, v2)*factor*product
+                for c in xrange(0, npm):
+                    du[c, :, :] += expectation_value(dk[c], v1, v2)*factor*product
 
     return du
 
