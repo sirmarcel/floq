@@ -237,12 +237,11 @@ def calculate_du(dhf, psi, vals, vecs, p):
                 v1 = np.roll(vecs[i1], n1, axis=0)
                 v2 = np.roll(vecs[i2], n2, axis=0)
 
-                temp = np.outer(psi[i1], np.conj(vecs[i2, h.n_to_i(-n2, p.nz)]))
-                temp *= expectation_value(dk[c], v1, v2, p)
-                temp *= p.t*np.exp(1j*p.omega*p.t*n1)
-                temp *= integral_factors(e1, e2, p)
+                factor = expectation_value(dk[c], v1, v2, p)
+                factor *= p.t*np.exp(1j*p.omega*p.t*n1)
+                factor *= integral_factors(e1, e2, p)
 
-                du[c, :, :] += temp
+                du[c, :, :] += factor*np.outer(psi[i1], np.conj(vecs[i2, h.n_to_i(-n2, p.nz)]))
 
     return du
 
