@@ -26,6 +26,13 @@ import floq.core.evolution as ev
 print timeit.timeit(wrapper(ev.do_evolution, system.hf, system.params), number=100)
 print timeit.timeit(wrapper(ev.do_evolution_with_derivatives, system.hf,  system.dhf, system.params), number=1)
 
+
+print "Sparse version"
+import floq.museum.p2.evolution as ev
+
+print timeit.timeit(wrapper(ev.do_evolution, system.hf, system.params), number=100)
+print timeit.timeit(wrapper(ev.do_evolution_with_derivatives, system.hf,  system.dhf, system.params), number=1)
+
 print "Baseline version (non sparse)"
 import floq.museum.p1.evolution as ev
 
