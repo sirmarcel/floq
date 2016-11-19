@@ -7,7 +7,7 @@ import floq.fixed_system as fs
 import floq.errors as errors
 import itertools
 import copy
-from multiprocessing import Pool
+import cmath
 
 
 def do_evolution(hf, params):
@@ -257,13 +257,13 @@ def calculate_du(dk, psi, vals, vecs, p):
 
 def integral_factors(e1, e2, t):
     if e1 == e2:
-        return -1.0j*np.exp(-1j*t*e1)
+        return -1.0j*cmath.exp(-1j*t*e1)
     else:
-        return (np.exp(-1j*t*e1)-np.exp(-1j*t*e2))/(t*(e1-e2))
+        return (cmath.exp(-1j*t*e1)-cmath.exp(-1j*t*e2))/(t*(e1-e2))
 
 
 def expectation_value(dk, v1, v2):
-    a = np.transpose(v1.flatten())
+    a = v1.flatten()
     b = v2.flatten()
 
     return np.dot(np.dot(a, dk), b)
