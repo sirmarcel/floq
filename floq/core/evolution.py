@@ -236,30 +236,31 @@ def calculate_du(dk, psi, vals, vecs, p):
     uniques = xrange(0, dim)
     offsets = xrange(-nz_max, nz_max+1)
 
-    for n1 in offsets:
-        phase = t*np.exp(1j*omega*t*n1)
-        for n2 in offsets:
-            for i1, i2 in itertools.product(uniques, uniques):
-                e1 = vals[i1] + n1*omega
-                e2 = vals[i2] + n2*omega
+    alphas = np.empty([npm, 2*nz+1, dim, dim], dtype=np.complex128)
+    for dn in xrange(-nz_max*2, 2*nz_max+1):
+        idn = h.n_to_i(dn, 2*nz)
+        for i1, i2 in itertools.product(uniques, uniques):
+            v1 = np.roll(vecsstar[i1], dn, axis=0)
+            for c in xrange(0, npm):
+                alphas[c, idn, i1, i2] = (integral_factors(vals[i1], vals[i2], dn, omega, t) *
+                                          expectation_value(dk[c], v1, vecs[i2]))
 
-                v1 = np.roll(vecsstar[i1], n1, axis=0)
-                v2 = np.roll(vecs[i2], n2, axis=0)
-
-                factor = phase*integral_factors(e1, e2, t)
-                product = np.outer(psi[i1], vecsstar[i2, h.n_to_i(-n2, nz)])
-
+    for n2 in offsets:
+        for i1, i2 in itertools.product(uniques, uniques):
+            product = np.outer(psi[i1], vecsstar[i2, h.n_to_i(-n2, nz)])
+            for n1 in offsets:
+                idn = h.n_to_i(n1-n2, 2*nz)
                 for c in xrange(0, npm):
-                    du[c, :, :] += expectation_value(dk[c], v1, v2)*factor*product
+                    du[c] += alphas[c, idn, i1, i2]*product
 
     return du
 
 
-def integral_factors(e1, e2, t):
-    if e1 == e2:
-        return -1.0j*cmath.exp(-1j*t*e1)
+def integral_factors(e1, e2, dn, omega, t):
+    if e1 == e2 and dn == 0:
+        return -1.0j*t*cmath.exp(-1j*t*e1)
     else:
-        return (cmath.exp(-1j*t*e1)-cmath.exp(-1j*t*e2))/(t*(e1-e2))
+        return (cmath.exp(-1j*t*e1)-cmath.exp(-1j*t*(e2+omega*dn)))/((e1-e2+omega*dn))
 
 
 def expectation_value(dk, v1, v2):
