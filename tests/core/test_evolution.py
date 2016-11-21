@@ -192,7 +192,7 @@ class TestCalculatePhi(unittest.TestCase, assertions.CustomAssertions):
         e2_sum = c+a+b
 
         target = np.array([e1_sum, e2_sum])
-        calculated_sum = ev.calculate_phi([e1, e2])
+        calculated_sum = ev.calculate_phi(np.array([e1, e2]))
 
         self.assertArrayEqual(calculated_sum, target)
 

@@ -1,6 +1,8 @@
 import numpy as np
+from numba import autojit
 
 
+@autojit
 def n_to_i(num, n):
     """
     Translate num, ranging from
@@ -16,6 +18,7 @@ def n_to_i(num, n):
     return (num+cutoff) % n
 
 
+@autojit
 def i_to_n(i, n):
     """
     Translate index i, ranging from 0 to n-1
@@ -35,8 +38,27 @@ def is_unitary(u, tolerance=1e-10):
     return np.allclose(product, unitary, atol=tolerance)
 
 
+@autojit
 def make_even(n):
     if n % 2 == 0:
         return n
     else:
         return n+1
+
+
+@autojit(nopython=True)
+def numba_zeros(dims):
+    ary = np.empty(dims, dtype=np.complex128)
+    ary[:] = 0.0+0.0j
+    return ary
+
+
+@autojit(nopython=True)
+def numba_outer(a, b):
+    m = a.shape[0]
+    n = b.shape[0]
+    result = np.empty((m, n), dtype=np.complex128)
+    for i in range(m):
+        for j in range(n):
+            result[i, j] = a[i]*b[j]
+    return result

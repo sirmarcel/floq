@@ -1,6 +1,8 @@
 import numpy as np
+from numba import autojit
 
 
+@autojit
 def get_block_from_matrix(matrix, dim_block, n_block, row, col):
     start_row = row*dim_block
     start_col = col*dim_block
@@ -11,6 +13,7 @@ def get_block_from_matrix(matrix, dim_block, n_block, row, col):
     return matrix[start_row:stop_row, start_col:stop_col]
 
 
+@autojit
 def set_block_in_matrix(block, matrix, dim_block, n_block, row, col):
     start_row = row*dim_block
     start_col = col*dim_block
