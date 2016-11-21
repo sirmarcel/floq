@@ -37,6 +37,14 @@ import floq.core.evolution as ev
 print time_u(ev.do_evolution, system.hf, system.params)
 print time_du(ev.do_evolution_with_derivatives, system.hf, system.dhf, system.params)
 
+
+print "Better algorithm for dU"
+import floq.museum.p4.evolution as ev
+
+print time_u(ev.do_evolution, system.hf, system.params)
+print time_du(ev.do_evolution_with_derivatives, system.hf, system.dhf, system.params)
+
+
 print "Hand-optimised dU routine"
 import floq.museum.p3.evolution as ev
 

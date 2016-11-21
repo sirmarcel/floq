@@ -1,10 +1,10 @@
 import numpy as np
 import scipy.sparse as sp
 import scipy.sparse.linalg as la
-import floq.helpers as h
-import floq.blockmatrix as bm
-import floq.fixed_system as fs
-import floq.errors as errors
+import floq.museum.uncompiled_floq.helpers as h
+import floq.museum.uncompiled_floq.blockmatrix as bm
+import floq.museum.uncompiled_floq.fixed_system as fs
+import floq.museum.uncompiled_floq.errors as errors
 import itertools
 import copy
 import cmath
