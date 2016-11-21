@@ -260,7 +260,7 @@ def integral_factors(e1, e2, dn, omega, t):
     if e1 == e2 and dn == 0:
         return -1.0j*t*cmath.exp(-1j*t*e1)
     else:
-        return (cmath.exp(-1j*t*e1)-cmath.exp(-1j*t*(e2+omega*dn)))/((e1-e2+omega*dn))
+        return (cmath.exp(-1j*t*e1)-cmath.exp(-1j*t*(e2-omega*dn)))/((e1-e2+omega*dn))
 
 
 def expectation_value(dk, v1, v2):
