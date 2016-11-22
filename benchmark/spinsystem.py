@@ -31,33 +31,33 @@ controls = 0.5*np.ones(2*ncomp)
 s.set_nz(controls, 1.5)
 system = s.get_systems(controls, 1.5)[0]
 
-print "Current version"
+print "---- Current version (Numba)"
 import floq.core.evolution as ev
 
 print time_u(ev.do_evolution, system.hf, system.params)
 print time_du(ev.do_evolution_with_derivatives, system.hf, system.dhf, system.params)
 
 
-print "Better algorithm for dU"
+print "---- Better algorithm for dU"
 import floq.museum.p4.evolution as ev
 
 print time_u(ev.do_evolution, system.hf, system.params)
 print time_du(ev.do_evolution_with_derivatives, system.hf, system.dhf, system.params)
 
 
-print "Hand-optimised dU routine"
+print "---- Use less Python"
 import floq.museum.p3.evolution as ev
 
 print time_u(ev.do_evolution, system.hf, system.params)
 print time_du(ev.do_evolution_with_derivatives, system.hf, system.dhf, system.params)
 
 
-print "Sparse version"
+print "---- Use sparse matrix library"
 import floq.museum.p2.evolution as ev
 
 print time_u(ev.do_evolution, system.hf, system.params)
 print time_du(ev.do_evolution_with_derivatives, system.hf, system.dhf, system.params)
-print "Baseline version (non sparse)"
+print "---- Baseline"
 import floq.museum.p1.evolution as ev
 
 print time_u(ev.do_evolution, system.hf, system.params)
