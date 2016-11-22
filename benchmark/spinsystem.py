@@ -11,8 +11,8 @@ def wrapper(func, *args, **kwargs):
     return wrapped
 
 
-def time_u(do_evolution, hf, params):
-    time = min(timeit.Timer(wrapper(do_evolution, hf, params)).repeat(5, 20))/20
+def time_u(get_u, hf, params):
+    time = min(timeit.Timer(wrapper(get_u, hf, params)).repeat(5, 20))/20
     return " U: " + str(round(time*1000, 3)) + " ms per execution"
 
 
@@ -34,31 +34,31 @@ system = s.get_systems(controls, 1.5)[0]
 print "---- Current version (Numba)"
 import floq.core.evolution as ev
 
-print time_u(ev.do_evolution, system.hf, system.params)
-print time_du(ev.do_evolution_with_derivatives, system.hf, system.dhf, system.params)
+print time_u(ev.get_u, system.hf, system.params)
+print time_du(ev.get_u_and_du, system.hf, system.dhf, system.params)
 
 
 print "---- Better algorithm for dU"
 import floq.museum.p4.evolution as ev
 
-print time_u(ev.do_evolution, system.hf, system.params)
-print time_du(ev.do_evolution_with_derivatives, system.hf, system.dhf, system.params)
+print time_u(ev.get_u, system.hf, system.params)
+print time_du(ev.get_u_and_du, system.hf, system.dhf, system.params)
 
 
 print "---- Use less Python"
 import floq.museum.p3.evolution as ev
 
-print time_u(ev.do_evolution, system.hf, system.params)
-print time_du(ev.do_evolution_with_derivatives, system.hf, system.dhf, system.params)
+print time_u(ev.get_u, system.hf, system.params)
+print time_du(ev.get_u_and_du, system.hf, system.dhf, system.params)
 
 
 print "---- Use sparse matrix library"
 import floq.museum.p2.evolution as ev
 
-print time_u(ev.do_evolution, system.hf, system.params)
-print time_du(ev.do_evolution_with_derivatives, system.hf, system.dhf, system.params)
+print time_u(ev.get_u, system.hf, system.params)
+print time_du(ev.get_u_and_du, system.hf, system.dhf, system.params)
 print "---- Baseline"
 import floq.museum.p1.evolution as ev
 
-print time_u(ev.do_evolution, system.hf, system.params)
-print time_du(ev.do_evolution_with_derivatives, system.hf, system.dhf, system.params)
+print time_u(ev.get_u, system.hf, system.params)
+print time_du(ev.get_u_and_du, system.hf, system.dhf, system.params)

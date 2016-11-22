@@ -6,13 +6,12 @@ import floq.museum.uncompiled_floq.errors as errors
 import itertools
 import copy
 
-
-def do_evolution(hf, params):
+def get_u(hf, params):
     """
     Calculate the time evolution operator U
     given a Fourier transformed Hamiltonian Hf
     """
-    k = build_k(hf, params)
+    k = assemble_k(hf, params)
 
     vals, vecs = find_eigensystem(k, params)
 
@@ -21,14 +20,13 @@ def do_evolution(hf, params):
 
     return calculate_u(phi, psi, vals, params)
 
-
-def do_evolution_with_derivatives(hf, dhf, params):
+def get_u_and_du(hf, dhf, params):
     """
     Calculate the time evolution operator U
     given a Fourier transformed Hamiltonian Hf,
     as well as its derivative dU given dHf
     """
-    k = build_k(hf, params)
+    k = assemble_k(hf, params)
 
     vals, vecs = find_eigensystem(k, params)
 
@@ -42,7 +40,7 @@ def do_evolution_with_derivatives(hf, dhf, params):
 
 
 
-def build_k(hf, p):
+def assemble_k(hf, p):
     hf_max = (p.nc-1)/2
 
     k = np.zeros([p.k_dim, p.k_dim], dtype='complex128')
@@ -80,12 +78,11 @@ def build_k(hf, p):
     return k
 
 
-def build_dk(dhf, p):
+def assemble_dk(dhf, p):
     p2 = copy.copy(p)
     p2.omega = 0.0
 
-    return np.array([build_k(dhf[i], p2) for i in xrange(0, p.np)])
-
+    return np.array([assemble_k(dhf[i], p2) for i in xrange(0, p.np)])
 
 
 def find_eigensystem(k, p):
@@ -204,7 +201,7 @@ def calculate_u(phi, psi, energies, p):
 
 def calculate_du(dhf, psi, vals, vecs, p):
     du = np.zeros([p.np, p.dim, p.dim], dtype='complex128')
-    dk = build_dk(dhf, p)
+    dk = assemble_dk(dhf, p)
 
     # (i1,n1) & (i2,n2) iterate over the full spectrum of k:
     # i1, i2: unique eigenvalues/-vectors in 0th Brillouin zone

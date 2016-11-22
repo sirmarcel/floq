@@ -17,7 +17,58 @@ def generate_fake_spectrum(unique_vals, dim, omega, nz):
     return vals
 
 
-class TestBuildK(unittest.TestCase, assertions.CustomAssertions):
+class TestGetU(unittest.TestCase, assertions.CustomAssertions):
+    def setUp(self):
+        g = 0.5
+        e1 = 1.2
+        e2 = 2.8
+        hf = rabi.hf(g, e1, e2)
+
+        nz = 11
+        dim = 2
+        omega = 5.0
+        t = 20.5
+        p = fs.FixedSystemParameters.optional(dim=dim, nz=nz, omega=omega, t=t, nc=3, np=1)
+
+        self.u = rabi.u(g, e1, e2, omega, t)
+        self.ucal = ev.get_u(hf, p)
+
+        self.um = np.matrix(self.ucal)
+
+    def test_gives_unitary(self):
+        uu = self.um*self.um.getH()
+        identity = np.identity(2)
+        self.assertArrayEqual(uu, identity, 8)
+
+    def test_is_correct_u(self):
+        self.assertArrayEqual(self.u, self.ucal, 8)
+
+
+class TestGetUanddU(unittest.TestCase, assertions.CustomAssertions):
+    def setUp(self):
+        g = 0.5
+        e1 = 1.2
+        e2 = 2.8
+        hf = rabi.hf(g, e1, e2)
+        dhf = np.array([rabi.hf(1.0, 0, 0)])
+
+        nz = 21
+        dim = 2
+        omega = 5.0
+        t = 1.5
+        p = fs.FixedSystemParameters.optional(dim=dim, nz=nz, omega=omega, t=t, nc=3, np=1)
+
+        self.du = np.array([[-0.43745 + 0.180865j, 0.092544 - 0.0993391j],
+                            [-0.0611011 - 0.121241j, -0.36949-0.295891j]])
+
+        [self.ucal, self.ducal] = ev.get_u_and_du(hf, dhf, p)
+
+    def test_is_correct_du(self):
+        self.assertArrayEqual(self.ducal, self.du)
+
+
+
+class TestAssembleK(unittest.TestCase, assertions.CustomAssertions):
     def setUp(self):
         dim = 2
         self.p = fs.FixedSystemParameters.optional(dim, nz=5, nc=3, omega=1)
@@ -38,11 +89,11 @@ class TestBuildK(unittest.TestCase, assertions.CustomAssertions):
         self.hf = np.array([a, b, c])
 
     def test_build(self):
-        builtk = ev.build_k(self.hf, self.p)
+        builtk = ev.assemble_k(self.hf, self.p)
         self.assertArrayEqual(builtk, self.goalk)
 
 
-class TestBuilddK(unittest.TestCase, assertions.CustomAssertions):
+class TestAssembledK(unittest.TestCase, assertions.CustomAssertions):
     def setUp(self):
         dim = 2
         self.p = fs.FixedSystemParameters.optional(dim, 5, 3, np=2, omega=1)
@@ -72,7 +123,7 @@ class TestBuilddK(unittest.TestCase, assertions.CustomAssertions):
         self.dhf = np.array([[a, b, c], [b, b, a]])
 
     def test_build(self):
-        builtdk = ev.build_dk(self.dhf, self.p)
+        builtdk = ev.assemble_dk(self.dhf, self.p)
         self.assertArrayEqual(builtdk, self.goaldk)
 
 
@@ -261,14 +312,14 @@ class TestCalculateDU(unittest.TestCase, assertions.CustomAssertions):
         t = 1.5
         p = fs.FixedSystemParameters.optional(dim, nz, nc=3, omega=omega, t=t, np=1)
 
-        k = ev.build_k(hf, p)
+        k = ev.assemble_k(hf, p)
         vals, vecs = ev.find_eigensystem(k, p)
         psi = ev.calculate_psi(vecs, p)
 
 
         self.du = np.array([[-0.43745 + 0.180865j, 0.092544 - 0.0993391j],
                             [-0.0611011 - 0.121241j, -0.36949 - 0.295891j]])
-        dk = ev.build_dk(dhf, p)
+        dk = ev.assemble_dk(dhf, p)
         self.ducal = ev.calculate_du(dk, psi, vals, vecs, p)
 
     def test_is_correct_du(self):

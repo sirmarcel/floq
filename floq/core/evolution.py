@@ -6,17 +6,17 @@ import floq.blockmatrix as bm
 import floq.fixed_system as fs
 import floq.errors as errors
 import itertools
-import copy
 import cmath
 from numba import autojit
 
 
-def do_evolution(hf, params):
+def get_u(hf, params):
     """
-    Calculate the time evolution operator U
+    Calculate the time evolution operator U,
     given a Fourier transformed Hamiltonian Hf
+    and the parameters of the problem
     """
-    k = build_k(hf, params)
+    k = assemble_k(hf, params)
 
     vals, vecs = find_eigensystem(k, params)
 
@@ -26,13 +26,14 @@ def do_evolution(hf, params):
     return calculate_u(phi, psi, vals, params)
 
 
-def do_evolution_with_derivatives(hf, dhf, params):
+def get_u_and_du(hf, dhf, params):
     """
     Calculate the time evolution operator U
     given a Fourier transformed Hamiltonian Hf,
-    as well as its derivative dU given dHf
+    as well as its derivative dU given dHf,
+    and the parameters of the problem
     """
-    k = build_k(hf, params)
+    k = assemble_k(hf, params)
 
     vals, vecs = find_eigensystem(k, params)
 
@@ -41,7 +42,7 @@ def do_evolution_with_derivatives(hf, dhf, params):
 
     u = calculate_u(phi, psi, vals, params)
 
-    dk = build_dk(dhf, params)
+    dk = assemble_dk(dhf, params)
 
     du = calculate_du(dk, psi, vals, vecs, params)
 
@@ -49,12 +50,13 @@ def do_evolution_with_derivatives(hf, dhf, params):
 
 
 
-def build_k(hf, p):
-    return numba_build_k(hf, p.dim, p.k_dim, p.nz, p.nc, p.omega)
-
+def assemble_k(hf, p):
+    # assemble the Floquet Hamiltonian K from
+    # the components of the Fourier-transformed Hamiltonian
+    return numba_assemble_k(hf, p.dim, p.k_dim, p.nz, p.nc, p.omega)
 
 @autojit(nopython=True)
-def numba_build_k(hf, dim, k_dim, nz, nc, omega):
+def numba_assemble_k(hf, dim, k_dim, nz, nc, omega):
     hf_max = (nc-1)/2
     k = h.numba_zeros((k_dim, k_dim))
 
@@ -91,17 +93,20 @@ def numba_build_k(hf, dim, k_dim, nz, nc, omega):
     return k
 
 
-def build_dk(dhf, p):
-    return numba_build_dk(dhf, p.np, p.dim, p.k_dim, p.nz, p.nc)
-
+def assemble_dk(dhf, p):
+    # assemble the derivative of the Floquet Hamiltonian K from
+    # the components of the derivative of the Fourier-transformed Hamiltonian
+    # This is equivalent to K, with Hf -> d HF and omega -> 0.
+    return numba_assemble_dk(dhf, p.np, p.dim, p.k_dim, p.nz, p.nc)
 
 @autojit(nopython=True)
-def numba_build_dk(dhf, npm, dim, k_dim, nz, nc):
+def numba_assemble_dk(dhf, npm, dim, k_dim, nz, nc):
     dk = np.empty((npm, k_dim, k_dim), dtype=np.complex128)
     for c in range(npm):
-        dk[c, :, :] = numba_build_k(dhf[c], dim, k_dim, nz, nc, 0.0)
+        dk[c, :, :] = numba_assemble_k(dhf[c], dim, k_dim, nz, nc, 0.0)
 
     return dk
+
 
 
 def find_eigensystem(k, p):
@@ -112,11 +117,11 @@ def find_eigensystem(k, p):
 
     unique_vals = find_unique_vals(vals, p)
 
+    # rounding is necessary, since full floating-point numbers are seldom equal
     vals = vals.round(p.decimals)
     indices_unique_vals = [np.where(vals == eva)[0][0] for eva in unique_vals]
 
     unique_vecs = np.array([vecs[:, i] for i in indices_unique_vals])
-
     unique_vecs = separate_components(unique_vecs, p.nz)
 
     return [unique_vals, unique_vecs]
@@ -125,10 +130,14 @@ def find_eigensystem(k, p):
 def compute_eigensystem(k, p):
     # Find eigenvalues and eigenvectors of k,
     # using the method specified in the parameters
+    # (sparse is almost always faster, and is the default)
     if p.sparse:
         k = sp.csc_matrix(k)
 
         number_of_eigs = min(2*p.dim, p.k_dim)
+
+        # find number_of_eigs eigenvectors/-values around 0.0
+        # -> trimming/sorting the eigensystem is NOT necessary
         vals, vecs = la.eigs(k, k=number_of_eigs, sigma=0.0)
     else:
         vals, vecs = np.linalg.eig(k)
@@ -182,7 +191,7 @@ def find_unique_vals(vals, p):
 def separate_components(vecs, n):
     # Given an array of vectors vecs,
     # return an array of each of the vectors split into n sub-arrays
-
+    # -> these sub-arrays are the Fourier components of the state
     return np.array([np.split(eva, n) for eva in vecs])
 
 
@@ -190,13 +199,12 @@ def separate_components(vecs, n):
 @autojit(nopython=True)
 def calculate_phi(vecs):
     # Given an array of eigenvectors vecs,
-    # sum over all frequency components in each
+    # sum over Fourier components in each
     dim = vecs.shape[0]
     phi = np.empty((dim, dim), dtype=np.complex128)
     for i in range(dim):
         phi[i] = numba_sum_components(vecs[i], dim)
     return phi
-
 
 @autojit(nopython=True)
 def numba_sum_components(vec, dim):
@@ -210,20 +218,14 @@ def numba_sum_components(vec, dim):
 
 def calculate_psi(vecs, p):
     # Given an array of eigenvectors vecs,
-    # sum over all frequency components in each,
+    # sum over all Fourier components in each,
     # weighted by exp(- i omega t n), with n
     # being the Fourier index of the component
 
     return numba_calculate_psi(vecs, p.dim, p.nz, p.omega, p.t)
 
-
 @autojit(nopython=True)
 def numba_calculate_psi(vecs, dim, nz, omega, t):
-    # Given an array of eigenvectors vecs,
-    # sum over all frequency components in each,
-    # weighted by exp(- i omega t n), with n
-    # being the Fourier index of the component
-
     psi = h.numba_zeros((dim, dim))
 
     for k in range(0, dim):
@@ -247,8 +249,15 @@ def calculate_u(phi, psi, energies, p):
     return u
 
 
+
 def calculate_du(dk, psi, vals, vecs, p):
-    # Inside the loops, we avoid accessing complicated objects
+    # Given the eigensystem of K, and its derivative,
+    # perform the computations to get dU.
+    #
+    # This routine is optimised and quite hard to read, I recommend
+    # taking a look in the museum, which contains functionally equivalent,
+    # but much more readable versions.
+
     dim = p.dim
     nz_max = p.nz_max
     nz = p.nz
@@ -257,13 +266,13 @@ def calculate_du(dk, psi, vals, vecs, p):
     t = p.t
 
     vecsstar = np.conj(vecs)
-
     factors = calculate_factors(dk, nz, nz_max, dim, npm, vals, vecs, vecsstar, omega, t)
-
     return assemble_du(nz, nz_max, dim, npm, factors, psi, vecsstar)
 
 
 def calculate_factors(dk, nz, nz_max, dim, npm, vals, vecs, vecsstar, omega, t):
+    # Factors in the sum for dU that only depend on dn=n1-n2, and therefore
+    # can be computed more efficiently outside the "full" loop
     factors = np.empty([npm, 2*nz+1, dim, dim], dtype=np.complex128)
 
     for dn in xrange(-nz_max*2, 2*nz_max+1):
@@ -280,6 +289,7 @@ def calculate_factors(dk, nz, nz_max, dim, npm, vals, vecs, vecsstar, omega, t):
 
 @autojit(nopython=True)
 def assemble_du(nz, nz_max, dim, npm, alphas, psi, vecsstar):
+    # Execute the sum defining dU, taking pre-computed factors into account
     du = h.numba_zeros((npm, dim, dim))
 
     for n2 in range(-nz_max, nz_max+1):
@@ -304,6 +314,10 @@ def integral_factors(e1, e2, dn, omega, t):
 
 @autojit(nopython=True)
 def expectation_value(dk, v1, v2):
+    # Computes <v1|dk|v2>, assuming v1 is already conjugated
+
+    # v1 and v2 are split into Fourier components,
+    # we undo that here
     a = v1.flatten()
     b = v2.flatten()
 

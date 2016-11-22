@@ -10,12 +10,12 @@ import copy
 import cmath
 
 
-def do_evolution(hf, params):
+def get_u(hf, params):
     """
     Calculate the time evolution operator U
     given a Fourier transformed Hamiltonian Hf
     """
-    k = build_k(hf, params)
+    k = assemble_k(hf, params)
 
     vals, vecs = find_eigensystem(k, params)
 
@@ -25,13 +25,13 @@ def do_evolution(hf, params):
     return calculate_u(phi, psi, vals, params)
 
 
-def do_evolution_with_derivatives(hf, dhf, params):
+def get_u_and_du(hf, dhf, params):
     """
     Calculate the time evolution operator U
     given a Fourier transformed Hamiltonian Hf,
     as well as its derivative dU given dHf
     """
-    k = build_k(hf, params)
+    k = assemble_k(hf, params)
 
     vals, vecs = find_eigensystem(k, params)
 
@@ -40,7 +40,7 @@ def do_evolution_with_derivatives(hf, dhf, params):
 
     u = calculate_u(phi, psi, vals, params)
 
-    dk = build_dk(dhf, params)
+    dk = assemble_dk(dhf, params)
     
     du = calculate_du(dk, psi, vals, vecs, params)
 
@@ -48,7 +48,7 @@ def do_evolution_with_derivatives(hf, dhf, params):
 
 
 
-def build_k(hf, p):
+def assemble_k(hf, p):
     hf_max = (p.nc-1)/2
     nz = p.nz
     nc = p.nc
@@ -92,11 +92,11 @@ def build_k(hf, p):
     return k
 
 
-def build_dk(dhf, p):
+def assemble_dk(dhf, p):
     p2 = copy.copy(p)
     p2.omega = 0.0
 
-    return np.array([build_k(dhf[i], p2) for i in xrange(0, p.np)])
+    return np.array([assemble_k(dhf[i], p2) for i in xrange(0, p.np)])
 
 
 
