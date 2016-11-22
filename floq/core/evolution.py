@@ -285,7 +285,7 @@ def assemble_du(nz, nz_max, dim, npm, alphas, psi, vecsstar):
     for n2 in range(-nz_max, nz_max+1):
         for i1 in range(0, dim):
             for i2 in range(0, dim):
-                product = h.numba_outer(psi[i1], vecsstar[i2, ((nz-1)/2-n2) % nz])
+                product = h.numba_outer(psi[i1], vecsstar[i2, h.n_to_i(-n2, nz)])
                 for n1 in range(-nz_max, nz_max+1):
                     idn = h.n_to_i(n1-n2, 2*nz)
                     for c in xrange(0, npm):
