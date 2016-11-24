@@ -6,7 +6,7 @@ import floq.helpers as h
 
 def evolve_system(system):
     u, vals, vecs, phi, psi, nz = evolve_system_and_increase_nz(system)
-    return evolve_system_and_increase_nz(system)[0]
+    return [u, nz]
 
 
 def evolve_system_with_derivatives(system):

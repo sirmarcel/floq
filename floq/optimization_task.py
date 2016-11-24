@@ -42,12 +42,12 @@ class OptimizationTaskWithFunctions(OptimizationTaskBase):
 
     def fidelity(self, controls, t):
         fixed = self.system.get_system(controls, t)
-        u = ev.evolve_system(fixed)
+        u, new_nz = ev.evolve_system(fixed)
         return self.fid(fixed, u, self.target)
 
     def grad_fidelity(self, controls, t):
         fixed = self.system.get_system(controls, t)
-        u, du = ev.evolve_system_with_derivatives(fixed)
+        u, du, new_nz = ev.evolve_system_with_derivatives(fixed)
         return self.dfid(fixed, u, du, self.target)
 
 
@@ -73,7 +73,7 @@ class EnsembleOptimizationTask(OptimizationTaskBase):
 
         fid = 0.0
         for sys in fixed_systems:
-            u = ev.evolve_system(sys)
+            u, new_nz = ev.evolve_system(sys)
             fid += self.fid(sys, u, self.target)
         mean_fid = fid/self.ensemble.n
         print mean_fid

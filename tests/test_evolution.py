@@ -23,7 +23,7 @@ class TestEvolveSystem(unittest.TestCase, assertions.CustomAssertions):
         s = fs.FixedSystem(hf, dhf, nz, omega, t)
 
         self.u = rabi.u(g, e1, e2, omega, t)
-        self.ucal = ev.evolve_system(s)
+        self.ucal, new_nz = ev.evolve_system(s)
 
         self.um = np.matrix(self.ucal)
 
