@@ -28,9 +28,7 @@ def get_u_and_du(hf, dhf, params):
     """
     u, vals, vecs, phi, psi = get_u_and_eigensystem(hf, params)
 
-    dk = assemble_dk(dhf, params)
-
-    du = calculate_du(dk, psi, vals, vecs, params)
+    du = get_du_from_eigensystem(dhf, psi, vals, vecs, params)
 
     return [u, du]
 
@@ -51,6 +49,12 @@ def get_u_and_eigensystem(hf, params):
 
     return [calculate_u(phi, psi, vals, params), vals, vecs, phi, psi]
 
+
+def get_du_from_eigensystem(dhf, psi, vals, vecs, params):
+    dk = assemble_dk(dhf, params)
+    du = calculate_du(dk, psi, vals, vecs, params)
+
+    return du
 
 
 def assemble_k(hf, p):

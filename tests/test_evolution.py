@@ -16,7 +16,7 @@ class TestEvolveSystem(unittest.TestCase, assertions.CustomAssertions):
         hf = rabi.hf(g, e1, e2)
         dhf = np.array([rabi.hf(1.0, 0, 0)])
 
-        nz = 11
+        nz = 3
         dim = 2
         omega = 5.0
         t = 20.5
@@ -44,7 +44,7 @@ class TestEvolveSystemWithDerivs(unittest.TestCase, assertions.CustomAssertions)
         hf = rabi.hf(g, e1, e2)
         dhf = np.array([rabi.hf(1.0, 0, 0)])
 
-        nz = 21
+        nz = 3
         dim = 2
         omega = 5.0
         t = 1.5
@@ -52,7 +52,38 @@ class TestEvolveSystemWithDerivs(unittest.TestCase, assertions.CustomAssertions)
 
         self.du = np.array([[-0.43745 + 0.180865j, 0.092544 - 0.0993391j],
                             [-0.0611011 - 0.121241j, -0.36949-0.295891j]])
-        [self.ucal, self.ducal] = ev.evolve_system_with_derivatives(s)
+        [self.ucal, self.ducal, self.nz] = ev.evolve_system_with_derivatives(s)
 
     def test_is_correct_du(self):
         self.assertArrayEqual(self.ducal, self.du)
+
+
+class TestTestNz(unittest.TestCase):
+    def test_false_if_nz_too_small(self):
+        g = 0.5
+        e1 = 1.2
+        e2 = 2.8
+        hf = rabi.hf(g, e1, e2)
+        dhf = np.array([rabi.hf(1.0, 0, 0)])
+
+        nz = 3
+        dim = 2
+        omega = 5.0
+        t = 1.5
+        s = fs.FixedSystem(hf, dhf, nz, omega, t)
+        self.assertFalse(ev.test_nz(s)[0])
+
+
+    def test_true_if_nz_okay(self):
+        g = 0.5
+        e1 = 1.2
+        e2 = 2.8
+        hf = rabi.hf(g, e1, e2)
+        dhf = np.array([rabi.hf(1.0, 0, 0)])
+
+        nz = 21
+        dim = 2
+        omega = 5.0
+        t = 1.5
+        s = fs.FixedSystem(hf, dhf, nz, omega, t)
+        self.assertTrue(ev.test_nz(s)[0])
