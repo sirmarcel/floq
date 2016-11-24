@@ -1,6 +1,7 @@
 import numpy as np
 import floq.parametric_system as ps
 import floq.fixed_system as fs
+import floq.evolution as ev
 
 
 class SpinEnsemble(ps.ParametericSystemBase):
@@ -30,29 +31,47 @@ class SpinEnsemble(ps.ParametericSystemBase):
         self.omega = omega
         self.freqs = freqs
         self.amps = amps
+        self.max_amp = np.argmax(amps)
 
         self.np = 2*ncomp  # number of control parameters
         self.nc = 2*ncomp+1
-        self.nz = 3
+        self.nz = 3*np.ones(self.n, dtype=int)
 
         self.dim = 2
 
         self._dhf = None
 
 
-    def get_system(self, controls, t):
-        return self.get_single_system(0, controls, t)
+    def set_nz(self, controls, t):
+        system = self.get_single_system(self.max_amp, controls, t)
+        u, new_nz = ev.evolve_system(system)
+        self.nz = new_nz*np.ones(self.n, dtype=int)
 
 
-    @property
-    def dhf(self):
-        # dhf is independent of the controls,
-        # so we only need to compute it once
-        if self._dhf is not None:
-            return self._dhf
-        else:
-            self._dhf = self._build_dhf()
-            return self._dhf
+
+    def get_us(self, controls, t):
+        fixed_systems = self.get_systems(controls, t)
+        us = np.zeros([self.n, 2, 2], dtype=np.complex128)
+        for i in xrange(self.n):
+            u, new_nz = ev.evolve_system(fixed_systems[i])
+            us[i] = u
+            self.nz[i] = new_nz
+        print self.nz
+        return us
+
+
+    def get_us_and_dus(self, controls, t):
+        fixed_systems = self.get_systems(controls, t)
+        us = np.zeros([self.n, 2, 2], dtype=np.complex128)
+        dus = np.zeros([self.n, self.np, 2, 2], dtype=np.complex128)
+        for i in xrange(self.n):
+            u, du, new_nz = ev.evolve_system_with_derivatives(fixed_systems[i])
+            us[i] = u
+            dus[i] = du
+            self.nz[i] = new_nz
+        print self.nz
+        return [us, dus]
+
 
 
     def get_single_system(self, i, controls, t):
@@ -64,15 +83,26 @@ class SpinEnsemble(ps.ParametericSystemBase):
         """
         hf = self._build_single_hf(self.freqs[i], self.amps[i], controls)
         dhf = self.dhf[i]
-        return fs.FixedSystem(hf, dhf, self.nz, self.omega, t)
+        return fs.FixedSystem(hf, dhf, self.nz[i], self.omega, t)
 
 
     def get_systems(self, controls, t):
         """
         Return a list of FixedSystem instances for each spin
         """
-        return [self.get_single_system(i, controls, t) for i in xrange(0, self.n)]
+        return [self.get_single_system(i, controls, t) for i in xrange(self.n)]
 
+
+
+    @property
+    def dhf(self):
+        # dhf is independent of the controls,
+        # so we only need to compute it once
+        if self._dhf is not None:
+            return self._dhf
+        else:
+            self._dhf = self._build_dhf()
+            return self._dhf
 
 
     def _build_single_hf(self, freq, amp, controls):

@@ -24,27 +24,24 @@ v2 = np.array([-0.541912 + 0.349275j, 0.432916 + 0.181694j, 0.304055 + 0.521019j
 class TestTransferFidelity(unittest.TestCase, assertions.CustomAssertions):
 
     def test_transfer_fidelity(self):
-        system = fs.DummyFixedSystem(dim=3)
         target = np.array([v2, v1])
-        fid = f.transfer_fidelity(system, u1, target)
+        fid = f.transfer_fidelity(u1, target)
         self.assertAlmostEqualWithDecimals(fid, 0.131584, 4)
 
 
 class TestOperatorFidelity(unittest.TestCase, assertions.CustomAssertions):
 
     def test_operator_fidelity(self):
-        system = fs.DummyFixedSystem(dim=3)
-        fid = f.operator_fidelity(system, u1, u2)
+        fid = f.operator_fidelity(u1, u2)
         self.assertAlmostEqualWithDecimals(fid, 0.0378906, 4)
 
 
 class TestOperatorFidelityDeriv(unittest.TestCase, assertions.CustomAssertions):
 
     def test_d_operator_fidelity(self):
-        system = fs.DummyFixedSystem(dim=3)
         dus = np.array([u3, u4])
         target = np.array([0.302601, -0.291255])
-        actual = f.d_operator_fidelity(system, u1, dus, u2)
+        actual = f.d_operator_fidelity(u1, dus, u2)
         self.assertArrayEqual(actual, target, 4)
 
 

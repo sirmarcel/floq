@@ -25,6 +25,24 @@ class ParametericSystemBase(object):
         raise NotImplementedError("get_u_and_du not implemented.")
 
 
+class EnsembleSystemBase(object):
+    """
+    Base class to specify an ensemble of physical systems
+    that still have open parameters.
+
+    This is base class defining the API and cannot be used, it needs to be sub-classed.
+
+    """
+
+    def get_systems(self, controls, t):
+        raise NotImplementedError("get_system not implemented.")
+
+    def get_us(self, controls, t):
+        raise NotImplementedError("get_u not implemented.")
+
+    def get_us_and_dus(self, controls, t):
+        raise NotImplementedError("get_u_and_du not implemented.")
+
 
 class ParametricSystemWithFunctions(ParametericSystemBase):
     """

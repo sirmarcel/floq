@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def transfer_fidelity(system, u, target):
+def transfer_fidelity(u, target):
     """
     Compute how well the unitary u transfers an
     initial state |i> to a final state |f>, quantified by
@@ -19,25 +19,26 @@ def transfer_fidelity(system, u, target):
     return np.abs(fui)**2
 
 
-def operator_fidelity(system, u, target):
+def operator_fidelity(u, target):
     """
     Calculate the operator fidelity between the unitaries
     u and target, defined as 1/dim * Re(trace(target^\dagger u)).
 
     This quantity is maximal when u = target, when it is equal to 1.
     """
+    dim = u.shape[0]
     hs = hilbert_schmidt_product(target, u)
-    return hs.real/system.params.dim
+    return hs.real/dim
 
 
-def d_operator_fidelity(system, u, dus, target):
+def d_operator_fidelity(u, dus, target):
     """
     Calculate the gradient of the operator fidelity.
     """
-    return np.array([operator_fidelity(system, du, target) for du in dus])
+    return np.array([operator_fidelity(du, target) for du in dus])
 
 
-def operator_distance(system, u, target):
+def operator_distance(u, target):
     """
     Calculate a quantity proportional to the
     Hilbert-Schmidt distance
@@ -48,14 +49,14 @@ def operator_distance(system, u, target):
     This quantity is minimised when u = target, which makes it useful for use
     with the minimisation routines built into SciPy.
     """
-    return 1.0 - operator_fidelity(system, u, target)
+    return 1.0 - operator_fidelity(u, target)
 
 
-def d_operator_distance(system, u, dus, target):
+def d_operator_distance(u, dus, target):
     """
     Calculate the gradient of the operator distance.
     """
-    df = d_operator_fidelity(system, u, dus, target)
+    df = d_operator_fidelity(u, dus, target)
     return -df
 
 
