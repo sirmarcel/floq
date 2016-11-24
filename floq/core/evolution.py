@@ -16,14 +16,7 @@ def get_u(hf, params):
     given a Fourier transformed Hamiltonian Hf
     and the parameters of the problem
     """
-    k = assemble_k(hf, params)
-
-    vals, vecs = find_eigensystem(k, params)
-
-    phi = calculate_phi(vecs)
-    psi = calculate_psi(vecs, params)
-
-    return calculate_u(phi, psi, vals, params)
+    return get_u_and_eigensystem(hf, params)[0]
 
 
 def get_u_and_du(hf, dhf, params):
@@ -33,6 +26,22 @@ def get_u_and_du(hf, dhf, params):
     as well as its derivative dU given dHf,
     and the parameters of the problem
     """
+    u, vals, vecs, phi, psi = get_u_and_eigensystem(hf, params)
+
+    dk = assemble_dk(dhf, params)
+
+    du = calculate_du(dk, psi, vals, vecs, params)
+
+    return [u, du]
+
+
+def get_u_and_eigensystem(hf, params):
+    """
+    Calculate the time evolution operator U,
+    given a Fourier transformed Hamiltonian Hf
+    and the parameters of the problem, and return
+    it as well as the intermediary results
+    """
     k = assemble_k(hf, params)
 
     vals, vecs = find_eigensystem(k, params)
@@ -40,13 +49,7 @@ def get_u_and_du(hf, dhf, params):
     phi = calculate_phi(vecs)
     psi = calculate_psi(vecs, params)
 
-    u = calculate_u(phi, psi, vals, params)
-
-    dk = assemble_dk(dhf, params)
-
-    du = calculate_du(dk, psi, vals, vecs, params)
-
-    return [u, du]
+    return [calculate_u(phi, psi, vals, params), vals, vecs, phi, psi]
 
 
 
