@@ -25,7 +25,7 @@ class ParametericSystemBase(object):
         raise NotImplementedError("get_u_and_du not implemented.")
 
 
-class EnsembleSystemBase(object):
+class EnsembleBase(object):
     """
     Base class to specify an ensemble of physical systems
     that still have open parameters.

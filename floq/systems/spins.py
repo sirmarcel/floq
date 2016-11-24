@@ -4,7 +4,7 @@ import floq.fixed_system as fs
 import floq.evolution as ev
 
 
-class SpinEnsemble(ps.ParametericSystemBase):
+class SpinEnsemble(ps.EnsembleBase):
     """
     A system of n non-interacting spins, where each
     spin is described by the Hamiltonian
