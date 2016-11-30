@@ -3,6 +3,7 @@ import numpy as np
 import floq.systems.spins as spins
 import floq.fixed_system as fs
 import assertions
+import floq.evolution as ev
 
 
 def single_hf(controls, omega):
@@ -94,3 +95,24 @@ class TestSpinEnsemble(unittest.TestCase, assertions.CustomAssertions):
         system = ss.get_single_system(0, controls, 1.0)
 
         self.assertEqual(first_system, system)
+
+
+class TestSpinEnsembleEvolution(unittest.TestCase, assertions.CustomAssertions):
+    def setUp(self):
+        amps = np.array([1.2, 1.1, 0.7, 0.6])
+        freqs = np.array([0.8, 1.1, 0.9, 1.2])
+        self.ensemble = spins.SpinEnsemble(4, 2, 1.0, freqs, amps)
+
+        self.controls = np.array([1.5, 1.3, 1.4, 1.1])
+        self.t = 3.0
+        self.ensemble.set_nz(self.controls, self.t)
+
+        self.us = np.zeros([4, 2, 2], dtype=np.complex128)
+        for i in xrange(4):
+            sys = self.ensemble.get_single_system(i, self.controls, self.t)
+            self.us[i], nz = ev.evolve_system(sys)
+
+    def test_get_us(self):
+        us = self.ensemble.get_us(self.controls, self.t)
+        self.assertArrayEqual(us, self.us)
+       
