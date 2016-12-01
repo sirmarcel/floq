@@ -4,7 +4,7 @@ import scipy.sparse.linalg as la
 from floq.helpers.index import n_to_i, i_to_n
 from floq.helpers.numpy_replacements import numba_outer, numba_zeros
 import floq.helpers.blockmatrix as bm
-import floq.fixed_system as fs
+import floq.core.fixed_system as fs
 import floq.errors as errors
 import itertools
 import cmath

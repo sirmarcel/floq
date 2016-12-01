@@ -1,6 +1,6 @@
 import numpy as np
 import floq.parametric_system as ps
-import floq.fixed_system as fs
+import floq.core.fixed_system as fs
 import floq.evolution as ev
 
 

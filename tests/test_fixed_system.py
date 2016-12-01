@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-import floq.fixed_system as fs
+import floq.core.fixed_system as fs
 import floq.errors as er
 import rabi
 import assertions

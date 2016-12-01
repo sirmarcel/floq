@@ -4,7 +4,7 @@ import assertions
 import rabi
 import floq.evolution as ev
 import floq.helpers.index as h
-import floq.fixed_system as fs
+import floq.core.fixed_system as fs
 import floq.errors as er
 
 

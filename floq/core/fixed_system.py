@@ -1,5 +1,5 @@
 import numpy as np
-import errors as er
+import floq.errors as er
 
 
 class FixedSystem(object):

@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 import floq.systems.spins as spins
-import floq.fixed_system as fs
+import floq.core.fixed_system as fs
 import assertions
 import floq.evolution as ev
 
