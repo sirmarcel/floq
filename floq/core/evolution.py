@@ -1,8 +1,9 @@
 import numpy as np
 import scipy.sparse as sp
 import scipy.sparse.linalg as la
-import floq.helpers as h
-import floq.blockmatrix as bm
+from floq.helpers.index import n_to_i, i_to_n
+from floq.helpers.numpy_replacements import numba_outer, numba_zeros
+import floq.helpers.blockmatrix as bm
 import floq.fixed_system as fs
 import floq.errors as errors
 import itertools
@@ -65,7 +66,7 @@ def assemble_k(hf, p):
 @autojit(nopython=True)
 def numba_assemble_k(hf, dim, k_dim, nz, nc, omega):
     hf_max = (nc-1)/2
-    k = h.numba_zeros((k_dim, k_dim))
+    k = numba_zeros((k_dim, k_dim))
 
     # Assemble K by placing each component of Hf in turn, which
     # for a fixed Fourier index lie on diagonals, with 0 on the
@@ -85,11 +86,11 @@ def numba_assemble_k(hf, dim, k_dim, nz, nc, omega):
         row = start_row
         col = start_col
 
-        current_component = hf[h.n_to_i(n, nc)]
+        current_component = hf[n_to_i(n, nc)]
 
         while row <= stop_row and col <= stop_col:
             if n == 0:
-                block = current_component + np.identity(dim)*omega*h.i_to_n(row, nz)
+                block = current_component + np.identity(dim)*omega*i_to_n(row, nz)
                 bm.set_block_in_matrix(block, k, dim, nz, row, col)
             else:
                 bm.set_block_in_matrix(current_component, k, dim, nz, row, col)
@@ -216,7 +217,7 @@ def calculate_phi(vecs):
 @autojit(nopython=True)
 def numba_sum_components(vec, dim):
     n = vec.shape[0]
-    result = h.numba_zeros(dim)
+    result = numba_zeros(dim)
     for i in range(n):
         result += vec[i]
     return result
@@ -233,12 +234,12 @@ def calculate_psi(vecs, p):
 
 @autojit(nopython=True)
 def numba_calculate_psi(vecs, dim, nz, omega, t):
-    psi = h.numba_zeros((dim, dim))
+    psi = numba_zeros((dim, dim))
 
     for k in range(0, dim):
-        partial = h.numba_zeros(dim)
+        partial = numba_zeros(dim)
         for i in range(0, nz):
-            num = h.i_to_n(i, nz)
+            num = i_to_n(i, nz)
             partial += np.exp(1j*omega*t*num)*vecs[k][i]
         psi[k, :] = partial
 
@@ -283,7 +284,7 @@ def calculate_factors(dk, nz, nz_max, dim, npm, vals, vecs, vecsstar, omega, t):
     factors = np.empty([npm, 2*nz+1, dim, dim], dtype=np.complex128)
 
     for dn in xrange(-nz_max*2, 2*nz_max+1):
-        idn = h.n_to_i(dn, 2*nz)
+        idn = n_to_i(dn, 2*nz)
         for i1 in xrange(0, dim):
             for i2 in xrange(0, dim):
                 v1 = np.roll(vecsstar[i1], dn, axis=0)  # not supported by numba!
@@ -297,14 +298,14 @@ def calculate_factors(dk, nz, nz_max, dim, npm, vals, vecs, vecsstar, omega, t):
 @autojit(nopython=True)
 def assemble_du(nz, nz_max, dim, npm, alphas, psi, vecsstar):
     # Execute the sum defining dU, taking pre-computed factors into account
-    du = h.numba_zeros((npm, dim, dim))
+    du = numba_zeros((npm, dim, dim))
 
     for n2 in range(-nz_max, nz_max+1):
         for i1 in range(0, dim):
             for i2 in range(0, dim):
-                product = h.numba_outer(psi[i1], vecsstar[i2, h.n_to_i(-n2, nz)])
+                product = numba_outer(psi[i1], vecsstar[i2, n_to_i(-n2, nz)])
                 for n1 in range(-nz_max, nz_max+1):
-                    idn = h.n_to_i(n1-n2, 2*nz)
+                    idn = n_to_i(n1-n2, 2*nz)
                     for c in xrange(0, npm):
                         du[c] += alphas[c, idn, i1, i2]*product
 

@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-import floq.blockmatrix as bm
+import floq.helpers.blockmatrix as bm
 
 
 class TestGetBlockFromMatrix(unittest.TestCase):

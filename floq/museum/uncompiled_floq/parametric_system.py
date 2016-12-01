@@ -1,7 +1,7 @@
 import floq.fixed_system as fs
 import floq.evolution as ev
 import floq.errors as er
-import floq.helpers as h
+import floq.helpers.index as h
 
 
 class ParametericSystemBase(object):

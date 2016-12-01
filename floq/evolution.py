@@ -1,7 +1,7 @@
 import numpy as np
 import floq.core.evolution as ev
 import floq.errors as er
-import floq.helpers as h
+from floq.helpers.matrix import is_unitary
 
 
 def evolve_system(system):
@@ -32,7 +32,7 @@ def test_nz(system):
         # return False, else return [u, vecs, vals, phi, psi]
         try:
             results = ev.get_u_and_eigensystem(system.hf, system.params)
-            if h.is_unitary(results[0]):
+            if is_unitary(results[0]):
                 return [True, results]
             else:
                 return [False, []]
