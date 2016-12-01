@@ -1,7 +1,7 @@
 import unittest
 import assertions
 import numpy as np
-import floq.fidelity as f
+import floq.core.fidelities as f
 import floq.core.fixed_system as fs
 
 u1 = np.array([[-0.1756 + 0.499j, -0.673 + 0.3477j, 0.0341 + 0.381j],
