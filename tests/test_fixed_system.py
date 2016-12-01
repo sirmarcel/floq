@@ -33,6 +33,59 @@ class TestFixedSystemInit(unittest.TestCase, assertions.CustomAssertions):
         self.assertEqual(self.problem.params.np, 3)
 
 
+class TestEvolveFixedSystem(unittest.TestCase, assertions.CustomAssertions):
+    def setUp(self):
+        g = 0.5
+        e1 = 1.2
+        e2 = 2.8
+        hf = rabi.hf(g, e1, e2)
+        dhf = np.array([rabi.hf(1.0, 0, 0)])
+
+        nz = 3
+        dim = 2
+        omega = 5.0
+        t = 20.5
+        self.s = fs.FixedSystem(hf, dhf, nz, omega, t)
+
+        self.u = rabi.u(g, e1, e2, omega, t)
+        self.ucal = self.s.u
+
+        self.um = np.matrix(self.ucal)
+
+    def test_gives_unitary(self):
+        uu = self.um*self.um.getH()
+        identity = np.identity(2)
+        self.assertArrayEqual(uu, identity, 8)
+
+    def test_is_correct_u(self):
+        self.assertArrayEqual(self.u, self.ucal, 8)
+
+    def test_increases_nz(self):
+        self.assertTrue(self.s.params.nz > 3)
+
+
+class TestEvolveFixedSystemWithDerivs(unittest.TestCase, assertions.CustomAssertions):
+    def setUp(self):
+        g = 0.5
+        e1 = 1.2
+        e2 = 2.8
+        hf = rabi.hf(g, e1, e2)
+        dhf = np.array([rabi.hf(1.0, 0, 0)])
+
+        nz = 3
+        dim = 2
+        omega = 5.0
+        t = 1.5
+        s = fs.FixedSystem(hf, dhf, nz, omega, t)
+
+        self.ducal = np.array([[-0.43745 + 0.180865j, 0.092544 - 0.0993391j],
+                            [-0.0611011 - 0.121241j, -0.36949-0.295891j]])
+        self.du = s.du
+
+    def test_is_correct_du(self):
+        self.assertArrayEqual(self.ducal, self.du)
+
+
 class TestFixedSystemParametersInit(unittest.TestCase):
     def setUp(self):
         self.dim = 2

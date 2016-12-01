@@ -1,11 +1,18 @@
 import numpy as np
 import floq.errors as er
+import floq.core.evolution as ev
+from floq.helpers.matrix import is_unitary
 
 
 class FixedSystem(object):
     """
     Class that defines one specific instance of a Floquet problem, i.e.
-    some system for which the dynamics have to be calculated
+    some system for which the dynamics have to be calculated. Provides the
+    methods to compute U and dU.
+
+    Provides the following methods:
+    - u: computes u / returns already computed u
+    - du: computes du / returns already computed du
 
     Has the following attributes:
     - hf: the Fourier transformed Hamiltonian (ndarray, square)
@@ -14,11 +21,6 @@ class FixedSystem(object):
 
     - omega: The frequency associated with the period T of the control pulse
     - t: Control duration
-    - nz: Number of Fourier components taken into account for K, and of Brillouin
-          zones in the resulting set of eigenvalues
-
-    Derived from nz: nz_min/max, the cutoff for the integers labelling the Fourier components
-    - decimals: The number of decimals used for rounding
 
     The following parameters are inferred from hf and dhf during initialisation:
     - dim: the size of the Hilbert space
@@ -37,6 +39,10 @@ class FixedSystem(object):
 
         self.params = FixedSystemParameters(dim, nz, nc, np, omega, t, decimals)
 
+        self._u = None
+        self._du = None
+        self._vals, self._vecs, self._phi, self._psi = None, None, None, None
+
     def __eq__(self, other):
         assert isinstance(other, FixedSystem)
         hf_same = np.array_equal(self.hf, other.hf)
@@ -46,6 +52,53 @@ class FixedSystem(object):
 
         return hf_same and dhf_same and params_same
 
+    @property
+    def u(self):
+        if self._u is not None:
+            return self._u
+        else:
+            self._compute_u()
+            return self._u
+
+
+    @property
+    def du(self):
+        if self._du is not None:
+            return self._du
+        else:
+            self._compute_du()
+            return self._du
+
+
+    def _compute_u(self):
+        # Increase nz until U can be computed,
+        # then set U and the intermediary results
+        [nz_okay, results] = self._test_nz()
+        while nz_okay is False:
+            self.params.nz += 2
+            [nz_okay, results] = self._test_nz()
+
+        self._u, self._vals, self._vecs, self._phi, self._psi = results
+
+    def _test_nz(self):
+        # Try to compute U with the current nz,
+        # if an error occurs or U is not unitary
+        # return [False, []], else return [u, vecs, vals, phi, psi]
+        try:
+            results = ev.get_u_and_eigensystem(self.hf, self.params)
+            if is_unitary(results[0]):
+                return [True, results]
+            else:
+                return [False, []]
+        except er.EigenvalueNumberError:
+            return [False, []]
+
+
+    def _compute_du(self):
+        if self._u is None:
+            self._compute_u()
+        self._du = ev.get_du_from_eigensystem(self.dhf, self._psi,
+                                              self._vals, self._vecs, self.params)
 
 
 class DummyFixedSystem(FixedSystem):
