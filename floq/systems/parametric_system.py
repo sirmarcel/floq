@@ -1,3 +1,4 @@
+import numpy as np
 import floq.core.fixed_system as fs
 import floq.evolution as ev
 import floq.errors as er
@@ -29,17 +30,11 @@ class ParametericSystemBase(object):
         raise NotImplementedError
 
 
-
     def u(self, controls, t):
-        if self._last_controls == controls and self._last_t == t:
+        if np.array_equal(self._last_controls, controls) and self._last_t == t:
             return self._fixed_system.u
         else:
-            self._last_controls = controls
-            self._last_t = t
-
-            hf = self._hf(controls)
-            dhf = self._dhf(controls)
-            self._fixed_system = fs.FixedSystem(hf, dhf, self.nz, self.omega, self.t)
+            self._set_cached(controls, t)
 
             u = self._fixed_system.u
             self.nz = self._fixed_system.params.nz
@@ -50,16 +45,20 @@ class ParametericSystemBase(object):
         if self._last_controls == controls and self._last_t == t:
             return self._fixed_system.du
         else:
-            self._last_controls = controls
-            self._last_t = t
-
-            hf = self._hf(controls)
-            dhf = self._dhf(controls)
-            self._fixed_system = fs.FixedSystem(hf, dhf, self.nz, self.omega, self.t)
+            self._set_cached(controls, t)
 
             du = self._fixed_system.du
             self.nz = self._fixed_system.params.nz
             return du
+
+
+    def _set_cached(self, controls, t):
+        self._last_controls = controls
+        self._last_t = t
+
+        hf = self._hf(controls)
+        dhf = self._dhf(controls)
+        self._fixed_system = fs.FixedSystem(hf, dhf, self.nz, self.omega, t)
 
 
 class ParametricSystemWithFunctions(ParametericSystemBase):
