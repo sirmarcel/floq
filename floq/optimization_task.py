@@ -1,5 +1,5 @@
 import numpy as np
-import floq.parametric_system as ps
+import floq.systems.parametric_system as ps
 import floq.evolution as ev
 
 

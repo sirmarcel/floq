@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-import floq.parametric_system as ps
+import floq.systems.parametric_system as ps
 import floq.errors as er
 import rabi
 import assertions
