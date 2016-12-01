@@ -7,7 +7,12 @@ import assertions
 
 
 class TestParametricSystemBase(unittest.TestCase):
-    def test_get_system_not_implemented(self):
+    def test_hf_not_implemented(self):
         with self.assertRaises(NotImplementedError):
             p = ps.ParametericSystemBase()
-            p.get_system(None, None)
+            p._hf(None)
+
+    def test_dhf_not_implemented(self):
+        with self.assertRaises(NotImplementedError):
+            p = ps.ParametericSystemBase()
+            p._dhf(None)

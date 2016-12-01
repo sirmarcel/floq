@@ -5,49 +5,66 @@ import floq.errors as er
 
 class ParametericSystemBase(object):
     """
-    Base class to specify a physical system that still has open parameters,
+    Specifies a physical system that still has open parameters,
     such as the control amplitudes, the control duration, or other arbitrary
     parameters in the Hamiltonian.
 
-    This needs to be sub-classed, and a subclass should provide:
-    - get_system(controls)
+    The base class provides two functions:
+    - u(controls, t)
+    - du(controls, t),
+    which implement basic caching and automatically update self.nz.
+
+    To function, this needs to be sub-classed, and a subclass should provide:
+    - _hf(controls),
+    - _dhf(controls)
+    as well as __init__, which has to set self.nz, self.omega and self.t, and needs to call
+    this class' __init__.
 
     """
-
-    def get_system(self, controls, t):
-        raise NotImplementedError("get_system not implemented.")
-
-    def get_u(self, controls, t):
-        raise NotImplementedError("get_u not implemented.")
-
-    def get_u_and_du(self, controls, t):
-        raise NotImplementedError("get_u_and_du not implemented.")
+    def _hf(self, controls):
+        raise NotImplementedError
 
 
-class EnsembleBase(object):
-    """
-    Base class to specify an ensemble of physical systems
-    that still have open parameters.
+    def _dhf(self, controls):
+        raise NotImplementedError
 
-    This is base class defining the API and cannot be used, it needs to be sub-classed.
 
-    """
 
-    def get_systems(self, controls, t):
-        raise NotImplementedError("get_system not implemented.")
+    def u(self, controls, t):
+        if self._last_controls == controls and self._last_t == t:
+            return self._fixed_system.u
+        else:
+            self._last_controls = controls
+            self._last_t = t
 
-    def get_us(self, controls, t):
-        raise NotImplementedError("get_u not implemented.")
+            hf = self._hf(controls)
+            dhf = self._dhf(controls)
+            self._fixed_system = fs.FixedSystem(hf, dhf, self.nz, self.omega, self.t)
 
-    def get_us_and_dus(self, controls, t):
-        raise NotImplementedError("get_u_and_du not implemented.")
+            u = self._fixed_system.u
+            self.nz = self._fixed_system.params.nz
+            return u
+
+
+    def du(self, controls, t):
+        if self._last_controls == controls and self._last_t == t:
+            return self._fixed_system.du
+        else:
+            self._last_controls = controls
+            self._last_t = t
+
+            hf = self._hf(controls)
+            dhf = self._dhf(controls)
+            self._fixed_system = fs.FixedSystem(hf, dhf, self.nz, self.omega, self.t)
+
+            du = self._fixed_system.du
+            self.nz = self._fixed_system.params.nz
+            return du
 
 
 class ParametricSystemWithFunctions(ParametericSystemBase):
     """
-    A system with parametric hf and dhf, which are passed as callables to the constructor.
-
-    hf has to have the form hf(a,parameters)
+    A ParametricSystem that wraps callables hf and dhf.
     """
 
     def __init__(self, hf, dhf, nz, omega, parameters):
@@ -65,25 +82,9 @@ class ParametricSystemWithFunctions(ParametericSystemBase):
         self.nz = nz
         self.parameters = parameters
 
-    def calculate_hf(self, controls):
+    def _hf(self, controls):
         return self.hf(controls, self.parameters, self.omega)
 
-    def calculate_dhf(self, controls):
+
+    def _dhf(self, controls):
         return self.dhf(controls, self.parameters, self.omega)
-
-    def get_system(self, controls, t):
-        hf = self.calculate_hf(controls)
-        dhf = self.calculate_dhf(controls)
-        return fs.FixedSystem(hf, dhf, self.nz, self.omega, t)
-
-    def get_u(self, controls, t):
-        fixed_system = self.get_system(controls, t)
-        u, new_nz = ev.evolve_system(fixed_system)
-        self.nz = new_nz
-        return u
-
-    def get_u_and_du(self, controls, t):
-        fixed_system = self.get_system(controls, t)
-        u, du, new_nz = ev.evolve_system_with_derivatives(fixed_system)
-        self.nz = new_nz
-        return [u, du]

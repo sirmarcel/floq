@@ -1,10 +1,10 @@
 import numpy as np
-import floq.systems.parametric_system as ps
+from floq.systems.ensemble import EnsembleBase
 import floq.core.fixed_system as fs
 import floq.evolution as ev
 
 
-class SpinEnsemble(ps.EnsembleBase):
+class SpinEnsemble(EnsembleBase):
     """
     A system of n non-interacting spins, where each
     spin is described by the Hamiltonian
