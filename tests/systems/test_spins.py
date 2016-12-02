@@ -2,7 +2,7 @@ from unittest import TestCase
 import numpy as np
 import floq.systems.spins as spins
 import floq.core.fixed_system as fs
-from assertions import CustomAssertions
+from tests.assertions import CustomAssertions
 import floq.evolution as ev
 
 

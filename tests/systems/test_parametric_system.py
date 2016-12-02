@@ -3,8 +3,8 @@ import numpy as np
 import floq.systems.parametric_system as ps
 import floq.core.fixed_system
 import floq.errors as er
-import rabi
-from assertions import CustomAssertions
+import tests.rabi as rabi
+from tests.assertions import CustomAssertions
 from mock import MagicMock, patch
 
 
