@@ -1,8 +1,8 @@
-import unittest
+from unittest import TestCase
 import numpy as np
 import floq.systems.spins as spins
 import floq.core.fixed_system as fs
-import assertions
+from assertions import CustomAssertions
 import floq.evolution as ev
 
 
@@ -52,7 +52,7 @@ def dhf(amp):
     return amp*np.array([dhf_a1, dhf_b1, dhf_a2, dhf_b2])
 
 
-class TestSpinEnsemble(unittest.TestCase, assertions.CustomAssertions):
+class TestSpinEnsemble(TestCase, CustomAssertions):
 
     def test_build_single_hf(self):
         controls = np.array([1.2, 2.3, 3.4, 5.4])
@@ -97,7 +97,7 @@ class TestSpinEnsemble(unittest.TestCase, assertions.CustomAssertions):
         self.assertEqual(first_system, system)
 
 
-class TestSpinEnsembleEvolution(unittest.TestCase, assertions.CustomAssertions):
+class TestSpinEnsembleEvolution(TestCase, CustomAssertions):
     def setUp(self):
         amps = np.array([1.2, 1.1, 0.7, 0.6])
         freqs = np.array([0.8, 1.1, 0.9, 1.2])

@@ -1,6 +1,6 @@
-import unittest
+from unittest import TestCase
 import numpy as np
-import tests.assertions as assertions
+from tests.assertions import CustomAssertions
 import tests.rabi as rabi
 import floq.core.evolution as ev
 import floq.helpers.index as h
@@ -17,7 +17,7 @@ def generate_fake_spectrum(unique_vals, dim, omega, nz):
     return vals
 
 
-class TestGetU(unittest.TestCase, assertions.CustomAssertions):
+class TestGetU(TestCase, CustomAssertions):
     def setUp(self):
         g = 0.5
         e1 = 1.2
@@ -44,7 +44,7 @@ class TestGetU(unittest.TestCase, assertions.CustomAssertions):
         self.assertArrayEqual(self.u, self.ucal, 8)
 
 
-class TestGetUanddU(unittest.TestCase, assertions.CustomAssertions):
+class TestGetUanddU(TestCase, CustomAssertions):
     def setUp(self):
         g = 0.5
         e1 = 1.2
@@ -68,7 +68,7 @@ class TestGetUanddU(unittest.TestCase, assertions.CustomAssertions):
 
 
 
-class TestAssembleK(unittest.TestCase, assertions.CustomAssertions):
+class TestAssembleK(TestCase, CustomAssertions):
     def setUp(self):
         dim = 2
         self.p = fs.FixedSystemParameters.optional(dim, nz=5, nc=3, omega=1)
@@ -93,7 +93,7 @@ class TestAssembleK(unittest.TestCase, assertions.CustomAssertions):
         self.assertArrayEqual(builtk, self.goalk)
 
 
-class TestAssembledK(unittest.TestCase, assertions.CustomAssertions):
+class TestAssembledK(TestCase, CustomAssertions):
     def setUp(self):
         dim = 2
         self.p = fs.FixedSystemParameters.optional(dim, 5, 3, np=2, omega=1)
@@ -128,7 +128,7 @@ class TestAssembledK(unittest.TestCase, assertions.CustomAssertions):
 
 
 
-class TestFindEigensystem(unittest.TestCase, assertions.CustomAssertions):
+class TestFindEigensystem(TestCase, CustomAssertions):
     def setUp(self):
         self.target_vals = np.array([-0.235, 0.753])
         # random matrix with known eigenvalues:
@@ -175,7 +175,7 @@ class TestFindEigensystem(unittest.TestCase, assertions.CustomAssertions):
         self.assertEqual(self.vecs.dtype, 'complex128')
 
 
-class TestFindUniquevals(unittest.TestCase, assertions.CustomAssertions):
+class TestFindUniquevals(TestCase, CustomAssertions):
     
     def test_finds_unique_vals_if_all_positive(self):
         dim = 3
@@ -212,7 +212,7 @@ class TestFindUniquevals(unittest.TestCase, assertions.CustomAssertions):
             ev.find_unique_vals(e, p)
 
 
-class TestSeparateComponents(unittest.TestCase, assertions.CustomAssertions):
+class TestSeparateComponents(TestCase, CustomAssertions):
     def test_split(self):
         a = np.array([1.23, 2.45])
         b = np.array([6.123, 1.656])
@@ -231,7 +231,7 @@ class TestSeparateComponents(unittest.TestCase, assertions.CustomAssertions):
 
 
 
-class TestCalculatePhi(unittest.TestCase, assertions.CustomAssertions):
+class TestCalculatePhi(TestCase, CustomAssertions):
     def test_sum(self):
         a = np.array([1.53, 2.45])
         b = np.array([7.161, 1.656])
@@ -248,7 +248,7 @@ class TestCalculatePhi(unittest.TestCase, assertions.CustomAssertions):
         self.assertArrayEqual(calculated_sum, target)
 
 
-class TestCalculatePsi(unittest.TestCase, assertions.CustomAssertions):
+class TestCalculatePsi(TestCase, CustomAssertions):
     def test_sum(self):
         omega = 2.34
         t = 1.22
@@ -271,7 +271,7 @@ class TestCalculatePsi(unittest.TestCase, assertions.CustomAssertions):
         self.assertArrayEqual(calculated_sum, target)
 
 
-class TestCalculateU(unittest.TestCase, assertions.CustomAssertions):
+class TestCalculateU(TestCase, CustomAssertions):
     def test_u(self):
         omega = 3.56
         t = 8.123
@@ -298,7 +298,7 @@ class TestCalculateU(unittest.TestCase, assertions.CustomAssertions):
 
 
 
-class TestCalculateDU(unittest.TestCase, assertions.CustomAssertions):
+class TestCalculateDU(TestCase, CustomAssertions):
     def setUp(self):
         g = 0.5
         e1 = 1.2

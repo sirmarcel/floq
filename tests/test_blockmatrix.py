@@ -1,9 +1,9 @@
-import unittest
+from unittest import TestCase
 import numpy as np
 import floq.helpers.blockmatrix as bm
 
 
-class TestGetBlockFromMatrix(unittest.TestCase):
+class TestGetBlockFromMatrix(TestCase):
     def setUp(self):
         self.dim_block = 5
         self.n_block = 3
@@ -53,7 +53,7 @@ class TestGetBlockFromMatrix(unittest.TestCase):
         self.assertTrue(np.array_equal(block, self.i))
 
 
-class TestSetBlockInMatrix(unittest.TestCase):
+class TestSetBlockInMatrix(TestCase):
     def setUp(self):
         self.dim_block = 5
         self.n_block = 3

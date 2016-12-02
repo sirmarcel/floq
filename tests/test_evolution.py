@@ -1,6 +1,6 @@
-import unittest
+from unittest import TestCase
 import numpy as np
-import assertions
+from assertions import CustomAssertions
 import rabi
 import floq.evolution as ev
 import floq.helpers.index as h
@@ -8,7 +8,7 @@ import floq.core.fixed_system as fs
 import floq.errors as er
 
 
-class TestEvolveSystem(unittest.TestCase, assertions.CustomAssertions):
+class TestEvolveSystem(TestCase, CustomAssertions):
     def setUp(self):
         g = 0.5
         e1 = 1.2
@@ -36,7 +36,7 @@ class TestEvolveSystem(unittest.TestCase, assertions.CustomAssertions):
         self.assertArrayEqual(self.u, self.ucal, 8)
 
 
-class TestEvolveSystemWithDerivs(unittest.TestCase, assertions.CustomAssertions):
+class TestEvolveSystemWithDerivs(TestCase, CustomAssertions):
     def setUp(self):
         g = 0.5
         e1 = 1.2
@@ -58,7 +58,7 @@ class TestEvolveSystemWithDerivs(unittest.TestCase, assertions.CustomAssertions)
         self.assertArrayEqual(self.ducal, self.du)
 
 
-class TestTestNz(unittest.TestCase):
+class TestTestNz(TestCase):
     def test_false_if_nz_too_small(self):
         g = 0.5
         e1 = 1.2

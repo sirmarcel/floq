@@ -1,12 +1,12 @@
-import unittest
+from unittest import TestCase
 import numpy as np
 import floq.core.fixed_system as fs
 import floq.errors as er
 import rabi
-import assertions
+from assertions import CustomAssertions
 
 
-class TestFixedSystemInit(unittest.TestCase, assertions.CustomAssertions):
+class TestFixedSystemInit(TestCase, CustomAssertions):
 
     def setUp(self):
         self.hf = np.zeros([5, 10, 10])
@@ -33,7 +33,7 @@ class TestFixedSystemInit(unittest.TestCase, assertions.CustomAssertions):
         self.assertEqual(self.problem.params.np, 3)
 
 
-class TestEvolveFixedSystem(unittest.TestCase, assertions.CustomAssertions):
+class TestEvolveFixedSystem(TestCase, CustomAssertions):
     def setUp(self):
         g = 0.5
         e1 = 1.2
@@ -64,7 +64,7 @@ class TestEvolveFixedSystem(unittest.TestCase, assertions.CustomAssertions):
         self.assertTrue(self.s.params.nz > 3)
 
 
-class TestEvolveFixedSystemWithDerivs(unittest.TestCase, assertions.CustomAssertions):
+class TestEvolveFixedSystemWithDerivs(TestCase, CustomAssertions):
     def setUp(self):
         g = 0.5
         e1 = 1.2
@@ -86,7 +86,7 @@ class TestEvolveFixedSystemWithDerivs(unittest.TestCase, assertions.CustomAssert
         self.assertArrayEqual(self.ducal, self.du)
 
 
-class TestFixedSystemParametersInit(unittest.TestCase):
+class TestFixedSystemParametersInit(TestCase):
     def setUp(self):
         self.dim = 2
         self.nz = 5

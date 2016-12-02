@@ -1,9 +1,9 @@
-import unittest
+from unittest import TestCase
 import numpy as np
 import floq.helpers.index as h
 
 
-class TestFourierIndexToNormalIndex(unittest.TestCase):
+class TestFourierIndexToNormalIndex(TestCase):
 
     def test_start(self):
         self.assertEqual(h.n_to_i(-40, 81), 0)
@@ -30,7 +30,7 @@ class TestFourierIndexToNormalIndex(unittest.TestCase):
         self.assertEqual(h.n_to_i(-6-14, 7), h.n_to_i(1, 7))
 
 
-class TestNormalIndexToFourierIndex(unittest.TestCase):
+class TestNormalIndexToFourierIndex(TestCase):
 
     def test_start(self):
         self.assertEqual(h.i_to_n(0, 81), -40)
@@ -45,7 +45,7 @@ class TestNormalIndexToFourierIndex(unittest.TestCase):
         self.assertEqual(h.i_to_n(37, 81), -3)
 
 
-class TestMakeEven(unittest.TestCase):
+class TestMakeEven(TestCase):
     def test_make_odd_even(self):
         self.assertEqual(h.make_even(3), 4)
 

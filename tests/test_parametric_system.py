@@ -1,14 +1,14 @@
-import unittest
+from unittest import TestCase
 import numpy as np
 import floq.systems.parametric_system as ps
 import floq.core.fixed_system
 import floq.errors as er
 import rabi
-import assertions
+from assertions import CustomAssertions
 from mock import MagicMock, patch
 
 
-class TestParametricSystemBase(unittest.TestCase):
+class TestParametricSystemBase(TestCase):
     def test_hf_not_implemented(self):
         with self.assertRaises(NotImplementedError):
             p = ps.ParametericSystemBase()
@@ -20,7 +20,7 @@ class TestParametricSystemBase(unittest.TestCase):
             p._dhf(None)
 
 
-class TestParametricSystemBaseCaching(unittest.TestCase):
+class TestParametricSystemBaseCaching(TestCase):
     def setUp(self):
         self.ctrls1 = np.array([1.2, 1.1])
         self.ctrls2 = np.array([1.3, 1.1])

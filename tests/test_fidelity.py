@@ -1,5 +1,5 @@
-import unittest
-import assertions
+from unittest import TestCase
+from assertions import CustomAssertions
 import numpy as np
 import floq.core.fidelities as f
 import floq.core.fixed_system as fs
@@ -21,7 +21,7 @@ v1 = np.array([0.348713 - 0.435703j, -0.245625 - 0.0546497j, 0.575875 + 0.54186j
 v2 = np.array([-0.541912 + 0.349275j, 0.432916 + 0.181694j, 0.304055 + 0.521019j])
 
 
-class TestTransferFidelity(unittest.TestCase, assertions.CustomAssertions):
+class TestTransferFidelity(TestCase, CustomAssertions):
 
     def test_transfer_fidelity(self):
         target = np.array([v2, v1])
@@ -29,14 +29,14 @@ class TestTransferFidelity(unittest.TestCase, assertions.CustomAssertions):
         self.assertAlmostEqualWithDecimals(fid, 0.131584, 4)
 
 
-class TestOperatorFidelity(unittest.TestCase, assertions.CustomAssertions):
+class TestOperatorFidelity(TestCase, CustomAssertions):
 
     def test_operator_fidelity(self):
         fid = f.operator_fidelity(u1, u2)
         self.assertAlmostEqualWithDecimals(fid, 0.0378906, 4)
 
 
-class TestOperatorFidelityDeriv(unittest.TestCase, assertions.CustomAssertions):
+class TestOperatorFidelityDeriv(TestCase, CustomAssertions):
 
     def test_d_operator_fidelity(self):
         dus = np.array([u3, u4])
@@ -45,7 +45,7 @@ class TestOperatorFidelityDeriv(unittest.TestCase, assertions.CustomAssertions):
         self.assertArrayEqual(actual, target, 4)
 
 
-class TestHSProduct(unittest.TestCase, assertions.CustomAssertions):
+class TestHSProduct(TestCase, CustomAssertions):
     def test_product(self):
         product = f.hilbert_schmidt_product(u1, u2)
         self.assertAlmostEqualWithDecimals(product, 0.113672 + 0.830189j, 4)
