@@ -22,6 +22,11 @@ class ParametericSystemBase(object):
     this class' __init__.
 
     """
+    def __init__(self):
+        self._last_controls = None
+        self._last_t = None
+
+
     def _hf(self, controls):
         raise NotImplementedError
 
@@ -31,7 +36,7 @@ class ParametericSystemBase(object):
 
 
     def u(self, controls, t):
-        if np.array_equal(self._last_controls, controls) and self._last_t == t:
+        if self._is_cached(controls, t):
             return self._fixed_system.u
         else:
             self._set_cached(controls, t)
@@ -42,7 +47,7 @@ class ParametericSystemBase(object):
 
 
     def du(self, controls, t):
-        if self._last_controls == controls and self._last_t == t:
+        if self._is_cached(controls, t):
             return self._fixed_system.du
         else:
             self._set_cached(controls, t)
@@ -50,6 +55,15 @@ class ParametericSystemBase(object):
             du = self._fixed_system.du
             self.nz = self._fixed_system.params.nz
             return du
+
+
+    def _is_cached(self, controls, t):
+        if not isinstance(controls, np.ndarray):
+            return False
+        elif self._last_t != t:
+            return False
+        else:
+            return np.array_equal(self._last_controls, controls)
 
 
     def _set_cached(self, controls, t):

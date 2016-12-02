@@ -36,6 +36,12 @@ class TestParametricSystemBaseCaching(TestCase):
         self.real.nz = MagicMock()
         self.real.omega = MagicMock()
 
+    def test_is_cached_false_initially(self):
+        system = ps.ParametericSystemBase()
+        ctrl = np.arange(5)
+        self.assertFalse(system._is_cached(ctrl, 1.0))
+
+
     def test_u_caches_if_same(self):
         with patch('floq.core.fixed_system.FixedSystem') as mock:
             self.real.u(self.ctrls1, 1.0)
