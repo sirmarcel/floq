@@ -2,8 +2,10 @@ from unittest import TestCase
 import numpy as np
 import floq.core.fixed_system as fs
 import floq.errors as er
-import rabi
-from assertions import CustomAssertions
+import floq.core.evolution
+import tests.rabi as rabi
+from tests.assertions import CustomAssertions
+from mock import MagicMock
 
 
 class TestFixedSystemInit(TestCase, CustomAssertions):
@@ -84,6 +86,37 @@ class TestEvolveFixedSystemWithDerivs(TestCase, CustomAssertions):
 
     def test_is_correct_du(self):
         self.assertArrayEqual(self.ducal, self.du)
+
+
+class TestFixedSystemCaching(TestCase):
+    def setUp(self):
+        g = 0.5
+        e1 = 1.2
+        e2 = 2.8
+        hf = rabi.hf(g, e1, e2)
+        dhf = np.array([rabi.hf(1.0, 0, 0)])
+
+        nz = 15
+        dim = 2
+        omega = 5.0
+        t = 20.5
+        self.s = fs.FixedSystem(hf, dhf, nz, omega, t)
+
+    def test_compute_u_once(self):
+        u = self.s.u
+        mock = MagicMock()
+        self.s._compute_u = mock
+        u = self.s.u
+        mock.assert_not_called()
+
+
+    def test_compute_du_once(self):
+        du = self.s.du
+        mock = MagicMock()
+        self.s._compute_du = mock
+        du = self.s.du
+        mock.assert_not_called()
+
 
 
 class TestFixedSystemParametersInit(TestCase):
