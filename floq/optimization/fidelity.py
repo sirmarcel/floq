@@ -41,11 +41,14 @@ class EnsembleFidelity(FidelityComputerBase):
         self.fidelities = [fidelity(sys, **params) for sys in ensemble.systems]
 
     def f(self, controls_and_t):
-        return np.mean([fid.f(controls_and_t) for fid in self.fidelities])
+        f = np.mean([fid.f(controls_and_t) for fid in self.fidelities])
+        print 'F: ' + str(f)
+        return f
 
 
     def df(self, controls_and_t):
-        return np.mean([fid.df(controls_and_t) for fid in self.fidelities], axis=0)
+        df = np.mean([fid.df(controls_and_t) for fid in self.fidelities], axis=0)
+        return df
 
 
 
