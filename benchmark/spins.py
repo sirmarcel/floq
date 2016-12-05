@@ -43,3 +43,11 @@ fid = EnsembleFidelity(s, OperatorDistance, t=1.0, target=target)
 
 print time_u(fid.f, ctrl)
 print time_du(fid.df, ctrl)
+
+
+print "---- Legacy version"
+from museum_of_forks.p0.optimization.fidelity import EnsembleFidelity, OperatorDistance
+fid = EnsembleFidelity(s, OperatorDistance, t=1.0, target=target)
+
+print time_u(fid.f, ctrl)
+print time_du(fid.df, ctrl)
