@@ -42,7 +42,6 @@ class EnsembleFidelity(FidelityComputerBase):
 
     def f(self, controls_and_t):
         f = np.mean([fid.f(controls_and_t) for fid in self.fidelities])
-        print 'F: ' + str(f)
         return f
 
 
