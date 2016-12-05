@@ -1,8 +1,8 @@
 import sys
 sys.path.append('..')
 sys.path.append('museum_of_forks')
-import numpy as np
 from floq.systems.spins import SpinEnsemble
+import numpy as np
 import timeit
 
 
@@ -12,29 +12,34 @@ def wrapper(func, *args, **kwargs):
     return wrapped
 
 
-def time_u(get_u, hf, params):
-    time = min(timeit.Timer(wrapper(get_u, hf, params)).repeat(5, 20))/20
+def get_f(fid, base_controls):
+    fid(np.random.rand(1)*base_controls)
+
+
+def time_u(fidel, ctrl):
+    time = min(timeit.Timer(wrapper(get_f, fidel, ctrl)).repeat(2, 5))/5
     return " U: " + str(round(time*1000, 3)) + " ms per execution"
 
 
-def time_du(func, hf, dhf, params):
-    time = min(timeit.Timer(wrapper(func, hf, dhf, params)).repeat(3, 1))
+def time_du(grad_fidel, ctrl):
+    time = min(timeit.Timer(wrapper(get_f, grad_fidel, ctrl)).repeat(3, 1))
     return "dU: " + str(round(time, 3)) + " s per execution"
 
 
-
-
-ncomp = 2
-n = 6
+ncomp = 6
+n = 20
 freqs = 0.0*np.ones(n)+1.0*np.random.rand(n)
 amps = 1.0*np.ones(n)+0.05*np.random.rand(n)
-
-init = 0.5*np.ones(2*ncomp)
-
 s = SpinEnsemble(n, ncomp, 1.5, freqs, amps)
+ctrl = 0.5*np.ones(2*ncomp)
+target = np.array([[0.105818 - 0.324164j, -0.601164 - 0.722718j],
+                   [0.601164 - 0.722718j, 0.105818 + 0.324164j]])
 
-print "---- Current version (Numba)"
-import floq.core.evolution as ev
 
-print time_u(ev.get_u, hf, params)
-print time_du(ev.get_u_and_du, hf, dhf, params)
+
+print "---- Current version"
+from floq.optimization.fidelity import EnsembleFidelity, OperatorDistance
+fid = EnsembleFidelity(s, OperatorDistance, t=1.0, target=target)
+
+print time_u(fid.f, ctrl)
+print time_du(fid.df, ctrl)
