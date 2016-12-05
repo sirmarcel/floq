@@ -1,5 +1,6 @@
 import sys
 sys.path.append('..')
+sys.path.append('museum_of_evolution')
 import numpy as np
 import floq.core.spin as spin
 import floq.core.fixed_system as fs
@@ -40,26 +41,26 @@ print time_du(ev.get_u_and_du, hf, dhf, params)
 
 
 print "---- Better algorithm for dU"
-import floq.museum.p4.evolution as ev
+import museum_of_evolution.p4.evolution as ev
 
 print time_u(ev.get_u, hf, params)
 print time_du(ev.get_u_and_du, hf, dhf, params)
 
 
 print "---- Use less Python"
-import floq.museum.p3.evolution as ev
+import museum_of_evolution.p3.evolution as ev
 
 print time_u(ev.get_u, hf, params)
 print time_du(ev.get_u_and_du, hf, dhf, params)
 
 
 print "---- Use sparse matrix library"
-import floq.museum.p2.evolution as ev
+import museum_of_evolution.p2.evolution as ev
 
 print time_u(ev.get_u, hf, params)
 print time_du(ev.get_u_and_du, hf, dhf, params)
 print "---- Baseline"
-import floq.museum.p1.evolution as ev
+import museum_of_evolution.p1.evolution as ev
 
 print time_u(ev.get_u, hf, params)
 print time_du(ev.get_u_and_du, hf, dhf, params)

@@ -1,10 +1,16 @@
 import numpy as np
-import floq.museum.uncompiled_floq.helpers as h
-import floq.museum.uncompiled_floq.blockmatrix as bm
-import floq.museum.uncompiled_floq.fixed_system as fs
-import floq.museum.uncompiled_floq.errors as errors
+import scipy.sparse as sp
+import scipy.sparse.linalg as la
+import sys
+sys.path.append('..')
+import uncompiled_floq.helpers as h
+import uncompiled_floq.blockmatrix as bm
+import uncompiled_floq.fixed_system as fs
+import uncompiled_floq.errors as errors
 import itertools
 import copy
+import cmath
+
 
 def get_u(hf, params):
     """
@@ -20,6 +26,7 @@ def get_u(hf, params):
 
     return calculate_u(phi, psi, vals, params)
 
+
 def get_u_and_du(hf, dhf, params):
     """
     Calculate the time evolution operator U
@@ -34,7 +41,10 @@ def get_u_and_du(hf, dhf, params):
     psi = calculate_psi(vecs, params)
 
     u = calculate_u(phi, psi, vals, params)
-    du = calculate_du(dhf, psi, vals, vecs, params)
+
+    dk = assemble_dk(dhf, params)
+    
+    du = calculate_du(dk, psi, vals, vecs, params)
 
     return [u, du]
 
@@ -42,6 +52,12 @@ def get_u_and_du(hf, dhf, params):
 
 def assemble_k(hf, p):
     hf_max = (p.nc-1)/2
+    nz = p.nz
+    nc = p.nc
+    dim = p.dim
+    omega = p.omega
+
+
 
     k = np.zeros([p.k_dim, p.k_dim], dtype='complex128')
 
@@ -57,20 +73,20 @@ def assemble_k(hf, p):
         start_row = max(0, n)  # if n < 0, start at row 0
         start_col = max(0, -n)  # if n > 0, start at col 0
 
-        stop_row = min((p.nz-1)+n, p.nz-1)
-        stop_col = min((p.nz-1)-n, p.nz-1)
+        stop_row = min((nz-1)+n, nz-1)
+        stop_col = min((nz-1)-n, nz-1)
 
         row = start_row
         col = start_col
 
-        current_component = hf[h.n_to_i(n, p.nc)]
+        current_component = hf[h.n_to_i(n, nc)]
 
         while row <= stop_row and col <= stop_col:
             if n == 0:
-                block = current_component + np.identity(p.dim)*p.omega*h.i_to_n(row, p.nz)
-                bm.set_block_in_matrix(block, k, p.dim, p.nz, row, col)
+                block = current_component + np.identity(dim)*omega*h.i_to_n(row, nz)
+                bm.set_block_in_matrix(block, k, dim, nz, row, col)
             else:
-                bm.set_block_in_matrix(current_component, k, p.dim, p.nz, row, col)
+                bm.set_block_in_matrix(current_component, k, dim, nz, row, col)
 
             row += 1
             col += 1
@@ -83,6 +99,7 @@ def assemble_dk(dhf, p):
     p2.omega = 0.0
 
     return np.array([assemble_k(dhf[i], p2) for i in xrange(0, p.np)])
+
 
 
 def find_eigensystem(k, p):
@@ -106,9 +123,14 @@ def find_eigensystem(k, p):
 def compute_eigensystem(k, p):
     # Find eigenvalues and eigenvectors of k,
     # using the method specified in the parameters
+    if p.sparse:
+        k = sp.csc_matrix(k)
 
-    vals, vecs = np.linalg.eig(k)
-    vals, vecs = trim_eigensystem(vals, vecs, p)
+        number_of_eigs = min(2*p.dim, p.k_dim)
+        vals, vecs = la.eigs(k, k=number_of_eigs, sigma=0.0)
+    else:
+        vals, vecs = np.linalg.eig(k)
+        vals, vecs = trim_eigensystem(vals, vecs, p)
 
     vals = vals.real.astype(np.float64, copy=False)
 
@@ -198,44 +220,53 @@ def calculate_u(phi, psi, energies, p):
     return u
 
 
+def calculate_du(dk, psi, vals, vecs, p):
+    dim = p.dim
+    nz_max = p.nz_max
+    nz = p.nz
+    npm = p.np
+    omega = p.omega
+    t = p.t
 
-def calculate_du(dhf, psi, vals, vecs, p):
-    du = np.zeros([p.np, p.dim, p.dim], dtype='complex128')
-    dk = assemble_dk(dhf, p)
+    vecsstar = np.conj(vecs)
+
+    du = np.zeros([npm, dim, dim], dtype='complex128')
 
     # (i1,n1) & (i2,n2) iterate over the full spectrum of k:
     # i1, i2: unique eigenvalues/-vectors in 0th Brillouin zone
     # n1, n2: related vals/vecs derived by shifting with those offsets (lying in the nth BZs)
-    uniques = xrange(0, p.dim)
-    offsets = xrange(p.nz_min, p.nz_max+1)
+    uniques = xrange(0, dim)
+    offsets = xrange(-nz_max, nz_max+1)
 
-    for c in xrange(0, p.np):
+    alphas = np.empty([npm, 2*nz+1, dim, dim], dtype=np.complex128)
+    for dn in xrange(-nz_max*2, 2*nz_max+1):
+        idn = h.n_to_i(dn, 2*nz)
         for i1, i2 in itertools.product(uniques, uniques):
-            for n1, n2 in itertools.product(offsets, offsets):
-                e1 = vals[i1] + n1*p.omega
-                e2 = vals[i2] + n2*p.omega
+            v1 = np.roll(vecsstar[i1], dn, axis=0)
+            for c in xrange(0, npm):
+                alphas[c, idn, i1, i2] = (integral_factors(vals[i1], vals[i2], dn, omega, t) *
+                                          expectation_value(dk[c], v1, vecs[i2]))
 
-                v1 = np.roll(vecs[i1], n1, axis=0)
-                v2 = np.roll(vecs[i2], n2, axis=0)
-
-                factor = expectation_value(dk[c], v1, v2, p)
-                factor *= p.t*np.exp(1j*p.omega*p.t*n1)
-                factor *= integral_factors(e1, e2, p)
-
-                du[c, :, :] += factor*np.outer(psi[i1], np.conj(vecs[i2, h.n_to_i(-n2, p.nz)]))
+    for n2 in offsets:
+        for i1, i2 in itertools.product(uniques, uniques):
+            product = np.outer(psi[i1], vecsstar[i2, h.n_to_i(-n2, nz)])
+            for n1 in offsets:
+                idn = h.n_to_i(n1-n2, 2*nz)
+                for c in xrange(0, npm):
+                    du[c] += alphas[c, idn, i1, i2]*product
 
     return du
 
 
-def integral_factors(e1, e2, p):
-    if e1 == e2:
-        return -1.0j*np.exp(-1j*p.t*e1)
+def integral_factors(e1, e2, dn, omega, t):
+    if e1 == e2 and dn == 0:
+        return -1.0j*t*cmath.exp(-1j*t*e1)
     else:
-        return (np.exp(-1j*p.t*e1)-np.exp(-1j*p.t*e2))/(p.t*(e1-e2))
+        return (cmath.exp(-1j*t*e1)-cmath.exp(-1j*t*(e2-omega*dn)))/((e1-e2+omega*dn))
 
 
-def expectation_value(dk, v1, v2, p):
-    a = np.conj(np.transpose(v1.flatten()))
+def expectation_value(dk, v1, v2):
+    a = v1.flatten()
     b = v2.flatten()
 
     return np.dot(np.dot(a, dk), b)
