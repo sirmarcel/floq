@@ -10,11 +10,10 @@ class FidelityWorker(mp.Process):
         self.pipe_in = pipe_in
         self.pipe_out = pipe_out
         self.fids = fids
-        print 'Worker initialised'
+        print 'Worker initialised with ' + str(len(self.fids)) + ' fidelities'
 
 
     def run(self):
-        print 'we are live'
         while True:
             msg = self.pipe_in.recv()
             if msg is not None:
@@ -37,12 +36,14 @@ class FidelityMaster(FidelityComputerBase):
     calculate the average fidelity over the whole ensemble.
     """
 
-    def __init__(self, n, nworker, ensemble, fidelity, **params):
+    def __init__(self, nworker, ensemble, fidelity, **params):
         self.fidelities = [fidelity(sys, **params) for sys in ensemble.systems]
-        self.n = n
+        self.n = len(ensemble.systems)
         self.nworker = nworker
 
-        self.fidelities_chunked = chunks(self.fidelities, n/nworker)
+        # chunk_size = self.n/nworker + self.n % nworker  # divide and round up, with integers
+        # print chunk_size
+        self.fidelities_chunked = chunks(self.fidelities, nworker)
         self._make_workers()
 
 
@@ -68,7 +69,6 @@ class FidelityMaster(FidelityComputerBase):
         for pipe in self.outs:
             tmp.append(pipe.recv())
 
-        # print tmp
         return np.sum(tmp)/self.n
 
 
@@ -78,22 +78,23 @@ class FidelityMaster(FidelityComputerBase):
 
         tmp = []
         for pipe in self.outs:
-            msg = pipe.recv()
-            # print msg
-            tmp.append(msg)
+            tmp.append(pipe.recv())
 
         return np.sum(tmp, axis=0)/self.n
 
 
     def kill(self):
-        # for pipe in self.ins:
-        #     pipe.send(None)
         for worker in self.workers:
             worker.terminate()
 
 
 
 def chunks(l, n):
-    """Yield successive n-sized chunks from l."""
-    n = max(1, n)
-    return [    l[i:i+n] for i in xrange(0, len(l), n)]
+    """
+    Split list l into n-sized chunks.
+    """
+    # n = max(1, n)
+    # return [l[i:i+n] for i in xrange(0, len(l), n)]
+
+    k, m = divmod(len(l), n)
+    return list((l[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in xrange(n)))

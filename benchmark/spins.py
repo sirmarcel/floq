@@ -47,13 +47,13 @@ def time_opt(opt):
 
 
 ncomp = 5
-n = 100
+n = 250
 freqs = 0.01*np.ones(n)-0.025+0.05*np.random.rand(n)
 amps = 1.0*np.ones(n)-0.025+0.05*np.random.rand(n)
 s = SpinEnsemble(n, ncomp, 1.5, freqs, amps)
 ctrl = 0.5*np.ones(2*ncomp)
-target = np.array([[0.208597 + 0.j, -0.691552 - 0.691552j],
-                   [0.691552 - 0.691552j, 0.208597 + 0.j]])
+target = np.array([[-0.0720053 + 0.j, -0.705271 - 0.705271j],
+                   [0.705271 - 0.705271j, -0.0720053 + 0.j]])
 
 
 from floq.optimization.optimizer import SciPyOptimizer
@@ -62,8 +62,8 @@ print "---- Karl's Version"
 from floq.optimization.fidelity import OperatorDistance
 from floq.parallel.worker import FidelityMaster
 
-master = FidelityMaster(n, 2, s, OperatorDistance, t=1.0, target=target)
-opt = SciPyOptimizer(master, ctrl, tol=1e-5)
+master = FidelityMaster(32, s, OperatorDistance, t=1.0, target=target)
+opt = SciPyOptimizer(master, ctrl, tol=0.01)
 
 print time_f(master.f, ctrl)
 print time_df(master.df, ctrl)
@@ -77,7 +77,7 @@ from floq.optimization.fidelity import OperatorDistance
 from floq.parallel.simple_ensemble import ParallelEnsembleFidelity
 
 fid = ParallelEnsembleFidelity(s, OperatorDistance, t=1.0, target=target)
-opt = SciPyOptimizer(fid, ctrl, tol=1e-5)
+opt = SciPyOptimizer(fid, ctrl, tol=0.01)
 
 print time_f(fid.f, ctrl)
 print time_df(fid.df, ctrl)
@@ -88,7 +88,7 @@ print time_opt(opt)
 print "---- Legacy version"
 from museum_of_forks.p0.optimization.fidelity import EnsembleFidelity, OperatorDistance
 fid = EnsembleFidelity(s, OperatorDistance, t=1.0, target=target)
-opt = SciPyOptimizer(fid, ctrl, tol=1e-5)
+opt = SciPyOptimizer(fid, ctrl, tol=0.01)
 
 print time_f(fid.f, ctrl)
 print time_df(fid.df, ctrl)
