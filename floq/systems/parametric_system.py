@@ -1,6 +1,5 @@
 import numpy as np
 import floq.core.fixed_system as fs
-import floq.evolution as ev
 import floq.errors as er
 
 
