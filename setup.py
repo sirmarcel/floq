@@ -18,5 +18,5 @@ setup(
     author_email='me@sirmarcel.com',
     url='https://github.com/sirmarcel/floq',
     license=license,
-    packages=find_packages(exclude=('tests', 'docs'))
+    packages=find_packages(exclude=('tests', 'docs', 'benchmark'))
 )
