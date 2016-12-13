@@ -1,7 +1,15 @@
 from unittest import TestCase
 from tests.assertions import CustomAssertions
 import numpy as np
+import scipy.stats
 import floq.systems.spins as spins
+
+
+class TestRandomisedSpinEnsemble(TestCase, CustomAssertions):
+    def test_init(self):
+        # Not a very sophisticated test -- at least verify that it's not broken
+        rand = spins.RandomisedSpinEnsemble(10, 10, 1.0, 8.2, 0.25)
+        self.assertIsInstance(rand.systems, list)
 
 
 class TestSpinEnsemble(TestCase, CustomAssertions):

@@ -4,6 +4,7 @@ from floq.systems.parametric_system import ParametericSystemBase
 import floq.core.spin as spin
 
 
+
 class SpinEnsemble(EnsembleBase):
     """
     A system of n non-interacting spins, where each
@@ -42,6 +43,35 @@ class SpinEnsemble(EnsembleBase):
     @property
     def systems(self):
         return self._systems
+
+
+
+class RandomisedSpinEnsemble(SpinEnsemble):
+    """
+    A system of n non-interacting spins, where each
+    spin is described by the Hamiltonian
+    H(t) = w/2 s_z + 1/2 sum_k (a_k s_x + b_k s_y) sin(k omega t).
+
+    The n spins will be instantiated with randomised detunings and
+    amplitudes, distributed as follows:
+    - frequencies: normal distribution with given FWHM (2 sqrt(2 ln 2) \sigma) and mean 0,
+    - amplitudes: Uniform distribution with given width around 1.0.
+    """
+
+    def __init__(self, n, ncomp, omega, fwhm, amp_width):
+        """
+        Initialise a SpinEnsemble instance with
+        - n: number of spins
+        - ncomp: number of components in the control pulse
+         -> hf will have nc = 2*comp+1 components
+        - omega: base frequency of control pulse
+        - fwhm: full width at half-max of the Gaussian distribution of detunings
+        - amp_width: amplitudes will be drawn from a uniform distribution around 1 with this width
+        """
+        sigma = fwhm/2.35482
+        freqs = np.random.normal(loc=0.0, scale=sigma, size=n)
+        amps = np.ones(n)-amp_width+2*amp_width*np.random.rand(n)
+        super(RandomisedSpinEnsemble, self).__init__(n, ncomp, omega, freqs, amps)
 
 
 
