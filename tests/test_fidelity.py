@@ -25,8 +25,9 @@ class TestTransferFidelity(TestCase, CustomAssertions):
 
     def test_transfer_fidelity(self):
         target = np.array([v2, v1])
-        fid = f.transfer_fidelity(u1, target)
+        fid = f.transfer_fidelity(u1, v2, v1)
         self.assertAlmostEqualWithDecimals(fid, 0.131584, 4)
+
 
 
 class TestOperatorFidelity(TestCase, CustomAssertions):
@@ -36,6 +37,7 @@ class TestOperatorFidelity(TestCase, CustomAssertions):
         self.assertAlmostEqualWithDecimals(fid, 0.0378906, 4)
 
 
+
 class TestOperatorFidelityDeriv(TestCase, CustomAssertions):
 
     def test_d_operator_fidelity(self):
@@ -43,6 +45,14 @@ class TestOperatorFidelityDeriv(TestCase, CustomAssertions):
         target = np.array([0.302601, -0.291255])
         actual = f.d_operator_fidelity(u1, dus, u2)
         self.assertArrayEqual(actual, target, 4)
+
+
+
+class TestExpectationValue(TestCase, CustomAssertions):
+    def test_expectation_value(self):
+        result = f.expectation_value(v1, u1, v2)
+        self.assertAlmostEqualWithDecimals(result, -0.362492 - 0.013523j, 4)
+
 
 
 class TestHSProduct(TestCase, CustomAssertions):

@@ -1,22 +1,27 @@
 import numpy as np
 
 
-def transfer_fidelity(u, target):
+def transfer_fidelity(u, initial, final):
     """
     Compute how well the unitary u transfers an
     initial state |i> to a final state |f>, quantified by
-    fid = |<f| u |i>|^2.
+    fid = |<f| u |i>|^2 = <f| u |i><i| u |f>.
 
-    Note that target is expected to contain both the
-    initial and final state, as follows:
-    target[0, :] = |i>
-    target[1, :] = |f>.
+    Note that initial and final should be supplied as kets.
     """
-    i = target[0, :]
-    f = np.conj(np.transpose(target[1, :]))
-    ui = np.dot(u, i)
-    fui = np.dot(f, ui)
-    return np.abs(fui)**2
+    return np.abs(expectation_value(final, u, initial))**2
+
+
+def d_transfer_fidelity(u, dus, initial, final):
+    """
+    Calculate the gradient of the transfer fidelity:
+    fid' = (<f|u|i><i|u|f>)' = <f|u'|i><i|u|f> + <f|u|i><i|u'|f>
+    = 2 Re(<f|u'|i><i|u|f>)
+    """
+    iuf = expectation_value(initial, u, final)
+
+    return np.array([2.0*np.real(expectation_value(final, du, initial)*iuf) for du in dus])
+
 
 
 def operator_fidelity(u, target):
@@ -36,6 +41,7 @@ def d_operator_fidelity(u, dus, target):
     Calculate the gradient of the operator fidelity.
     """
     return np.array([operator_fidelity(du, target) for du in dus])
+
 
 
 def operator_distance(u, target):
@@ -58,6 +64,14 @@ def d_operator_distance(u, dus, target):
     """
     df = d_operator_fidelity(u, dus, target)
     return -df
+
+
+
+def expectation_value(left, operator, right):
+    """ Compute <left | operator | right> """
+    leftconj = np.transpose(np.conj(left))
+    return np.dot(leftconj, np.dot(operator, right))
+
 
 
 def hilbert_schmidt_product(a, b):
