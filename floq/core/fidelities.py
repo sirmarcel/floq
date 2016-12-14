@@ -1,4 +1,5 @@
 import numpy as np
+from floq.helpers.matrix import adjoint
 
 
 def transfer_fidelity(u, initial, final):
@@ -18,9 +19,11 @@ def d_transfer_fidelity(u, dus, initial, final):
     fid' = (<f|u|i><i|u|f>)' = <f|u'|i><i|u|f> + <f|u|i><i|u'|f>
     = 2 Re(<f|u'|i><i|u|f>)
     """
-    iuf = expectation_value(initial, u, final)
+    iuf = expectation_value(initial, adjoint(u), final)
+    fui = expectation_value(final, u, initial)
 
-    return np.array([2.0*np.real(expectation_value(final, du, initial)*iuf) for du in dus])
+    return np.array([expectation_value(final, du, initial)*iuf +
+                     expectation_value(initial, adjoint(du), final)*fui for du in dus])
 
 
 def transfer_distance(u, initial, final):

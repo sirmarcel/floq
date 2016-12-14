@@ -6,3 +6,7 @@ def is_unitary(u, tolerance=1e-10):
     umat = np.mat(u)
     product = umat.H * umat
     return np.allclose(product, unitary, atol=tolerance)
+
+
+def adjoint(m):
+    return np.transpose(np.conj(m))
