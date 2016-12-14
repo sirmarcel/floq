@@ -30,9 +30,16 @@ class TestTransferFidelity(TestCase, CustomAssertions):
 
 class TestTransferDistance(TestCase, CustomAssertions):
 
-    def test_transfer_distance(self):
+    def test_is_zero_if_identity(self):
         v = np.array([1.0, 1.0j])/1.41421
         fid = f.transfer_distance(np.eye(2), v, v)
+        self.assertAlmostEqualWithDecimals(fid, 0.0, 4)
+
+    def test_is_zero_if_bit_flip(self):
+        zero = np.array([1.0, 0.0])
+        one = np.array([0.0, 1.0])
+        flip = np.array([[0, 1], [1, 0]])
+        fid = f.transfer_distance(flip, zero, one)
         self.assertAlmostEqualWithDecimals(fid, 0.0, 4)
 
 
