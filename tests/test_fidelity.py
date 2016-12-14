@@ -24,9 +24,16 @@ v2 = np.array([-0.541912 + 0.349275j, 0.432916 + 0.181694j, 0.304055 + 0.521019j
 class TestTransferFidelity(TestCase, CustomAssertions):
 
     def test_transfer_fidelity(self):
-        target = np.array([v2, v1])
         fid = f.transfer_fidelity(u1, v2, v1)
         self.assertAlmostEqualWithDecimals(fid, 0.131584, 4)
+
+
+class TestTransferDistance(TestCase, CustomAssertions):
+
+    def test_transfer_distance(self):
+        v = np.array([1.0, 1.0j])/1.41421
+        fid = f.transfer_distance(np.eye(2), v, v)
+        self.assertAlmostEqualWithDecimals(fid, 0.0, 4)
 
 
 

@@ -23,6 +23,21 @@ def d_transfer_fidelity(u, dus, initial, final):
     return np.array([2.0*np.real(expectation_value(final, du, initial)*iuf) for du in dus])
 
 
+def transfer_distance(u, initial, final):
+    """
+    Version of the transfer fidelity that is minimal when the
+    transfer is ideal.
+    """
+    return 1.0-transfer_fidelity(u, initial, final)
+
+
+def d_transfer_distance(u, dus, initial, final):
+    """
+    Gradient of the transfer distance.
+    """
+    return -d_transfer_fidelity(u, dus, initial, final)
+
+
 
 def operator_fidelity(u, target):
     """

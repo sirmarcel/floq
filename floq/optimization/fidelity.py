@@ -1,6 +1,7 @@
 # Provide templates and implementations for FidelityComputer class,
 # which wraps a ParametricSystem and computes F and dF for given controls
 from floq.core.fidelities import d_operator_distance, operator_distance
+from floq.core.fidelities import transfer_distance, d_transfer_distance
 import numpy as np
 
 
@@ -73,3 +74,29 @@ class OperatorDistance(FidelityComputerBase):
         u = self.system.u(controls, self.t)
         du = self.system.du(controls, self.t)
         return d_operator_distance(u, du, self.target)
+
+
+class TransferDistance(FidelityComputerBase):
+    """
+    Calculate the state transfer fidelity between two states |initial>
+    and |final> (see core.fidelities for details)
+    for a given ParametricSystem and a fixed pulse duration t.
+    """
+
+    def __init__(self, system, t, initial, final):
+        super(TransferDistance, self).__init__(system)
+
+        self.t = t
+        self.initial = initial
+        self.final = final
+
+
+    def f(self, controls):
+        u = self.system.u(controls, self.t)
+        return transfer_distance(u, self.initial, self.final)
+
+
+    def df(self, controls):
+        u = self.system.u(controls, self.t)
+        du = self.system.du(controls, self.t)
+        return d_transfer_distance(u, du, self.initial, self.final)
