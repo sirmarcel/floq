@@ -47,8 +47,9 @@ class FidelityMaster(FidelityComputerBase):
         tmp = []
         for pipe in self.outs:
             tmp.append(pipe.recv())
-
-        return np.sum(tmp)/self.n
+        mf = np.sum(tmp)/self.n
+        print mf
+        return mf
 
 
     def df(self, controls_and_t):
