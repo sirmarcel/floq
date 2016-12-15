@@ -2,6 +2,7 @@ from unittest import TestCase
 import numpy as np
 from tests.assertions import CustomAssertions
 import tests.rabi as rabi
+import floq.core.spin as spin
 import floq.core.evolution as ev
 import floq.helpers.index as h
 import floq.core.fixed_system as fs
@@ -17,7 +18,7 @@ def generate_fake_spectrum(unique_vals, dim, omega, nz):
     return vals
 
 
-class TestGetU(TestCase, CustomAssertions):
+class TestGetURabi(TestCase, CustomAssertions):
     def setUp(self):
         g = 0.5
         e1 = 1.2
@@ -31,6 +32,32 @@ class TestGetU(TestCase, CustomAssertions):
         p = fs.FixedSystemParameters.optional(dim=dim, nz=nz, omega=omega, t=t, nc=3, np=1)
 
         self.u = rabi.u(g, e1, e2, omega, t)
+        self.ucal = ev.get_u(hf, p)
+
+        self.um = np.matrix(self.ucal)
+
+    def test_gives_unitary(self):
+        uu = self.um*self.um.getH()
+        identity = np.identity(2)
+        self.assertArrayEqual(uu, identity, 8)
+
+    def test_is_correct_u(self):
+        self.assertArrayEqual(self.u, self.ucal, 8)
+
+
+class TestGetUSpin(TestCase, CustomAssertions):
+    def setUp(self):
+        controls = np.array([1.2, 1.3, 4.5, 3.3, -0.8, 0.9, 3.98, -4.0, 0.9, 1.0])
+        hf = spin.hf(5, 0.1, controls)
+
+        nz = 51
+        dim = 2
+        omega = 1.3
+        t = 0.6
+        p = fs.FixedSystemParameters.optional(dim=dim, nz=nz, omega=omega, t=t, nc=11, np=10)
+
+        self.u = np.array([[-0.150824 + 0.220144j, -0.132296 - 0.954613j],
+                           [0.132296 - 0.954613j, -0.150824 - 0.220144j]])
         self.ucal = ev.get_u(hf, p)
 
         self.um = np.matrix(self.ucal)
