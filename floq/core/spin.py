@@ -33,9 +33,9 @@ def hf(ncomp, freq, controls):
     return hf
 
 
-def dhf(ncomp, amp):
+def dhf(ncomp):
     # Assemble dhf for one spin, given ncomp components
-    # in the control pulse, and an amplitude of amp
+    # in the control pulse
 
     nc = 2*ncomp+1
     npm = 2*ncomp
@@ -45,14 +45,14 @@ def dhf(ncomp, amp):
         i_a = -2*k-2
         i_b = -2*k-1
 
-        dhf[i_a, k, :, :] = np.array([[0.0, 0.25j*amp],
-                                      [0.25j*amp, 0.0]])
-        dhf[i_a, -k-1, :, :] = np.array([[0.0, -0.25j*amp],
-                                         [-0.25j*amp, 0.0]])
+        dhf[i_a, k, :, :] = np.array([[0.0, 0.25j],
+                                      [0.25j, 0.0]])
+        dhf[i_a, -k-1, :, :] = np.array([[0.0, -0.25j],
+                                         [-0.25j, 0.0]])
 
-        dhf[i_b, k, :, :] = np.array([[0.0, 0.25*amp],
-                                      [-0.25*amp, 0.0]])
-        dhf[i_b, -k-1, :, :] = np.array([[0.0, -0.25*amp],
-                                         [0.25*amp, 0.0]])
+        dhf[i_b, k, :, :] = np.array([[0.0, 0.25],
+                                      [-0.25, 0.0]])
+        dhf[i_b, -k-1, :, :] = np.array([[0.0, -0.25],
+                                         [0.25, 0.0]])
 
     return dhf

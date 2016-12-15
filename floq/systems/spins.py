@@ -102,7 +102,7 @@ class SpinSystem(ParametericSystemBase):
         self.omega = omega
 
         self.nz = 3
-        self.dhf = spin.dhf(ncomp, amp)  # independent of controls!
+        self.dhf = spin.dhf(ncomp)  # independent of controls!
 
 
     def _hf(self, controls):
