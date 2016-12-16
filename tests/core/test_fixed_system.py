@@ -37,7 +37,7 @@ class TestFixedSystemInit(TestCase, CustomAssertions):
 
 class TestEvolveFixedSystem(TestCase, CustomAssertions):
     def setUp(self):
-        g = 0.5
+        g = 5.0
         e1 = 1.2
         e2 = 2.8
         hf = rabi.hf(g, e1, e2)
@@ -61,9 +61,6 @@ class TestEvolveFixedSystem(TestCase, CustomAssertions):
 
     def test_is_correct_u(self):
         self.assertArrayEqual(self.u, self.ucal, 8)
-
-    def test_increases_nz(self):
-        self.assertTrue(self.s.params.nz > 3)
 
 
 class TestEvolveFixedSystemWithDerivs(TestCase, CustomAssertions):
