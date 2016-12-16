@@ -33,8 +33,15 @@ system = fs.FixedSystem(hf, dhf, 101, 1.0, 1.0)
 
 params = system.params
 
-print "---- Current version (Numba)"
+print "---- Quicker eigenvalue search"
 import floq.core.evolution as ev
+
+print time_u(ev.get_u, hf, params)
+print time_du(ev.get_u_and_du, hf, dhf, params)
+
+
+print "---- Numba version"
+import museum_of_evolution.p5.evolution as ev
 
 print time_u(ev.get_u, hf, params)
 print time_du(ev.get_u_and_du, hf, dhf, params)
