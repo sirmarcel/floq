@@ -122,14 +122,10 @@ def find_eigensystem(k, p):
     # return them in a segmented form
     vals, vecs = compute_eigensystem(k, p)
 
-    unique_vals = find_unique_vals(vals, p)
+    start = find_first_above_value(vals, -p.omega/2.)
 
-    # rounding is necessary, since full floating-point numbers are seldom equal
-    vals = vals.round(p.decimals)
-    indices_unique_vals = [np.where(vals == eva)[0][0] for eva in unique_vals]
-
-    unique_vecs = np.array([vecs[:, i] for i in indices_unique_vals])
-    unique_vecs = separate_components(unique_vecs, p.nz)
+    unique_vals = vals[start:start+p.dim]
+    unique_vecs = np.array([np.split(vecs[:, i], p.nz) for i in xrange(start, start+p.dim)])
 
     return [unique_vals, unique_vecs]
 
@@ -146,11 +142,17 @@ def compute_eigensystem(k, p):
         # find number_of_eigs eigenvectors/-values around 0.0
         # -> trimming/sorting the eigensystem is NOT necessary
         vals, vecs = la.eigs(k, k=number_of_eigs, sigma=0.0)
+
     else:
         vals, vecs = np.linalg.eig(k)
         vals, vecs = trim_eigensystem(vals, vecs, p)
 
     vals = vals.real.astype(np.float64, copy=False)
+
+    # sort eigenvalues / eigenvectors
+    idx = vals.argsort()
+    vals = vals[idx]
+    vecs = vecs[:, idx]
 
     return vals, vecs
 
@@ -175,31 +177,13 @@ def trim_eigensystem(vals, vecs, p):
     return cut_vals, cut_vecs
 
 
-def find_unique_vals(vals, p):
-    # In the list of values supplied, find the set of dim
-    # e_i that fulfil (e_i - e_j) mod omega != 0 for all i,j,
-    # and that lie closest to 0.
-
-    mod_vals = np.mod(vals, p.omega)
-    mod_vals = mod_vals.round(decimals=p.decimals)  # round to suppress floating point issues
-
-    unique_vals = np.unique(mod_vals)
-
-    # the unique_vals are ordered and >= 0, but we'd rather have them clustered around 0
-    should_be_negative = np.where(unique_vals > p.omega/2.)
-    unique_vals[should_be_negative] = (unique_vals[should_be_negative]-p.omega).round(p.decimals)
-
-    if unique_vals.shape[0] != p.dim:
-        raise errors.EigenvalueNumberError(vals, unique_vals)
-    else:
-        return np.sort(unique_vals)
-
-
-def separate_components(vecs, n):
-    # Given an array of vectors vecs,
-    # return an array of each of the vectors split into n sub-arrays
-    # -> these sub-arrays are the Fourier components of the state
-    return np.array([np.split(eva, n) for eva in vecs])
+@autojit(nopython=True)
+def find_first_above_value(array, value):
+    """Find the index of the first array entry > value."""
+    for i in xrange(len(array)):
+        if array[i] > value:
+            return i
+    return None
 
 
 

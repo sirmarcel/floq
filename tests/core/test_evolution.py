@@ -202,61 +202,6 @@ class TestFindEigensystem(TestCase, CustomAssertions):
         self.assertEqual(self.vecs.dtype, 'complex128')
 
 
-class TestFindUniquevals(TestCase, CustomAssertions):
-    
-    def test_finds_unique_vals_if_all_positive(self):
-        dim = 3
-        omega = 1.5
-        nz = 11
-        p = fs.FixedSystemParameters.optional(dim, nz, omega=omega)
-
-        us = np.array([0.3134, 0.587, 0.6324])
-        e = generate_fake_spectrum(us, dim, omega, nz)
-
-        unique_e = ev.find_unique_vals(e, p)
-        self.assertArrayEqual(unique_e, us)
-
-    def test_finds_unique_vals_if_not_all_positive(self):
-        dim = 3
-        omega = 2.0
-        nz = 11
-        p = fs.FixedSystemParameters.optional(dim, nz, omega=omega)
-
-        us = np.array([-0.3, 0.544, 0.6])
-        e = generate_fake_spectrum(us, dim, omega, 11)
-
-        unique_e = ev.find_unique_vals(e, p)
-        self.assertArrayEqual(unique_e, us)
-
-    def test_raises_error_if_degenerate(self):
-        dim = 3
-        omega = 2.0
-        nz = 11
-        p = fs.FixedSystemParameters.optional(dim, nz, omega=omega)
-        us = np.array([0.3552, 0.3552, 0.6])
-        e = generate_fake_spectrum(us, dim, omega, 11)
-        with self.assertRaises(er.EigenvalueNumberError):
-            ev.find_unique_vals(e, p)
-
-
-class TestSeparateComponents(TestCase, CustomAssertions):
-    def test_split(self):
-        a = np.array([1.23, 2.45])
-        b = np.array([6.123, 1.656])
-        c = np.array([2.323, 3.112])
-
-        e1 = np.concatenate((a, b, c))
-        e1_split = np.array([a, b, c])
-        e2 = np.concatenate((c, a, b))
-        e2_split = np.array([c, a, b])
-
-        target = np.array([e1_split, e2_split])
-
-        split = ev.separate_components([e1, e2], 3)
-
-        self.assertArrayEqual(split, target)
-
-
 
 class TestCalculatePhi(TestCase, CustomAssertions):
     def test_sum(self):
@@ -312,7 +257,8 @@ class TestCalculateU(TestCase, CustomAssertions):
                        0.766 + 1.162j, 1.756 + 0.372j, 0.689 + 0.902j])
         e2 = np.array([1.328 + 1.94j, 1.866 + 0.055j, 1.133 + 0.162j,
                        1.869 + 1.342j, 1.926 + 1.587j, 1.735 + 0.942j])
-        vecs = ev.separate_components(np.array([e1, e2]), nz)
+        vecs = np.array([e1, e2])
+        vecs = np.array([np.split(eva, nz) for eva in vecs])
 
         phi = ev.calculate_phi(vecs)
         psi = ev.calculate_psi(vecs, p)
