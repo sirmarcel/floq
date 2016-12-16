@@ -28,7 +28,7 @@ freq = 1.1
 controls = 0.5*np.ones(2*ncomp)
 
 hf = spin.hf(ncomp, freq, controls)
-dhf = spin.dhf(ncomp, 1.0)
+dhf = spin.dhf(ncomp)
 system = fs.FixedSystem(hf, dhf, 101, 1.0, 1.0)
 
 params = system.params
