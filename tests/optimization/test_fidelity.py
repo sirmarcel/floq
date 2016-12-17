@@ -3,6 +3,26 @@ from tests.assertions import CustomAssertions
 import floq.optimization.fidelity as fid
 from floq.systems.spins import SpinEnsemble
 import numpy as np
+from mock import MagicMock
+
+
+class TestFidelityComputerBaseIterations(TestCase):
+    def setUp(self):
+        self.computer = fid.FidelityComputerBase(None)
+        self.computer._f = MagicMock()
+        self.computer._df = MagicMock()
+
+    def test_increase_iterations(self):
+        self.computer.f(np.ones(3))
+        self.computer.f(2*np.ones(3))
+        self.computer.df(2*np.ones(3))
+        self.computer.f(2*np.ones(3))
+        self.assertEqual(self.computer.iterations, 2)
+
+    def test_reset(self):
+        self.computer.reset_iterations()
+        self.assertEqual(self.computer.iterations, 0)
+
 
 
 class TestEnsembleFidelity(TestCase, CustomAssertions):

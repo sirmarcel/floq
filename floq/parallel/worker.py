@@ -16,6 +16,7 @@ class FidelityMaster(FidelityComputerBase):
     """
 
     def __init__(self, nworker, ensemble, fidelity, **params):
+        super(FidelityMaster, self).__init__(ensemble)
         self.fidelities = [fidelity(sys, **params) for sys in ensemble.systems]
         self.n = len(ensemble.systems)
         self.nworker = nworker
@@ -39,7 +40,7 @@ class FidelityMaster(FidelityComputerBase):
         self.outs = [out_pipes[i][0] for i in xrange(self.nworker)]
 
 
-    def f(self, controls_and_t):
+    def _f(self, controls_and_t):
         """ Compute the average fidelity of the ensemble """
         for pipe in self.ins:
             pipe.send(['f', controls_and_t])
@@ -52,7 +53,7 @@ class FidelityMaster(FidelityComputerBase):
         return mf
 
 
-    def df(self, controls_and_t):
+    def _df(self, controls_and_t):
         """ Compute the average gradient of the fidelity of the ensemble """
         for pipe in self.ins:
             pipe.send(['df', controls_and_t])
