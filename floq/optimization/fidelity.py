@@ -16,6 +16,10 @@ class FidelityComputerBase(object):
     controls_and_t is an array of control amplitudes and possibly
     the duration of the pulse as last entry.
 
+    Optionally, a sub-class can implement a function penalty(controls_and_t) and
+    d_penalty(controls_and_t) that represent a penalty function that is added
+    to f and df, respectively.
+
     The __init__ should take the form __init__(self, system, **kwargs)
     for compatibility with EnsembleFidelity.
     """
@@ -28,12 +32,12 @@ class FidelityComputerBase(object):
 
     def f(self, controls_and_t):
         self._increase_iterations_if_new(controls_and_t)
-        return self._f(controls_and_t)
+        return self._f(controls_and_t) + self.penalty(controls_and_t)
 
 
     def df(self, controls_and_t):
         self._increase_iterations_if_new(controls_and_t)
-        return self._df(controls_and_t)
+        return self._df(controls_and_t) + self.d_penalty(controls_and_t)
 
 
     def _increase_iterations_if_new(self, controls_and_t):
@@ -60,6 +64,12 @@ class FidelityComputerBase(object):
 
     def _df(self, controls_and_t):
         raise NotImplementedError
+
+    def penalty(self, controls_and_t):
+        return 0.0
+
+    def d_penalty(self, controls_and_t):
+        return 0.0
 
 
 
@@ -106,6 +116,7 @@ class OperatorDistance(FidelityComputerBase):
         u = self.system.u(controls, self.t)
         du = self.system.du(controls, self.t)
         return d_operator_distance(u, du, self.target)
+
 
 
 class TransferDistance(FidelityComputerBase):
