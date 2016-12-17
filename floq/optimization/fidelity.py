@@ -20,6 +20,9 @@ class FidelityComputerBase(object):
     d_penalty(controls_and_t) that represent a penalty function that is added
     to f and df, respectively.
 
+    Also optionally, a function _iteterate can be implemented, which gets called
+    every time the iteration count is increased.
+
     The __init__ should take the form __init__(self, system, **kwargs)
     for compatibility with EnsembleFidelity.
     """
@@ -44,6 +47,7 @@ class FidelityComputerBase(object):
         if not self._is_last(controls_and_t):
             self.iterations += 1
             self._last_controls_and_t = controls_and_t
+            self._iterate()
 
 
     def _is_last(self, controls_and_t):
@@ -64,6 +68,9 @@ class FidelityComputerBase(object):
 
     def _df(self, controls_and_t):
         raise NotImplementedError
+
+    def _iterate(self):
+        pass
 
     def penalty(self, controls_and_t):
         return 0.0
