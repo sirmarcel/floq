@@ -22,8 +22,8 @@ def d_transfer_fidelity(u, dus, initial, final):
     iuf = expectation_value(initial, adjoint(u), final)
     fui = expectation_value(final, u, initial)
 
-    return np.array([expectation_value(final, du, initial)*iuf +
-                     expectation_value(initial, adjoint(du), final)*fui for du in dus])
+    return np.real(np.array([expectation_value(final, du, initial)*iuf +
+                             expectation_value(initial, adjoint(du), final)*fui for du in dus]))
 
 
 def transfer_distance(u, initial, final):
