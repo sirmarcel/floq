@@ -26,5 +26,6 @@ class SciPyOptimizer(OptimizerBase):
 
 
     def optimize(self):
-        res = opt.minimize(self.fid.f, self.init, jac=self.fid.df, method=self.method, tol=self.tol)
+        res = opt.minimize(self.fid.f, self.init, jac=self.fid.df, method=self.method,
+                           tol=self.tol, callback=self.fid.iterate)
         return res

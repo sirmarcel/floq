@@ -21,7 +21,7 @@ class FidelityComputerBase(object):
     to f and df, respectively.
 
     Also optionally, a function _iteterate can be implemented, which gets called
-    every time the iteration count is increased.
+    on each iteration.
 
     The __init__ should take the form __init__(self, system, **kwargs)
     for compatibility with EnsembleFidelity.
@@ -34,32 +34,25 @@ class FidelityComputerBase(object):
 
 
     def f(self, controls_and_t):
-        self._increase_iterations_if_new(controls_and_t)
         return self._f(controls_and_t) + self.penalty(controls_and_t)
 
 
     def df(self, controls_and_t):
-        self._increase_iterations_if_new(controls_and_t)
         return self._df(controls_and_t) + self.d_penalty(controls_and_t)
 
 
-    def _increase_iterations_if_new(self, controls_and_t):
-        if not self._is_last(controls_and_t):
-            self.iterations += 1
-            self._last_controls_and_t = controls_and_t
-            self._iterate()
-
-
-    def _is_last(self, controls_and_t):
-        if not isinstance(controls_and_t, np.ndarray):
-            return False
-        else:
-            return np.array_equal(self._last_controls_and_t, controls_and_t)
+    def iterate(self, controls_and_t):
+        """
+        Gets called by the Optimizer after each iteration. Increases
+        the iteration count self.iterations, and calls the (optional)
+        _iterate method.
+        """
+        self.iterations += 1
+        self._iterate(controls_and_t)
 
 
     def reset_iterations(self):
         self.iterations = 0
-        self._last_controls_and_t = 0
 
 
     def _f(self, controls_and_t):
@@ -69,11 +62,14 @@ class FidelityComputerBase(object):
     def _df(self, controls_and_t):
         raise NotImplementedError
 
-    def _iterate(self):
+
+    def _iterate(self, controls_and_t):
         pass
+
 
     def penalty(self, controls_and_t):
         return 0.0
+
 
     def d_penalty(self, controls_and_t):
         return 0.0

@@ -13,25 +13,15 @@ class TestFidelityComputerBaseIterations(TestCase):
         self.computer._df = MagicMock()
 
     def test_increase_iterations(self):
-        self.computer.f(np.ones(3))
-        self.computer.f(2*np.ones(3))
-        self.computer.df(2*np.ones(3))
-        self.computer.f(2*np.ones(3))
-        self.assertEqual(self.computer.iterations, 2)
+        self.computer.iterate(None)
+        self.computer.iterate(None)
+        self.computer.iterate(None)
+        self.computer.iterate(None)
+        self.assertEqual(self.computer.iterations, 4)
 
     def test_reset(self):
         self.computer.reset_iterations()
         self.assertEqual(self.computer.iterations, 0)
-
-    def test_iterate_gets_called(self):
-        iterate = MagicMock()
-        self.computer._iterate = iterate
-        self.computer.f(np.ones(3))
-        self.computer.f(2*np.ones(3))
-        self.computer.df(2*np.ones(3))
-        self.computer.f(2*np.ones(3))
-        self.computer.f(3*np.ones(3))
-        self.assertEqual(iterate.call_count, self.computer.iterations)
 
 
 
