@@ -49,7 +49,7 @@ class FidelityMaster(FidelityComputerBase):
         for pipe in self.outs:
             tmp.append(pipe.recv())
         mf = np.sum(tmp)/self.n
-        print mf
+        # print mf
         return mf
 
 

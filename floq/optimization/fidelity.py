@@ -1,5 +1,6 @@
 # Provide templates and implementations for FidelityComputer class,
 # which wraps a ParametricSystem and computes F and dF for given controls
+import sys
 from floq.core.fidelities import d_operator_distance, operator_distance
 from floq.core.fidelities import transfer_distance, d_transfer_distance
 import numpy as np
@@ -49,6 +50,8 @@ class FidelityComputerBase(object):
         """
         self.iterations += 1
         self._iterate(controls_and_t)
+        sys.stdout.write('\rCurrently at iteration %i and f=%f' % (self.iterations, self.f(controls_and_t)))
+        sys.stdout.flush()
 
 
     def reset_iterations(self):
