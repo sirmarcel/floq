@@ -1,3 +1,4 @@
+import logging
 import multiprocessing as mp
 import numpy as np
 from floq.optimization.fidelity import FidelityComputerBase
@@ -31,10 +32,12 @@ class FidelityMaster(FidelityComputerBase):
         out_pipes = [mp.Pipe() for i in xrange(self.nworker)]
 
         self.workers = []
+        logging.info('Attempting to spawn workers')
         for i in xrange(self.nworker):
             worker = FidelityWorker(self.fidelities_chunked[i], in_pipes[i][1], out_pipes[i][1])
             worker.start()
             self.workers.append(worker)
+        logging.info('Successfully spawned workers')
 
         self.ins = [in_pipes[i][0] for i in xrange(self.nworker)]
         self.outs = [out_pipes[i][0] for i in xrange(self.nworker)]
@@ -89,7 +92,7 @@ class FidelityWorker(mp.Process):
         self.pipe_in = pipe_in
         self.pipe_out = pipe_out
         self.fids = fids
-        print 'Worker initialised with ' + str(len(self.fids)) + ' fidelities'
+        logging.info('Worker initialised with ' + str(len(self.fids)) + ' fidelities')
 
 
     def run(self):

@@ -1,3 +1,4 @@
+import logging
 import numpy as np
 import floq.errors as er
 import floq.core.evolution as ev
@@ -76,6 +77,7 @@ class FixedSystem(object):
         [nz_okay, results] = self._test_nz()
         while nz_okay is False:
             self.params.nz += 2
+            logging.debug('Increased nz to %i' % self.params.nz)
             [nz_okay, results] = self._test_nz()
 
         self._u, self._vals, self._vecs, self._phi, self._psi = results
