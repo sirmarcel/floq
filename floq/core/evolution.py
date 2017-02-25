@@ -71,8 +71,8 @@ def numba_assemble_k(hf, dim, k_dim, nz, nc, omega):
     # for a fixed Fourier index lie on diagonals, with 0 on the
     # main diagonal, positive numbers on the right and negative on the left
     #
-    # The first row is therefore essentially Hf(0) Hf(1) ... Hf(hf_max) 0 0 0 ...
-    # The last row is then ... 0 0 0 Hf(-hf_max) ... Hf(0)
+    # The first row is therefore essentially Hf(0) Hf(-1) ... Hf(-hf_max) 0 0 0 ...
+    # The last row is then ... 0 0 0 Hf(+hf_max) ... Hf(0)
     # Note that the main diagonal acquires a factor of omega*identity*(row/column number)
 
     for n in range(-hf_max, hf_max+1):
