@@ -1,5 +1,5 @@
 from unittest import TestCase
-from assertions import CustomAssertions
+from tests.assertions import CustomAssertions
 import numpy as np
 import floq.core.fidelities as f
 import floq.core.fixed_system as fs
@@ -49,6 +49,16 @@ class TestOperatorFidelity(TestCase, CustomAssertions):
     def test_operator_fidelity(self):
         fid = f.operator_fidelity(u1, u2)
         self.assertAlmostEqualWithDecimals(fid, 0.0378906, 4)
+
+
+
+class TestOperatorDistance(TestCase, CustomAssertions):
+
+    def test_zero_if_equal(self):
+        self.assertAlmostEqualWithDecimals(0.0, f.operator_distance(u1, u1))
+
+    def test_pos_if_nonequal(self):
+        self.assertGreater(f.operator_distance(u1, u2), 0.0)
 
 
 
