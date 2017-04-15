@@ -52,7 +52,8 @@ class FidelityMaster(FidelityComputerBase):
         for pipe in self.outs:
             tmp.append(pipe.recv())
         mf = np.sum(tmp)/self.n
-        # print mf
+        # logging.info('f=%f' % mf)
+        # logging.info('Controls: %s' % str(controls_and_t))
         return mf
 
 
