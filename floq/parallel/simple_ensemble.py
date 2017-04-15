@@ -25,6 +25,7 @@ class ParallelEnsembleFidelity(FidelityComputerBase):
     """
 
     def __init__(self, ensemble, fidelity, **params):
+        super(ParallelEnsembleFidelity, self).__init__(ensemble)
         self.fidelities = [fidelity(sys, **params) for sys in ensemble.systems]
         self.pool = mp.Pool()
 
