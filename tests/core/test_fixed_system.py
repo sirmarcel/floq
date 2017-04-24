@@ -35,6 +35,7 @@ class TestFixedSystemInit(TestCase, CustomAssertions):
         self.assertEqual(self.problem.params.np, 3)
 
 
+
 class TestEvolveFixedSystem(TestCase, CustomAssertions):
     def setUp(self):
         g = 5.0
@@ -63,6 +64,7 @@ class TestEvolveFixedSystem(TestCase, CustomAssertions):
         self.assertArrayEqual(self.u, self.ucal, 8)
 
 
+
 class TestEvolveFixedSystemWithDerivs(TestCase, CustomAssertions):
     def setUp(self):
         g = 0.5
@@ -83,6 +85,7 @@ class TestEvolveFixedSystemWithDerivs(TestCase, CustomAssertions):
 
     def test_is_correct_du(self):
         self.assertArrayEqual(self.ducal, self.du)
+
 
 
 class TestFixedSystemCaching(TestCase):
