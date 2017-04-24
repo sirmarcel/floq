@@ -12,18 +12,31 @@ class ParametericSystemBase(object):
     The base class provides two functions:
     - u(controls, t)
     - du(controls, t),
-    which implement basic caching and automatically update self.nz.
+    which implement basic caching and automatically keeps self.nz updated.
 
     To function, this needs to be sub-classed, and a subclass should provide:
-    - _hf(controls),
-    - _dhf(controls)
-    as well as __init__, which has to set self.nz, self.omega and self.t, and needs to call
-    this class' __init__.
+        _hf(controls): returning an array with the Fourier-transformed Hamiltonian,
+        _dhf(controls): returning the derivative of the Hamiltonian.
 
+    Attributes:
+        nz: (initial) number of Brillouin zones (should be overwritten by subclass)
+        omega: frequency of the control signal (should be overwritten by subclass)
+        sparse: if True, sparse matrix algebra is used (can be overwritten by subclass)
+        max_nz: max nz allowed (can be overwritten by subclass)
+        decimals: decimals used to check for unitarity (can be overwritten by subclass)
     """
-    def __init__(self):
+    def __init__(self, **kwargs):
         self._last_controls = None
         self._last_t = None
+
+        # set defaults
+        self.max_nz = 999
+        self.sparse = True
+        self.decimals = 10
+
+        # these should be overwritten by a subclass
+        self.nz = 3
+        self.omega = 1.0
 
 
     def _hf(self, controls):
@@ -71,7 +84,10 @@ class ParametericSystemBase(object):
 
         hf = self._hf(controls)
         dhf = self._dhf(controls)
-        self._fixed_system = fs.FixedSystem(hf, dhf, self.nz, self.omega, t)
+        self._fixed_system = fs.FixedSystem(hf, dhf, self.nz, self.omega, t,
+                                            decimals=self.decimals,
+                                            sparse=self.sparse,
+                                            max_nz=self.max_nz)
 
 
 class ParametricSystemWithFunctions(ParametericSystemBase):

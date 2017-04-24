@@ -36,6 +36,33 @@ class TestFixedSystemInit(TestCase, CustomAssertions):
 
 
 
+class TestFixedSystemMaxNZ(TestCase):
+    def setUp(self):
+        g = 5.0
+        e1 = 1.2
+        e2 = 2.8
+        hf = rabi.hf(g, e1, e2)
+        dhf = np.array([rabi.hf(1.0, 0, 0)])
+
+        nz = 3
+        dim = 2
+        omega = 5.0
+        t = 20.5
+        self.s = fs.FixedSystem(hf, dhf, nz, omega, t)
+        self.s.max_nz = 9
+
+
+    def test_raise_MaxNZError(self):
+        res = (self.s._test_nz())[1]
+
+        mock = MagicMock(return_value=[False, res])  # make nz test fail
+        self.s._test_nz = mock
+
+        with self.assertRaises(er.NZTooLargeError):
+            self.s.u()
+
+
+
 class TestEvolveFixedSystem(TestCase, CustomAssertions):
     def setUp(self):
         g = 5.0

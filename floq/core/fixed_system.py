@@ -29,9 +29,10 @@ class FixedSystem(object):
     - np: the number of control parameters
     """
 
-    def __init__(self, hf, dhf, nz, omega, t, decimals=10, sparse=True):
+    def __init__(self, hf, dhf, nz, omega, t, decimals=10, sparse=True, max_nz=999):
         self.hf = hf
         self.dhf = dhf
+        self.max_nz = max_nz
 
         # Inferred parameters
         dim = hf.shape[1]
@@ -78,6 +79,11 @@ class FixedSystem(object):
         while nz_okay is False:
             self.params.nz += 2
             logging.debug('Increased nz to %i' % self.params.nz)
+
+            if self.max_nz < self.params.nz:
+                raise er.NZTooLargeError("NZ has grown too large: %i > %i" %
+                                         (self.params.nz, self.max_nz))
+
             [nz_okay, results] = self._test_nz()
 
         self._u, self._vals, self._vecs, self._phi, self._psi = results

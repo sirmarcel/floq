@@ -11,3 +11,9 @@ class EigenvalueNumberError(Exception):
 
 class UsageError(Exception):
     pass
+
+
+class NZTooLargeError(Exception):
+    """Thrown when NZ gets too large"""
+
+    pass
