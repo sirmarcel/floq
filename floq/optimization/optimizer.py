@@ -18,14 +18,15 @@ class SciPyOptimizer(OptimizerBase):
     """
     A wrapper around scipy.minimize.
     """
-    def __init__(self, fid, init, method='BFGS', tol=1e-5):
+    def __init__(self, fid, init, method='BFGS', tol=1e-5, options={}):
         self.fid = fid
         self.init = init
         self.method = method
         self.tol = tol
+        self.options = options
 
 
     def optimize(self):
         res = opt.minimize(self.fid.f, self.init, jac=self.fid.df, method=self.method,
-                           tol=self.tol, callback=self.fid.iterate)
+                           tol=self.tol, callback=self.fid.iterate, options=self.options)
         return res
