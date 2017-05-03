@@ -1,6 +1,6 @@
 from unittest import TestCase
 import numpy as np
-from floq.helpers.matrix import is_unitary, adjoint
+from floq.helpers.matrix import is_unitary, adjoint, gram_schmidt
 from tests.assertions import CustomAssertions
 
 
@@ -21,3 +21,35 @@ class TestAdjoint(TestCase, CustomAssertions):
         u = np.array([[2.3+12j, -13j+5], [1j+12.1, 0.3j+0.1]])
         target = np.array([[2.3-12j, -1j+12.1], [+13j+5, -0.3j+0.1]])
         self.assertArrayEqual(adjoint(u), target)
+
+
+class TestGramSchmidt(TestCase, CustomAssertions):
+
+    def setUp(self):
+        self.array = np.array([[1.0, 0.0, 3.0],
+                               [2.0, 1.0, 2.0],
+                               [3.0, 1.0, 1.0]])
+        self.res = gram_schmidt(self.array)
+        self.x = self.res[:, 0]
+        self.y = self.res[:, 1]
+        self.z = self.res[:, 2]
+
+    def test_orthogonality_x_y(self):
+        self.assertAlmostEqual(np.dot(self.x, self.y), 0.0)
+
+    def test_orthogonality_x_z(self):
+        self.assertAlmostEqual(np.dot(self.x, self.z), 0.0)
+
+    def test_orthogonality_y_z(self):
+        print self.y
+        print self.z
+        self.assertAlmostEqual(np.dot(self.y, self.z), 0.0)
+
+    def test_normalised_x(self):
+        self.assertAlmostEqual(np.sqrt(self.x.dot(self.x)), 1.0)
+
+    def test_normalised_y(self):
+        self.assertAlmostEqual(np.sqrt(self.y.dot(self.y)), 1.0)
+
+    def test_normalised_z(self):
+        self.assertAlmostEqual(np.sqrt(self.z.dot(self.z)), 1.0)
