@@ -26,13 +26,14 @@ class TestAdjoint(TestCase, CustomAssertions):
 class TestGramSchmidt(TestCase, CustomAssertions):
 
     def setUp(self):
-        self.array = np.array([[1.0, 0.0, 3.0],
-                               [2.0, 1.0, 2.0],
-                               [3.0, 1.0, 1.0]])
+        self.array = np.array([[1.0, 2.0, 3.0],
+                               [0.0, 1.0, 1.0],
+                               [3.0, 2.0, 1.0]])
+
         self.res = gram_schmidt(self.array)
-        self.x = self.res[:, 0]
-        self.y = self.res[:, 1]
-        self.z = self.res[:, 2]
+        self.x = self.res[0]
+        self.y = self.res[1]
+        self.z = self.res[2]
 
     def test_orthogonality_x_y(self):
         self.assertAlmostEqual(np.dot(self.x, self.y), 0.0)
