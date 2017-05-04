@@ -4,6 +4,7 @@ import scipy.sparse.linalg as la
 from floq.helpers.index import n_to_i, i_to_n
 from floq.helpers.numpy_replacements import numba_outer, numba_zeros
 import floq.helpers.blockmatrix as bm
+import floq.helpers.matrix as mm
 import floq.errors as errors
 import itertools
 import cmath
@@ -117,17 +118,38 @@ def numba_assemble_dk(dhf, npm, dim, k_dim, nz, nc):
 
 
 def find_eigensystem(k, p):
-    # Find eigenvalues and eigenvectors for k,
-    # identify the dim unique ones,
-    # return them in a segmented form
+    # Find unique eigenvalues and -vectors,
+    # return them as segments
+    unique_vals, unique_vecs = get_basis(k, p)
+
+    unique_vecs = np.array([np.split(unique_vecs[i], p.nz) for i in xrange(p.dim)])
+
+    return [unique_vals, unique_vecs]
+
+
+def get_basis(k, p):
+    # Compute the eigensystem of K,
+    # then separate out the dim relevant parts,
+    # orthogonalising degenerate subspaces.
     vals, vecs = compute_eigensystem(k, p)
 
     start = find_first_above_value(vals, -p.omega/2.)
 
-    unique_vals = vals[start:start+p.dim]
-    unique_vecs = np.array([np.split(vecs[:, i], p.nz) for i in xrange(start, start+p.dim)])
+    picked_vals = vals[start:start+p.dim]
+    picked_vecs = np.array([vecs[:, i] for i in xrange(start, start+p.dim)])
 
-    return [unique_vals, unique_vecs]
+    degenerate_indices = find_duplicates(picked_vals, p.decimals)
+
+    if degenerate_indices:
+        to_orthogonalize = picked_vecs[degenerate_indices]
+
+        orthogonalized = mm.gram_schmidt(to_orthogonalize)
+
+        picked_vecs[degenerate_indices, :] = orthogonalized
+
+
+
+    return [picked_vals, picked_vecs]
 
 
 def compute_eigensystem(k, p):
@@ -184,6 +206,21 @@ def find_first_above_value(array, value):
         if array[i] > value:
             return i
     return None
+
+
+def find_duplicates(array, decimals):
+    indices = np.arange(array.shape[0])
+    a = np.round(array, decimals=decimals)
+
+    vals, idx_start, count = np.unique(a, return_counts=True,
+                                       return_index=True)
+
+    res = np.split(indices, idx_start[1:])
+
+
+    res = filter(lambda x: x.size > 1, res)
+
+    return res
 
 
 

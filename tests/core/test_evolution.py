@@ -202,6 +202,20 @@ class TestFindEigensystem(TestCase, CustomAssertions):
         self.assertEqual(self.vecs.dtype, 'complex128')
 
 
+class TestFindDuplicates(TestCase, CustomAssertions):
+
+    def test_duplicates(self):
+        a = np.array([1, 2.001, 2.003, 1.999, 3])
+        res = ev.find_duplicates(a, 2)
+
+        self.assertArrayEqual([1, 2, 3], res)
+
+    def test_empty_if_no_dup(self):
+        a = np.array([1, 2.001, 4.003, 8.999, 10])
+        res = ev.find_duplicates(a, 2)
+
+        self.assertEqual(res, [])
+
 
 class TestCalculatePhi(TestCase, CustomAssertions):
     def test_sum(self):
