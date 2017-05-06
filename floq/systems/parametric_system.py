@@ -9,14 +9,17 @@ class ParametericSystemBase(object):
     such as the control amplitudes, the control duration, or other arbitrary
     parameters in the Hamiltonian.
 
-    The base class provides two functions:
-    - u(controls, t)
-    - du(controls, t),
-    which implement basic caching and automatically keeps self.nz updated.
-
     To function, this needs to be sub-classed, and a subclass should provide:
-        _hf(controls): returning an array with the Fourier-transformed Hamiltonian,
-        _dhf(controls): returning the derivative of the Hamiltonian.
+        _hf(controls): returning an array with the Fourier-transformed Hamiltonian
+                       with the first index the Fourier index,
+        _dhf(controls): returning the derivative of the Hamiltonian
+                        with the first index signifying the control parameter.
+
+
+    Methods:
+        u(controls, t)
+        du(controls, t),
+    which implement basic caching and automatically keeps self.nz updated.
 
     Attributes:
         nz: (initial) number of Brillouin zones (should be overwritten by subclass)
@@ -25,6 +28,7 @@ class ParametericSystemBase(object):
         max_nz: max nz allowed (can be overwritten by subclass)
         decimals: decimals used to check for unitarity (can be overwritten by subclass)
     """
+
     def __init__(self, **kwargs):
         self._last_controls = None
         self._last_t = None

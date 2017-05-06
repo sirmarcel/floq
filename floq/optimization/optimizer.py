@@ -1,4 +1,4 @@
-import scipy.optimize as opt
+ import scipy.optimize as opt
 import numpy as np
 
 
@@ -15,8 +15,20 @@ class OptimizerBase(object):
 
 
 class SciPyOptimizer(OptimizerBase):
-    """
-    A wrapper around scipy.minimize.
+    """A wrapper around scipy.minimize.
+
+    For detailed documentation, please refer to the SciPy docs.
+
+    Attributes:
+        fid: Fidelity object to be optimized
+        init: Array of initial control parameters
+        method: String specifying method to be used (same as scipy.minimize)
+        tol: Float specifying tolerance
+        options: Dictionary of minimizer options
+
+    Methods:
+        optimize: Run optimisation, returns result dictionary
+
     """
     def __init__(self, fid, init, method='BFGS', tol=1e-5, options={}):
         self.fid = fid

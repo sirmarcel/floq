@@ -7,30 +7,37 @@ import numpy as np
 
 
 class FidelityComputerBase(object):
-    """
-    Define how to calculate a fidelity and its gradient from a
-    ParametricSystem. Keeps track of iterations, counting up every
-    time a new controls_and_t array is encountered.
+    """Defines how to calculate a fidelity and its gradient.
 
-    This is a base class and needs to be sub-classed. Sub-classes
-    should implement _f(controls_and_t) and _df(controls_and_t), where
-    controls_and_t is an array of control amplitudes and possibly
-    the duration of the pulse as last entry.
+    This is a base class and needs to be sub-classed. The base class implements
+    common functionality, such as counting iterations or handling optional
+    penalty terms not arising directly from the fidelity.
 
-    Optionally, a sub-class can implement a function penalty(controls_and_t) and
-    d_penalty(controls_and_t) that represent a penalty function that is added
-    to f and df, respectively.
+    Sub-classes should implement:
+        _f(controls_and_t)
+        _df(controls_and_t).
 
-    Also optionally, a function _iteterate can be implemented, which gets called
-    on each iteration.
+    Sub-classes can optionally implement:
+        penalty(controls_and_t)
+        d_penalty(controls_and_t),
+        _iterate(controls_and_t), which gets called on each iteration.
 
     The __init__ should take the form __init__(self, system, **kwargs)
     for compatibility with EnsembleFidelity.
+
+    Methods:
+        f(controls_and_t): returns a real number, the fidelity,
+        df(controls_and_t): returns its gradient,
+        iterate(controls_and_t): expected to be called after each iteration by
+                                 an Optimizer.
+
+    Attributes:
+        system: the system (or ensemble) under consideration.
+        iterations: count of iterations
     """
 
     def __init__(self, system):
         self.system = system
-        self._last_controls_and_t = None
         self.iterations = 0
 
 
