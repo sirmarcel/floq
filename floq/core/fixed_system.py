@@ -6,27 +6,29 @@ from floq.helpers.matrix import is_unitary
 
 
 class FixedSystem(object):
-    """
-    Class that defines one specific instance of a Floquet problem, i.e.
-    some system for which the dynamics have to be calculated. Provides the
-    methods to compute U and dU.
+    """Class that defines and computes a specific time-evolution.
 
-    Provides the following methods:
-    - u: computes u / returns already computed u
-    - du: computes du / returns already computed du
+    The FixedSystem class serves essentially two purposes:
+    On one hand, it contains all information describing a
+    particular time-evolution problem to be solved numerically:
+    hf, dhf and various parameters collected in an instance of FixedSystemParameters.
 
-    Has the following attributes:
-    - hf: the Fourier transformed Hamiltonian (ndarray, square)
-    - dhf: its derivative with respect to the controls (ndarray of square ndarrays)
-    - params: an instance of FixedSystemParameters
+    On the other hand, it interfaces with the core.evolution module,
+    computing u and du and performing caching and various house-keeping operations,
+    in particular increasing nz if U is not unitary for a given choice.
 
-    - omega: The frequency associated with the period T of the control pulse
-    - t: Control duration
+    Methods
+        u: computes u / returns already computed u
+        du: computes du / returns already computed du
 
-    The following parameters are inferred from hf and dhf during initialisation:
-    - dim: the size of the Hilbert space
-    - nc: the number of components in Hf
-    - np: the number of control parameters
+    Attributes:
+        hf: the Fourier transformed Hamiltonian (ndarray, square)
+        dhf: its derivative with respect to the controls (ndarray of square ndarrays),
+             the first index running over the control parameters
+        params: an instance of FixedSystemParameters
+        decimals: number of decimals used internally for detecting degeneracies
+        sparse: if yes, sparse matrix computations are performed
+        max_nz: maximum nz
     """
 
     def __init__(self, hf, dhf, nz, omega, t, decimals=10, sparse=True, max_nz=999):
