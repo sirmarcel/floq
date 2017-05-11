@@ -93,7 +93,7 @@ class FixedSystem(object):
     def _test_nz(self):
         # Try to compute U with the current nz,
         # if an error occurs or U is not unitary
-        # return [False, []], else return [u, vecs, vals, phi, psi]
+        # return [False, []], else return [True, [u, vecs, vals, phi, psi]]
         results = ev.get_u_and_eigensystem(self.hf, self.params)
         if is_unitary(results[0]):
             return [True, results]
