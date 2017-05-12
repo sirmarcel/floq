@@ -95,7 +95,7 @@ class FixedSystem(object):
         # if an error occurs or U is not unitary
         # return [False, []], else return [True, [u, vecs, vals, phi, psi]]
         results = ev.get_u_and_eigensystem(self.hf, self.params)
-        if is_unitary(results[0]):
+        if is_unitary(results[0], tolerance=10**-self.params.decimals):
             return [True, results]
         else:
             return [False, []]
