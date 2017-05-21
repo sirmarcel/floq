@@ -2,10 +2,20 @@ import numpy as np
 
 
 def is_unitary(u, tolerance=1e-10):
-    unitary = np.eye(u.shape[0])
+    dim = u.shape[0]
+    unitary = np.eye(dim, dtype=np.complex128)
     umat = np.mat(u)
     product = umat.H * umat
+
+    # bla = np.abs(np.trace(product))/dim
+    # print('%.10f' % bla)
+
+    product = np.round(product, 10)
     return np.allclose(product, unitary, atol=tolerance)
+
+
+# def isclose(a, b, rel_tol=1e-09, abs_tol=0.0):
+#     return abs(a-b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
 
 
 def adjoint(m):
