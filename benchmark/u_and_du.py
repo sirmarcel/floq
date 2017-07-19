@@ -33,8 +33,22 @@ system = fs.FixedSystem(hf, dhf, 101, 1.0, 1.0)
 
 params = system.params
 
-print "---- Quicker eigenvalue search"
+print "---- Current state"
 import floq.core.evolution as ev
+
+print time_u(ev.get_u, hf, params)
+print time_du(ev.get_u_and_du, hf, dhf, params)
+
+
+print "---- With degeneracy check"
+import museum_of_evolution.p6.evolution as ev
+
+print time_u(ev.get_u, hf, params)
+print time_du(ev.get_u_and_du, hf, dhf, params)
+
+
+print "---- Quicker eigenvalue search"
+import museum_of_evolution.p5.evolution as ev
 
 print time_u(ev.get_u, hf, params)
 print time_du(ev.get_u_and_du, hf, dhf, params)
