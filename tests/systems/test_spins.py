@@ -1,7 +1,6 @@
 from unittest import TestCase
 from tests.assertions import CustomAssertions
 import numpy as np
-import scipy.stats
 import floq.systems.spins as spins
 
 
@@ -35,15 +34,3 @@ class TestSpinEnsemble(TestCase, CustomAssertions):
         target = single.u(self.controls, self.t)
 
         self.assertArrayEqual(result, target, decimals=10)
-
-
-class TestSpinSystem(TestCase, CustomAssertions):
-
-    def test_spin_u_correct(self):
-        target = np.array([[0.105818 - 0.324164j, -0.601164 - 0.722718j],
-                           [0.601164 - 0.722718j, 0.105818 + 0.324164j]])
-
-        spin = spins.SpinSystem(2, 1.0, 1.1, 1.5)
-        controls = np.array([1.5, 1.5, 1.5, 1.5])
-        result = spin.u(controls, 1.0)
-        self.assertArrayEqual(target, result)
