@@ -7,15 +7,18 @@ def is_unitary(u, tolerance=1e-10):
     umat = np.mat(u)
     product = umat.H * umat
 
-    # bla = np.abs(np.trace(product))/dim
-    # print('%.10f' % bla)
+    if dim > 2:
+        trace = np.abs(np.trace(product))/dim
+        # print('%.10f' % trace)
+        return isclose(trace, 1.0, abs_tol=tolerance)
+    else:
+        product = np.round(product, 9)
+        return np.allclose(product, unitary, atol=tolerance)
+    
 
-    product = np.round(product, 10)
-    return np.allclose(product, unitary, atol=tolerance)
 
-
-# def isclose(a, b, rel_tol=1e-09, abs_tol=0.0):
-#     return abs(a-b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
+def isclose(a, b, rel_tol=1e-09, abs_tol=0.0):
+    return abs(a-b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
 
 
 def adjoint(m):
