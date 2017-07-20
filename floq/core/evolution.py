@@ -119,7 +119,7 @@ def numba_assemble_dk(dhf, npm, dim, k_dim, nz, nc):
 
 def find_eigensystem(k, p):
     # Find unique eigenvalues and -vectors,
-    # return them as segments
+    # return them as segments (each of which is a ket)
     unique_vals, unique_vecs = get_basis(k, p)
 
     unique_vecs = np.array([np.split(unique_vecs[i], p.nz) for i in xrange(p.dim)])
@@ -133,45 +133,19 @@ def get_basis(k, p):
     # orthogonalising degenerate subspaces.
     vals, vecs = compute_eigensystem(k, p)
 
-    start = min(find_first_above_value(vals, -p.omega/2), vals.shape[0]-p.dim)
+    start = find_first_above_value(vals, -p.omega/2.)
 
-    # if vals[start+p.dim] < p.omega/2:
     picked_vals = vals[start:start+p.dim]
     picked_vecs = np.array([vecs[:, i] for i in xrange(start, start+p.dim)])
 
-    # print picked_vals
-
-    for i in xrange(p.dim):
-        testval = picked_vals[i]
-        # print("Testing %f" % testval)
-        testvec = picked_vecs[i]
-        div_testval, mod_testval = divmod(testval+p.omega/2, p.omega)
-
-        div_testval = int(div_testval)
-        # print testval
-        if div_testval != 0:
-            testval -= div_testval*p.omega
-            testvec = np.roll(testvec, int(-div_testval*p.dim))
-
-            picked_vals[i] = testval
-            picked_vecs[i, :] = testvec
-
-    idx = picked_vals.argsort()
-    picked_vals = picked_vals[idx]
-    picked_vecs = picked_vecs[idx, :]
-
-    # print picked_vals
-
     degenerate_indices = find_duplicates(picked_vals, p.decimals)
-    # print degenerate_indices
+
     if degenerate_indices:
-        for deg in degenerate_indices:
-            to_orthogonalize = picked_vecs[deg]
+        to_orthogonalize = picked_vecs[degenerate_indices]
 
-            orthogonalized = mm.gram_schmidt(to_orthogonalize)
+        orthogonalized = mm.gram_schmidt(to_orthogonalize)
 
-            picked_vecs[deg, :] = orthogonalized
-
+        picked_vecs[degenerate_indices, :] = orthogonalized
 
 
     return [picked_vals, picked_vecs]

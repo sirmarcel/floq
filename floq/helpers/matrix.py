@@ -2,27 +2,30 @@ import numpy as np
 
 
 def is_unitary(u, tolerance=1e-10):
+    """Return True if u^dagger u is equal to the unit matrix with the given tolerance."""
+
+    digits = int(np.log10(1/tolerance))
     dim = u.shape[0]
+
     unitary = np.eye(dim, dtype=np.complex128)
     umat = np.mat(u)
     product = umat.H * umat
+    product = np.round(product, digits-1)  # required for some edge cases
 
-    if dim > 2:
-        trace = np.abs(np.trace(product))/dim
-        # print('%.10f' % trace)
-        return isclose(trace, 1.0, abs_tol=tolerance)
-    else:
-        product = np.round(product, 9)
-        return np.allclose(product, unitary, atol=tolerance)
-    
+    return np.allclose(product, unitary, atol=tolerance)
 
 
 def isclose(a, b, rel_tol=1e-09, abs_tol=0.0):
+    """Test if a and b are close with given relative and absolute precision."""
+
     return abs(a-b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
 
 
 def adjoint(m):
+    """Compute the Hermitian adjoint."""
+
     return np.transpose(np.conj(m))
+
 
 
 def gram_schmidt(vecs):
