@@ -1,4 +1,3 @@
-from unittest import TestCase
 from tests.assertions import CustomAssertions
 import numpy as np
 import floq.core.fidelities as f
@@ -21,14 +20,14 @@ v1 = np.array([0.348713 - 0.435703j, -0.245625 - 0.0546497j, 0.575875 + 0.54186j
 v2 = np.array([-0.541912 + 0.349275j, 0.432916 + 0.181694j, 0.304055 + 0.521019j])
 
 
-class TestTransferFidelity(TestCase, CustomAssertions):
+class TestTransferFidelity(CustomAssertions):
 
     def test_transfer_fidelity(self):
         fid = f.transfer_fidelity(u1, v2, v1)
         self.assertAlmostEqualWithDecimals(fid, 0.131584, 4)
 
 
-class TestTransferDistance(TestCase, CustomAssertions):
+class TestTransferDistance(CustomAssertions):
 
     def test_is_zero_if_identity(self):
         v = np.array([1.0, 1.0j])/1.41421
@@ -44,7 +43,7 @@ class TestTransferDistance(TestCase, CustomAssertions):
 
 
 
-class TestOperatorFidelity(TestCase, CustomAssertions):
+class TestOperatorFidelity(CustomAssertions):
 
     def test_operator_fidelity(self):
         fid = f.operator_fidelity(u1, u2)
@@ -52,7 +51,7 @@ class TestOperatorFidelity(TestCase, CustomAssertions):
 
 
 
-class TestOperatorDistance(TestCase, CustomAssertions):
+class TestOperatorDistance(CustomAssertions):
 
     def test_zero_if_equal(self):
         self.assertAlmostEqualWithDecimals(0.0, f.operator_distance(u1, u1))
@@ -62,7 +61,7 @@ class TestOperatorDistance(TestCase, CustomAssertions):
 
 
 
-class TestOperatorFidelityDeriv(TestCase, CustomAssertions):
+class TestOperatorFidelityDeriv(CustomAssertions):
 
     def test_d_operator_fidelity(self):
         dus = np.array([u3, u4])
@@ -72,14 +71,14 @@ class TestOperatorFidelityDeriv(TestCase, CustomAssertions):
 
 
 
-class TestExpectationValue(TestCase, CustomAssertions):
+class TestExpectationValue(CustomAssertions):
     def test_expectation_value(self):
         result = f.expectation_value(v1, u1, v2)
         self.assertAlmostEqualWithDecimals(result, -0.362492 - 0.013523j, 4)
 
 
 
-class TestHSProduct(TestCase, CustomAssertions):
+class TestHSProduct(CustomAssertions):
     def test_product(self):
         product = f.hilbert_schmidt_product(u1, u2)
         self.assertAlmostEqualWithDecimals(product, 0.113672 + 0.830189j, 4)

@@ -1,4 +1,3 @@
-from unittest import TestCase
 from tests.assertions import CustomAssertions
 from tests.ryd import RydbergAtoms
 import numpy as np
@@ -15,7 +14,7 @@ import rabi
 
 # Rabi problem
 
-class TestRabiUfromFixedSystem(TestCase, CustomAssertions):
+class TestRabiUfromFixedSystem(CustomAssertions):
     def setUp(self):
         g = 0.5
         e1 = 1.2
@@ -42,7 +41,7 @@ class TestRabiUfromFixedSystem(TestCase, CustomAssertions):
         self.assertArrayEqual(self.u, self.ucal, 8)
 
 
-class TestRabidUfromFixedSystem(TestCase, CustomAssertions):
+class TestRabidUfromFixedSystem(CustomAssertions):
     def setUp(self):
         g = 0.5
         e1 = 1.2
@@ -72,7 +71,7 @@ class TestRabidUfromFixedSystem(TestCase, CustomAssertions):
 
 # NV Centre Spin
 
-class TestSpinUfromSpinSystem(TestCase, CustomAssertions):
+class TestSpinUfromSpinSystem(CustomAssertions):
 
     def test_spin_u_correct(self):
         target = np.array([[0.105818 - 0.324164j, -0.601164 - 0.722718j],
@@ -85,7 +84,7 @@ class TestSpinUfromSpinSystem(TestCase, CustomAssertions):
 
 
 
-class TestSpinUfromFixedSystem(TestCase, CustomAssertions):
+class TestSpinUfromFixedSystem(CustomAssertions):
     def setUp(self):
         controls = np.array([1.2, 1.3, 4.5, 3.3, -0.8, 0.9, 3.98, -4.0, 0.9, 1.0])
         hf = spin.hf(5, 0.1, controls)
@@ -111,7 +110,7 @@ class TestSpinUfromFixedSystem(TestCase, CustomAssertions):
         self.assertArrayEqual(self.u, self.ucal, 8)
 
 
-class TestSpinUandDUfromFixedSystem(TestCase, CustomAssertions):
+class TestSpinUandDUfromFixedSystem(CustomAssertions):
     def setUp(self):
         g = 0.5
         e1 = 1.2

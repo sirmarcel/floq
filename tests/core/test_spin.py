@@ -1,4 +1,3 @@
-from unittest import TestCase
 from tests.assertions import CustomAssertions
 import numpy as np
 import floq.core.spin as spin
@@ -49,7 +48,7 @@ def dhf():
     return np.array([dhf_a1, dhf_b1, dhf_a2, dhf_b2])
 
 
-class TestSpinHf(TestCase, CustomAssertions):
+class TestSpinHf(CustomAssertions):
 
     def test_build_single_hf(self):
         controls = np.array([1.2, 2.3, 3.4, 5.4])
@@ -61,7 +60,7 @@ class TestSpinHf(TestCase, CustomAssertions):
         self.assertArrayEqual(target, result)
 
 
-class TestSpindHf(TestCase, CustomAssertions):
+class TestSpindHf(CustomAssertions):
     def test_build_single_dhf(self):
         amp = 1.25
 

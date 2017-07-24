@@ -8,7 +8,7 @@ from tests.assertions import CustomAssertions
 from mock import MagicMock
 
 
-class TestFixedSystemInit(TestCase, CustomAssertions):
+class TestFixedSystemInit(CustomAssertions):
 
     def setUp(self):
         self.hf = np.zeros([5, 10, 10])
@@ -63,7 +63,7 @@ class TestFixedSystemMaxNZ(TestCase):
 
 
 
-class TestEvolveFixedSystem(TestCase, CustomAssertions):
+class TestEvolveFixedSystem(CustomAssertions):
     def setUp(self):
         g = 5.0
         e1 = 1.2
@@ -92,7 +92,7 @@ class TestEvolveFixedSystem(TestCase, CustomAssertions):
 
 
 
-class TestEvolveFixedSystemWithDerivs(TestCase, CustomAssertions):
+class TestEvolveFixedSystemWithDerivs(CustomAssertions):
     def setUp(self):
         g = 0.5
         e1 = 1.2

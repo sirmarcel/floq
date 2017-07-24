@@ -1,7 +1,8 @@
 from unittest import TestCase
+from tests.assertions import CustomAssertions
 import numpy as np
 from floq.helpers.matrix import is_unitary, adjoint, gram_schmidt, norm, product
-from tests.assertions import CustomAssertions
+
 
 
 class TestIsUnitary(TestCase):
@@ -15,7 +16,7 @@ class TestIsUnitary(TestCase):
         self.assertFalse(is_unitary(u))
 
 
-class TestAdjoint(TestCase, CustomAssertions):
+class TestAdjoint(CustomAssertions):
 
     def test_does_right_thing(self):
         u = np.array([[2.3+12j, -13j+5], [1j+12.1, 0.3j+0.1]])
@@ -23,7 +24,7 @@ class TestAdjoint(TestCase, CustomAssertions):
         self.assertArrayEqual(adjoint(u), target)
 
 
-class TestGramSchmidt(TestCase, CustomAssertions):
+class TestGramSchmidt(CustomAssertions):
 
     def setUp(self):
         self.array = np.array([[1.0j, 2.0, 3.0],

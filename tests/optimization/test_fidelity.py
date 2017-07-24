@@ -25,7 +25,7 @@ class TestFidelityComputerBaseIterations(TestCase):
 
 
 
-class TestEnsembleFidelity(TestCase, CustomAssertions):
+class TestEnsembleFidelity(CustomAssertions):
     def setUp(self):
         self.ensemble = SpinEnsemble(2, 2, 1.5, np.array([1.1, 1.1]), np.array([1, 1]))
 

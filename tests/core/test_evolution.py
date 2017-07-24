@@ -1,6 +1,5 @@
-from unittest import TestCase
-import numpy as np
 from tests.assertions import CustomAssertions
+import numpy as np
 import tests.rabi as rabi
 import floq.core.spin as spin
 import floq.core.evolution as ev
@@ -18,7 +17,7 @@ def generate_fake_spectrum(unique_vals, dim, omega, nz):
     return vals
 
 
-class TestAssembleK(TestCase, CustomAssertions):
+class TestAssembleK(CustomAssertions):
     def setUp(self):
         dim = 2
         self.p = fs.FixedSystemParameters.optional(dim, nz=5, nc=3, omega=1)
@@ -43,7 +42,7 @@ class TestAssembleK(TestCase, CustomAssertions):
         self.assertArrayEqual(builtk, self.goalk)
 
 
-class TestAssembledK(TestCase, CustomAssertions):
+class TestAssembledK(CustomAssertions):
     def setUp(self):
         dim = 2
         self.p = fs.FixedSystemParameters.optional(dim, 5, 3, np=2, omega=1)
@@ -78,7 +77,7 @@ class TestAssembledK(TestCase, CustomAssertions):
 
 
 
-class TestFindEigensystem(TestCase, CustomAssertions):
+class TestFindEigensystem(CustomAssertions):
     def setUp(self):
         self.target_vals = np.array([-0.235, 0.753])
         # random matrix with known eigenvalues:
@@ -125,7 +124,7 @@ class TestFindEigensystem(TestCase, CustomAssertions):
         self.assertEqual(self.vecs.dtype, 'complex128')
 
 
-class TestFindDuplicates(TestCase, CustomAssertions):
+class TestFindDuplicates(CustomAssertions):
 
     def test_duplicates(self):
         a = np.array([1, 2.001, 2.003, 1.999, 3])
@@ -140,7 +139,7 @@ class TestFindDuplicates(TestCase, CustomAssertions):
         self.assertEqual(res, [])
 
 
-class TestCalculatePhi(TestCase, CustomAssertions):
+class TestCalculatePhi(CustomAssertions):
     def test_sum(self):
         a = np.array([1.53, 2.45])
         b = np.array([7.161, 1.656])
@@ -157,7 +156,7 @@ class TestCalculatePhi(TestCase, CustomAssertions):
         self.assertArrayEqual(calculated_sum, target)
 
 
-class TestCalculatePsi(TestCase, CustomAssertions):
+class TestCalculatePsi(CustomAssertions):
     def test_sum(self):
         omega = 2.34
         t = 1.22
@@ -180,7 +179,7 @@ class TestCalculatePsi(TestCase, CustomAssertions):
         self.assertArrayEqual(calculated_sum, target)
 
 
-class TestCalculateU(TestCase, CustomAssertions):
+class TestCalculateU(CustomAssertions):
     def test_u(self):
         omega = 3.56
         t = 8.123
