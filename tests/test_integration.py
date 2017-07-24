@@ -6,6 +6,7 @@ import floq.systems.spins as spins
 import floq.core.fixed_system as fs
 import floq.core.evolution as ev
 import floq.core.spin as spin
+import floq.errors as er
 import rabi
 
 
@@ -169,4 +170,43 @@ class TestRydbergAtoms(CustomAssertions):
         controls = np.array([0.1, 0.1, 0.1, 0.1])
         system = RydbergAtoms(2, self.rvec2, self.mu, self.delta, self.omega)
         print system.r
-        self.assertArrayEqual(target, system.u(controls, 0.9)) 
+        self.assertArrayEqual(target, system.u(controls, 0.9))
+
+    def test_nz_does_not_blow_up_one(self):
+        # a case that was empirically found to cause problems previously,
+        # preserved as test case to catch regressions
+
+        r = 4.0
+        r0 = np.array([0.72480473, 0.08708385, -0.87074443])
+        rvec = r*r0/np.linalg.norm(r0)
+
+        a = RydbergAtoms(3, rvec, 2.0, -200.0, 1.0)
+        a.nz = 207
+        a.max_nz = 211
+
+        ctrl = np.array([0.00840315, 0.02027272, -0.03879325, 0.01801073, 0.03176829, -0.02522575])
+
+        try:
+            a.u(ctrl, 1.0)
+        except er.NZTooLargeError:
+            self.fail("nz blew up unexpectedly!")
+
+
+    def test_nz_does_not_blow_up_two(self):
+        # a case that was empirically found to cause problems previously,
+        # preserved as test case to catch regressions
+        r = 5.0
+        r0 = np.array([0.72480473, 0.08708385, -0.87074443])
+        rvec = r*r0/np.linalg.norm(r0)
+        a = RydbergAtoms(3, rvec, 2.0, -200.0, 1.0)
+
+        a.nz = 207
+        a.max_nz = 211
+
+        ctrl = np.array([-0.01672054, 0.01984895, -0.05714435,
+                         0.02228267, -0.00592705, -0.00610819])
+
+        try:
+            a.u(ctrl, 1.0)
+        except er.NZTooLargeError:
+            self.fail("nz blew up unexpectedly!")
