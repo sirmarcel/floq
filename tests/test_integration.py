@@ -4,7 +4,6 @@ import numpy as np
 import floq.systems.spins as spins
 import floq.core.fixed_system as fs
 import floq.core.evolution as ev
-import floq.core.spin as spin
 import floq.errors as er
 import rabi
 
@@ -87,7 +86,7 @@ class TestSpinUfromSpinSystem(CustomAssertions):
 class TestSpinUfromFixedSystem(CustomAssertions):
     def setUp(self):
         controls = np.array([1.2, 1.3, 4.5, 3.3, -0.8, 0.9, 3.98, -4.0, 0.9, 1.0])
-        hf = spin.hf(5, 0.1, controls)
+        hf = spins.hf(5, 0.1, controls)
 
         nz = 51
         dim = 2
@@ -108,6 +107,7 @@ class TestSpinUfromFixedSystem(CustomAssertions):
 
     def test_is_correct_u(self):
         self.assertArrayEqual(self.u, self.ucal, 8)
+
 
 
 class TestSpinUandDUfromFixedSystem(CustomAssertions):

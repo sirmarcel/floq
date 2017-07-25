@@ -1,7 +1,6 @@
 import numpy as np
 from floq.systems.ensemble import EnsembleBase
 from floq.systems.parametric_system import ParametericSystemBase
-import floq.core.spin as spin
 
 
 
@@ -102,7 +101,7 @@ class SpinSystem(ParametericSystemBase):
         self.omega = omega
 
         self.nz = 3
-        self.dhf = spin.dhf(ncomp)  # independent of controls!
+        self.dhf = dhf(ncomp)  # independent of controls!
 
 
     def _hf(self, controls):
@@ -110,9 +109,66 @@ class SpinSystem(ParametericSystemBase):
         # ordered as follows:
         # [a1, b1, a2, b2, ... a_nc, b_nc]
 
-        return spin.hf(self.ncomp, self.freq, self.amp*controls)
+        return hf(self.ncomp, self.freq, self.amp*controls)
 
 
     def _dhf(self, controls):
         # dHf is independent of the controls, return cached value
         return self.dhf
+
+
+
+def hf(ncomp, freq, controls):
+    # assemble hf for one spin, given a detuning
+    # freq, the control amplitudes controls, and
+    # ncomp components of the control pulse
+
+    nc = 2*ncomp+1  # number of components in hf
+
+    hf = np.zeros([nc, 2, 2], dtype='complex128')
+
+    for k in xrange(0, ncomp):
+        # the controls are ordered in reverse
+        # compared to how they are placed in hf
+        a = controls[-2*k-2]
+        b = controls[-2*k-1]
+
+        # The controls are placed symmetrically around
+        # the centre of hf, so we can place them at the
+        # same time to save us some work!
+        hf[k, :, :] = np.array([[0.0, 0.25*(1j*a+b)],
+                                [0.25*(1j*a-b), 0.0]])
+
+        hf[-k-1, :, :] = np.array([[0.0, -0.25*(1j*a+b)],
+                                   [0.25*(-1j*a+b), 0.0]])
+
+    # Set centre (with Fourier index 0)
+    hf[ncomp] = np.array([[freq/2.0, 0.0],
+                          [0.0, -freq/2.0]])
+
+    return hf
+
+
+def dhf(ncomp):
+    # Assemble dhf for one spin, given ncomp components
+    # in the control pulse
+
+    nc = 2*ncomp+1
+    npm = 2*ncomp
+    dhf = np.zeros([npm, nc, 2, 2], dtype='complex128')
+
+    for k in xrange(0, ncomp):
+        i_a = -2*k-2
+        i_b = -2*k-1
+
+        dhf[i_a, k, :, :] = np.array([[0.0, 0.25j],
+                                      [0.25j, 0.0]])
+        dhf[i_a, -k-1, :, :] = np.array([[0.0, -0.25j],
+                                         [-0.25j, 0.0]])
+
+        dhf[i_b, k, :, :] = np.array([[0.0, 0.25],
+                                      [-0.25, 0.0]])
+        dhf[i_b, -k-1, :, :] = np.array([[0.0, -0.25],
+                                         [0.25, 0.0]])
+
+    return dhf
