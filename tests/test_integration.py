@@ -68,6 +68,30 @@ class TestRabidUfromFixedSystem(CustomAssertions):
 
 
 
+class TestRabiUandDUfromFixedSystem(CustomAssertions):
+    def setUp(self):
+        g = 0.5
+        e1 = 1.2
+        e2 = 2.8
+        hf = rabi.hf(g, e1, e2)
+        dhf = np.array([rabi.hf(1.0, 0, 0)])
+
+        nz = 21
+        dim = 2
+        omega = 5.0
+        t = 1.5
+        p = fs.FixedSystemParameters.optional(dim=dim, nz=nz, omega=omega, t=t, nc=3, np=1)
+
+        self.du = np.array([[-0.43745 + 0.180865j, 0.092544 - 0.0993391j],
+                            [-0.0611011 - 0.121241j, -0.36949-0.295891j]])
+
+        [self.ucal, self.ducal] = ev.get_u_and_du(hf, dhf, p)
+
+    def test_is_correct_du(self):
+        self.assertArrayEqual(self.ducal, self.du)
+
+
+
 # NV Centre Spin
 
 class TestSpinUfromSpinSystem(CustomAssertions):
@@ -107,30 +131,6 @@ class TestSpinUfromFixedSystem(CustomAssertions):
 
     def test_is_correct_u(self):
         self.assertArrayEqual(self.u, self.ucal, 8)
-
-
-
-class TestSpinUandDUfromFixedSystem(CustomAssertions):
-    def setUp(self):
-        g = 0.5
-        e1 = 1.2
-        e2 = 2.8
-        hf = rabi.hf(g, e1, e2)
-        dhf = np.array([rabi.hf(1.0, 0, 0)])
-
-        nz = 21
-        dim = 2
-        omega = 5.0
-        t = 1.5
-        p = fs.FixedSystemParameters.optional(dim=dim, nz=nz, omega=omega, t=t, nc=3, np=1)
-
-        self.du = np.array([[-0.43745 + 0.180865j, 0.092544 - 0.0993391j],
-                            [-0.0611011 - 0.121241j, -0.36949-0.295891j]])
-
-        [self.ucal, self.ducal] = ev.get_u_and_du(hf, dhf, p)
-
-    def test_is_correct_du(self):
-        self.assertArrayEqual(self.ducal, self.du)
 
 
 
