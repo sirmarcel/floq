@@ -1,11 +1,11 @@
 import logging
 import multiprocessing as mp
 import numpy as np
-from floq.optimization.fidelity import FidelityComputerBase
+from floq.optimization.fidelity import FidelityBase
 
 
 
-class FidelityMaster(FidelityComputerBase):
+class FidelityMaster(FidelityBase):
     """
     With a given Ensemble, and a FidelityComputer,
     calculate the average fidelity over the whole ensemble

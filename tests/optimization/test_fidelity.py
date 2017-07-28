@@ -6,9 +6,9 @@ import numpy as np
 from mock import MagicMock
 
 
-class TestFidelityComputerBaseIterations(TestCase):
+class TestFidelityBaseIterations(TestCase):
     def setUp(self):
-        self.computer = fid.FidelityComputerBase(None)
+        self.computer = fid.FidelityBase(None)
         self.computer._f = MagicMock()
         self.computer._df = MagicMock()
 

@@ -4,7 +4,7 @@ from benchmark.museum_of_forks.p0.core.fidelities import d_operator_distance, op
 import numpy as np
 
 
-class FidelityComputerBase(object):
+class FidelityBase(object):
     """
     Define how to calculate a fidelity and its gradient from a
     ParametricSystem. Keeps track of iterations, counting up every
@@ -76,7 +76,7 @@ class FidelityComputerBase(object):
 
 
 
-class EnsembleFidelity(FidelityComputerBase):
+class EnsembleFidelity(FidelityBase):
     """
     With a given Ensemble, and a FidelityComputer,
     calculate the average fidelity over the whole ensemble.
@@ -98,7 +98,7 @@ class EnsembleFidelity(FidelityComputerBase):
 
 
 
-class OperatorDistance(FidelityComputerBase):
+class OperatorDistance(FidelityBase):
     """
     Calculate the operator distance (see core.fidelities for details)
     for a given ParametricSystem and a fixed pulse duration t.

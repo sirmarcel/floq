@@ -6,7 +6,7 @@ from floq.core.fidelities import transfer_distance, d_transfer_distance
 import numpy as np
 
 
-class FidelityComputerBase(object):
+class FidelityBase(object):
     """Defines how to calculate a fidelity and its gradient.
 
     This is a base class and needs to be sub-classed. The base class implements
@@ -86,7 +86,7 @@ class FidelityComputerBase(object):
 
 
 
-class EnsembleFidelity(FidelityComputerBase):
+class EnsembleFidelity(FidelityBase):
     """
     With a given Ensemble, and a FidelityComputer,
     calculate the average fidelity over the whole ensemble.
@@ -107,7 +107,7 @@ class EnsembleFidelity(FidelityComputerBase):
 
 
 
-class OperatorDistance(FidelityComputerBase):
+class OperatorDistance(FidelityBase):
     """
     Calculate the operator distance (see core.fidelities for details)
     for a given ParametricSystem and a fixed pulse duration t.
@@ -132,7 +132,7 @@ class OperatorDistance(FidelityComputerBase):
 
 
 
-class TransferDistance(FidelityComputerBase):
+class TransferDistance(FidelityBase):
     """
     Calculate the state transfer fidelity between two states |initial>
     and |final> (see core.fidelities for details)

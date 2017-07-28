@@ -1,7 +1,7 @@
 # You got nothing to lose but your chains!
 import multiprocessing as mp
 import numpy as np
-from floq.optimization.fidelity import FidelityComputerBase
+from floq.optimization.fidelity import FidelityBase
 
 
 def run_fid(pair):
@@ -18,7 +18,7 @@ def run_dfid(pair):
     return fid
 
 
-class ParallelEnsembleFidelity(FidelityComputerBase):
+class ParallelEnsembleFidelity(FidelityBase):
     """
     With a given Ensemble, and a FidelityComputer,
     calculate the average fidelity over the whole ensemble.
