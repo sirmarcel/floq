@@ -1,7 +1,7 @@
 # FLOQ
 ## A Python module for smooth robust quantum control
 
-This repository is the home of `floq`, a Python module that implements the smooth robust quantum control approach as laid out in [*Smooth optimal control with Floquet theory* by Bartels and Mintert](https://arxiv.org/abs/1205.5142v2). This implementation was written as part of my Master thesis, which can be found [here](marcel-langer.com/ma). It explains the background and terminology of the code in some detail. If the following documentation is unclear, the thesis might be a useful backup, or you can drop me a line at me@(username).com
+This repository is the home of `floq`, a Python module that implements the smooth robust quantum control approach as laid out in [*Smooth optimal control with Floquet theory* by Bartels and Mintert](https://arxiv.org/abs/1205.5142v2). This implementation was written as part of my Master thesis, which can be found [here](http://marcel-langer.com/ma). It explains the background and terminology of the code in some detail. If the following documentation is unclear, the thesis might be a useful backup, or you can drop me a line at me@(username).com
 
 All of this is a work in progress! If you are not involved in this project personally, you might want to hold out for now, until the API has settled and proper documentation is in place.
 
