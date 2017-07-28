@@ -11,12 +11,12 @@ from mock import MagicMock, patch
 class TestParametricSystemBase(TestCase):
     def test_hf_not_implemented(self):
         with self.assertRaises(NotImplementedError):
-            p = ps.ParametericSystemBase()
+            p = ps.ParametricSystemBase()
             p._hf(None)
 
     def test_dhf_not_implemented(self):
         with self.assertRaises(NotImplementedError):
-            p = ps.ParametericSystemBase()
+            p = ps.ParametricSystemBase()
             p._dhf(None)
 
 
@@ -25,7 +25,7 @@ class TestParametricSystemBaseCaching(TestCase):
         self.ctrls1 = np.array([1.2, 1.1])
         self.ctrls2 = np.array([1.3, 1.1])
 
-        self.real = ps.ParametericSystemBase()
+        self.real = ps.ParametricSystemBase()
         self.real._hf = MagicMock()
         self.real._dhf = MagicMock()
         self.real._fixed_system = MagicMock()
@@ -37,7 +37,7 @@ class TestParametricSystemBaseCaching(TestCase):
         self.real.omega = MagicMock()
 
     def test_is_cached_false_initially(self):
-        system = ps.ParametericSystemBase()
+        system = ps.ParametricSystemBase()
         ctrl = np.arange(5)
         self.assertFalse(system._is_cached(ctrl, 1.0))
 

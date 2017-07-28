@@ -1,5 +1,5 @@
 import numpy as np
-from floq.systems.parametric_system import ParametericSystemBase
+from floq.systems.parametric_system import ParametricSystemBase
 
 # Rydberg atoms as test problem;
 # full commented implementation at github.com/sirmarcel/ryd
@@ -9,7 +9,7 @@ factor_hdip = 9.75009e+2
 factor_haf = 1.27954e+1
 
 
-class RydbergAtoms(ParametericSystemBase):
+class RydbergAtoms(ParametricSystemBase):
     """Implement a pair of interacting Rydberg atoms, where the Rydberg s state is
     coupled via two microwave fields to its excited p (l=1) states.
     """

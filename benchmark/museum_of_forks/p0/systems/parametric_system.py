@@ -4,7 +4,7 @@ import benchmark.museum_of_forks.p0.evolution as ev
 import benchmark.museum_of_forks.p0.errors as er
 
 
-class ParametericSystemBase(object):
+class ParametricSystemBase(object):
     """
     Specifies a physical system that still has open parameters,
     such as the control amplitudes, the control duration, or other arbitrary
@@ -75,7 +75,7 @@ class ParametericSystemBase(object):
         self._fixed_system = fs.FixedSystem(hf, dhf, self.nz, self.omega, t)
 
 
-class ParametricSystemWithFunctions(ParametericSystemBase):
+class ParametricSystemWithFunctions(ParametricSystemBase):
     """
     A ParametricSystem that wraps callables hf and dhf.
     """

@@ -4,7 +4,7 @@ import floq.errors as er
 import floq.helpers.index as h
 
 
-class ParametericSystemBase(object):
+class ParametricSystemBase(object):
     """
     Base class to specify a physical system that still has open parameters,
     such as the control amplitudes, the control duration, or other arbitrary
@@ -53,7 +53,7 @@ class ParametericSystemBase(object):
 
 
 
-class ParametricSystemWithFunctions(ParametericSystemBase):
+class ParametricSystemWithFunctions(ParametricSystemBase):
     """
     A system with parametric hf and dhf, which are passed as callables to the constructor.
 

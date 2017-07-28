@@ -3,7 +3,7 @@ import floq.core.fixed_system as fs
 import floq.errors as er
 
 
-class ParametericSystemBase(object):
+class ParametricSystemBase(object):
     """
     Specifies a physical system that still has open parameters,
     such as the control amplitudes, the control duration, or other arbitrary
@@ -94,7 +94,7 @@ class ParametericSystemBase(object):
                                             max_nz=self.max_nz)
 
 
-class ParametricSystemWithFunctions(ParametericSystemBase):
+class ParametricSystemWithFunctions(ParametricSystemBase):
     """
     A ParametricSystem that wraps callables hf and dhf.
     """

@@ -1,6 +1,6 @@
 import numpy as np
 from benchmark.museum_of_forks.p0.systems.ensemble import EnsembleBase
-from benchmark.museum_of_forks.p0.systems.parametric_system import ParametericSystemBase
+from benchmark.museum_of_forks.p0.systems.parametric_system import ParametricSystemBase
 import benchmark.museum_of_forks.p0.core.spin as spin
 
 
@@ -45,7 +45,7 @@ class SpinEnsemble(EnsembleBase):
 
 
 
-class SpinSystem(ParametericSystemBase):
+class SpinSystem(ParametricSystemBase):
     """
     Describes a single spin with an amplitude (amp) that
     attenuates the control pulse, and a detuning (freq),

@@ -1,6 +1,6 @@
 import numpy as np
 from floq.systems.ensemble import EnsembleBase
-from floq.systems.parametric_system import ParametericSystemBase
+from floq.systems.parametric_system import ParametricSystemBase
 
 
 
@@ -74,7 +74,7 @@ class RandomisedSpinEnsemble(SpinEnsemble):
 
 
 
-class SpinSystem(ParametericSystemBase):
+class SpinSystem(ParametricSystemBase):
     """
     Describes a single spin with an amplitude (amp) that
     attenuates the control pulse, and a detuning (freq),
