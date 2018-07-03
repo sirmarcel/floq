@@ -74,6 +74,21 @@ def get_du_from_eigensystem(dhf, psi, vals, vecs, params):
     return du
 
 
+def get_udot_from_eigensystem(phi, psi, vals, vecs, params):
+    """
+    Calculate the time evolution operator U,
+    given a Fourier transformed Hamiltonian Hf
+    and the parameters of the problem, as well
+    as its time derivative.
+    """
+
+    psidot = calculate_psidot(vecs, params)
+
+    udot = calculate_udot(phi, psi, psidot, vals, params)
+
+    return udot
+
+
 def assemble_k(hf, p):
     # assemble the Floquet Hamiltonian K from
     # the components of the Fourier-transformed Hamiltonian

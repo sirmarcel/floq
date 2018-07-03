@@ -61,6 +61,16 @@ class ParametricSystemBase(object):
             self.nz = self._fixed_system.params.nz
             return u
 
+    def udot(self, controls, t):
+        if self._is_cached(controls, t):
+            return self._fixed_system.udot
+        else:
+            self._set_cached(controls, t)
+
+            udot = self._fixed_system.udot
+            self.nz = self._fixed_system.params.nz
+            return udot
+
 
     def du(self, controls, t):
         if self._is_cached(controls, t):

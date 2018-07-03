@@ -44,6 +44,7 @@ class FixedSystem(object):
         self.params = FixedSystemParameters(dim, nz, nc, np, omega, t, decimals)
 
         self._u = None
+        self._udot = None
         self._du = None
         self._vals, self._vecs, self._phi, self._psi = None, None, None, None
 
@@ -63,6 +64,14 @@ class FixedSystem(object):
         else:
             self._compute_u()
             return self._u
+
+    @property
+    def udot(self):
+        if self._udot is not None:
+            return self._udot
+        else:
+            self._compute_udot()
+            return self._udot
 
 
     @property
@@ -99,6 +108,12 @@ class FixedSystem(object):
             return [True, results]
         else:
             return [False, []]
+
+    def _compute_udot(self):
+        if self._u is None:
+            self._compute_u()
+
+        self._udot = ev.get_udot_from_eigensystem(self._phi, self._psi, self._vals, self._vecs, self.params)
 
 
     def _compute_du(self):
