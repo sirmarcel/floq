@@ -20,6 +20,22 @@ def get_u(hf, params):
     return get_u_and_eigensystem(hf, params)[0]
 
 
+def get_u_and_udot(hf, params):
+    """
+    Calculate the time evolution operator U,
+    given a Fourier transformed Hamiltonian Hf
+    and the parameters of the problem, as well
+    as its time derivative.
+    """
+    u, vals, vecs, phi, psi = get_u_and_eigensystem(hf, params)
+
+    psidot = calculate_psidot(vecs, params)
+
+    udot = calculate_udot(phi, psi, psidot, vals, params)
+
+    return [u, udot]
+
+
 def get_u_and_du(hf, dhf, params):
     """
     Calculate the time evolution operator U
@@ -265,6 +281,27 @@ def numba_calculate_psi(vecs, dim, nz, omega, t):
     return psi
 
 
+def calculate_psidot(vecs, p):
+    # Given an array of eigenvectors vecs,
+    # sum over all Fourier components in each,
+    # weighted by exp(- i omega t n), with n
+    # being the Fourier index of the component
+
+    return numba_calculate_psidot(vecs, p.dim, p.nz, p.omega, p.t)
+
+@autojit(nopython=True)
+def numba_calculate_psidot(vecs, dim, nz, omega, t):
+    psidot = numba_zeros((dim, dim))
+
+    for k in range(0, dim):
+        partial = numba_zeros(dim)
+        for i in range(0, nz):
+            num = i_to_n(i, nz)
+            partial += (1j*omega*num)*np.exp(1j*omega*t*num)*vecs[k][i]
+        psidot[k, :] = partial
+
+    return psidot
+
 
 def calculate_u(phi, psi, energies, p):
     u = np.zeros([p.dim, p.dim], dtype='complex128')
@@ -274,6 +311,17 @@ def calculate_u(phi, psi, energies, p):
         u += np.exp(-1j*t*energies[k])*np.outer(psi[k], np.conj(phi[k]))
 
     return u
+
+
+def calculate_udot(phi, psi, psidot, energies, p):
+    udot = np.zeros([p.dim, p.dim], dtype='complex128')
+    t = p.t
+
+    for k in xrange(0, p.dim):
+        udot += np.exp(-1j*t*energies[k])*np.outer(psidot[k], np.conj(phi[k]))
+        udot += -1j*energies[k]*np.exp(-1j*t*energies[k])*np.outer(psi[k], np.conj(phi[k]))
+
+    return udot
 
 
 
