@@ -103,6 +103,12 @@ class ParametricSystemBase(object):
                                             sparse=self.sparse,
                                             max_nz=self.max_nz)
 
+    def heff(self, controls, t):
+        u = self.u(controls, t)
+        udot = self.udot(controls, t)
+
+        return 1j*np.dot(udot, np.conj(np.transpose(u)))
+
 
 class ParametricSystemWithFunctions(ParametricSystemBase):
     """

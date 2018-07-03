@@ -6,6 +6,7 @@ import floq.core.fixed_system as fs
 import floq.core.evolution as ev
 import floq.errors as er
 import rabi
+from scipy.linalg import logm
 
 
 # Test whether U and dU are computed correctly
@@ -168,6 +169,30 @@ class TestRydbergAtoms(CustomAssertions):
         system = RydbergAtoms(2, self.rvec2, self.mu, self.delta, self.omega)
         print system.r
         self.assertArrayEqual(target, system.udot(controls, 0.9), decimals=3)
+
+    # def test_heff(self):
+    #     t = 0.9
+    #     controls = np.array([0.5, 1.1, 0.6, 1.5])
+    #     system = RydbergAtoms(2, self.rvec2, self.mu, self.delta, self.omega)
+
+    #     u = system.u(controls, t)
+    #     udot = system.udot(controls, t)
+
+    #     ugly_heff = logm(u)*1j/t
+
+    #     nice_heff = system.heff(controls, t)
+
+    #     print('#### U #####')
+    #     print(u.round(3))
+    #     print('#### Udot #####')
+    #     print(udot.round(3))
+    #     print('#### U^H #####')
+    #     print(np.conj(np.transpose(u)).round(3))
+    #     print('#### Udot.U^H #####')
+    #     print(np.dot(udot, np.conj(np.transpose(u))).round(3))
+    #     print('##############')
+
+    #     self.assertArrayEqual(ugly_heff, nice_heff, decimals=2)
 
 
     def test_u_small_controls(self):
