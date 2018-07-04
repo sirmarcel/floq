@@ -1,4 +1,5 @@
 import numpy as np
+import copy
 import floq.core.fixed_system as fs
 import floq.errors as er
 
@@ -93,8 +94,8 @@ class ParametricSystemBase(object):
 
 
     def _set_cached(self, controls, t):
-        self._last_controls = controls
-        self._last_t = t
+        self._last_controls = np.copy(controls)
+        self._last_t = copy.copy(t)
 
         hf = self._hf(controls)
         dhf = self._dhf(controls)
